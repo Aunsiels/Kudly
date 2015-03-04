@@ -1,0 +1,5 @@
+http://embeddedprogrammer.blogspot.fr/2012/07/hacking-ov7670-camera-module-sccb-cheat.html
+
+http://blog.frankvh.com/2011/08/19/stm32f2xx-digital-camera-interface-dcmi/
+
+OV7725
