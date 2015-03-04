@@ -1,0 +1,16 @@
+Consommation du ESP8266 :
+Pour les valeurs, se référer à http://wiki.iteadstudio.com/ESP8266_Serial_WIFI_Module
+
+Après calcul, la consommation est :
+En transmission : 215 mA soit en 3.3V environ 0.7W
+En réception : 60 mA soit 0.2W
+En standby : 1 mA soit 0.0033 W
+
+Si l'on transmet sur environ 10% du temps, en supposant que l'on a une
+consommation moyenne lors d'une communication de 0,45W, on obtient une
+consommation de 0.048W.
+Avec une batterie de 7.4Wh, on a une autonomie d'environ 150heures soit environ
+une semaine.
+
+Sachant qu'on peut passer en deep sleep pendant la nuit par exemple et obtenir
+une consommation de 10uA.
