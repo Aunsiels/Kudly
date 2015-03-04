@@ -1,0 +1,7 @@
+Pour le module bluetooth RN52 :
+
+Le module consomme 30mA en mode actif et 0.5mA en standby. On a pour du 3.3V
+(batterie 7.4 Wh):
+- consommation max : 0.1W soit une autonomie de 74h
+- consommation min : 0.002W soit une autonomie de 3700h
+- consommation 10% : 0.012W soit une autonomie de 627h
