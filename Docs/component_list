@@ -13,6 +13,11 @@ WIFI
     $8.95
     http://www.adafruit.com/product/2282
 
+CODEC AUDIO
+	  VS1063
+	  10$
+	  https://www.sparkfun.com/products/11025
+	  
 BLUETOOTH-AUDIO
 	RN-52
 	18.79€
@@ -33,3 +38,7 @@ DETECTEUR DE MOUVEMENT
 	19€
 	http://fr.farnell.com/panasonic-ew/ekmb1301112k/capteur-mouvement-5m-noir/dp/2095742
 
+IMU
+	LSM330DLC
+	7.34€
+	http://fr.farnell.com/stmicroelectronics/lsm330dlc/acc-gyro-3d-16g-2000dps-28lga/dp/2295820?mckv=YAIYoqrL|pcrid|49252926662|kword|lsm330dlc|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-G12
