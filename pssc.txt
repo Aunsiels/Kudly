@@ -17,6 +17,7 @@ Images
 Autonomie
     Kudly peut-il survivre sur batteries au moins 3 jours en utilisation normale ?
     c'est à dire : < 10% du temps en streaming audio, < 10 photos prises par jour, < 10% du temps d'affichage sur l'écran
+    Peut-on recharger Kudly en moins de 3h ?
 
 Communication
     Peut-on depuis la base (un pc typiquement) récupérer et envoyer un flux audio ? (streaming audio)
@@ -33,4 +34,6 @@ Température
 Proximité
     Peut-on détecter la présence d'une personne avec un capteur de présence ?
 
+Sécurité
+    Respectons-nous les normes de sécurité relatives aux enfants de -36 mois ?
 
