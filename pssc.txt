@@ -1,0 +1,39 @@
+LED
+    Peut-on afficher une image sur l'écran de LEDs 16x16 ?
+
+Memoire
+    Peut-on stocker & accéder à un fichier depuis la flash ?
+
+Son
+    Le codec permet-il de transformer le signal du micro en flux audio ?
+    Le codec permet-il de transformer le fichier audio en signal pour le speaker ?
+    Peut-on compresser le signal audio ?
+    Peut-on détecter les cris du bébé si le nounours se trouve à moins de 5m ?
+
+Images
+    Peut-on récupérer un fichier image compressé depuis le module caméra ? (taille : jusqu'à 1600x1200) 
+    Peut-on faire du traitement d'image localement sur le processeur ?
+
+Autonomie
+    Kudly peut-il survivre sur batteries au moins 3 jours en utilisation normale ?
+    c'est à dire : < 10% du temps en streaming audio, < 10 photos prises par jour, < 10% du temps d'affichage sur l'écran
+    Peut-on recharger Kudly en moins de 3h ?
+
+Communication
+    Peut-on depuis la base (un pc typiquement) récupérer et envoyer un flux audio ? (streaming audio)
+    Peut-on depuis la base envoyer et récupérer des fichiers, pour mettre à jour les programmes d'apprentissage, ou envoyer / récupérer des photos ?
+
+Interaction physique
+    Peut-on détecter un calin ? Ie : Kudly peut-il détecter une pression équivalente à un calin de jeune enfant et en déduire qu'il s'agit bien d'un calin ?
+    Le bébé peut-il interagir avec deux boutons situés dans les pattes avant de Kudly ?
+    Peut-on détecter l'accélération et la rotation du nounours ? Précisions : au moins 10°, 0.5g
+
+Température
+    Peut-on mesurer la température ? Précision : 1°C
+
+Proximité
+    Peut-on détecter la présence d'une personne avec un capteur de présence ?
+
+Sécurité
+    Respectons-nous les normes de sécurité relatives aux enfants de -36 mois ?
+
