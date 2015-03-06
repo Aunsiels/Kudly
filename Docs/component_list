@@ -16,7 +16,7 @@ MICROPHONE
 - MICROCONTROLEUR
 	STM32F427VIT6
 	10.36€
-http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
+	http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
 
 - DETECTEUR DE TEMPERATURE
 	MCP9804-E/MS
@@ -38,7 +38,7 @@ CAMERA
 	10$
 	http://www.uctronics.com/ov2640-2mp-hd-cmos-camera-module-adapter-board-jpeg-out-p-1442.html
 
-CONNECTEUR MICRO SD
+- CONNECTEUR MICRO SD
     ST1W008S4ER1500
     1.64€
     http://www.mouser.fr/ProductDetail/JAE-Electronics/ST1W008S4ER1500/?qs=6kmNHVaEmPjWnCoWguoJKQ%3D%3D
@@ -46,7 +46,7 @@ CONNECTEUR MICRO SD
 CAPTEUR DE PRESSION
 	?????????????????????? ~= 15€
 
-CAPTEUR DE CO2
+- CAPTEUR DE CO2
 	50$
 	Virtuabotix Carbon Dioxide CO2 Sensor MG811
 	https://www.virtuabotix.com/product/virtuabotix-carbon-dioxide-co2-sensor-mg811/
@@ -58,16 +58,8 @@ MICRO USB
     MOL-473460001    
     0.84€
     http://fr.farnell.com/molex/47346-0001/femelle-micro-usb-b-bottom-mount/dp/1568026?CMP=GRHB-OCTOPART-1000681
-WIFI
-	ESP8266
-	$8.95
-	http://www.adafruit.com/product/2282
-ou
-	RT5350
-	12.75$
-	http://www.aliexpress.com/item/RS232-RS485-serial-to-wifi-module-with-onboard-internal-antenna-bridge-AP-router-free-shipping/1775804540.html
 
-ou
+- WIFI
 	AMW004 10Mbit/s
 	24$
 	http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
