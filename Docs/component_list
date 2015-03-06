@@ -8,30 +8,30 @@ MICROPHONE
     3.22€ * 2 = 6.44 €
     20x40mm, un des plus petits sur farnell, les autes font 2.5 pouces = 63mm
 
-CODEC AUDIO
+- CODEC AUDIO
 	 VS1063
 	 10$
 	 https://www.sparkfun.com/products/11025
 	  
-MICROCONTROLEUR
+- MICROCONTROLEUR
 	STM32F427VIT6
 	10.36€
 http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
 
-DETECTEUR DE TEMPERATURE
+- DETECTEUR DE TEMPERATURE
 	MCP9804-E/MS
 	1.51€
 	http://fr.farnell.com/microchip/mcp9804-e-ms/capteur-de-temperature-i2c-2-7v/dp/1825061?CMP=KNC-GFR-FFR-GEN-KWL-G12-MICROCHIP
 
-DETECTEUR DE MOUVEMENT
+- DETECTEUR DE MOUVEMENT
 	EKMB1301112K
 	19€
 	http://fr.farnell.com/panasonic-ew/ekmb1301112k/capteur-mouvement-5m-noir/dp/2095742
 
-IMU
-	LSM330DLC
-	7.34€
-	http://fr.farnell.com/stmicroelectronics/lsm330dlc/acc-gyro-3d-16g-2000dps-28lga/dp/2295820?mckv=YAIYoqrL|pcrid|49252926662|kword|lsm330dlc|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-G12
+- IMU
+	MPU-9150
+	14€
+	http://www.digikey.fr/product-detail/fr/MPU-9150/1428-1009-1-ND/4038014
 
 CAMERA
 	OV2640 2Mp HD CMOS Camera Module /w Adapter Board JPEG OUT
@@ -66,8 +66,4 @@ ou
 	AMW004 10Mbit/s
 	24$
 	http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
-
-PANDA
-	20€
-	http://www.toysrus.fr/product/index.jsp?productId=8737101
 
