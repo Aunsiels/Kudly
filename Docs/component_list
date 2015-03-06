@@ -14,9 +14,9 @@ CODEC AUDIO
 	 https://www.sparkfun.com/products/11025
 	  
 MICROCONTROLEUR
-	STM32F437VIT6TR
-	20€
-	http://fr.farnell.com/stmicroelectronics/stm32f405rgt6w/haute-performancedsp-avec-fp/dp/2333283
+	STM32F427VIT6
+	10.36€
+http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
 
 DETECTEUR DE TEMPERATURE
 	MCP9804-E/MS
@@ -63,6 +63,11 @@ ou
 	http://www.aliexpress.com/item/RS232-RS485-serial-to-wifi-module-with-onboard-internal-antenna-bridge-AP-router-free-shipping/1775804540.html
 
 ou
-AMW004 10Mbit/s
-24$
-http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
+	AMW004 10Mbit/s
+	24$
+	http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
+
+PANDA
+	20€
+	http://www.toysrus.fr/product/index.jsp?productId=8737101
+
