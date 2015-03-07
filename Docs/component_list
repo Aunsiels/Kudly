@@ -8,60 +8,81 @@ MICROPHONE
     3.22€ * 2 = 6.44 €
     20x40mm, un des plus petits sur farnell, les autes font 2.5 pouces = 63mm
 
-CODEC AUDIO
+- CODEC AUDIO
 	 VS1063
 	 10$
 	 https://www.sparkfun.com/products/11025
 	  
-MICROCONTROLEUR
-	STM32F437VIT6TR
-	20€
-	http://fr.farnell.com/stmicroelectronics/stm32f405rgt6w/haute-performancedsp-avec-fp/dp/2333283
+- MICROCONTROLEUR
+	STM32F427VIT6
+	10.36€
+	http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
+	V in = 1.8 - 3.6
 
-DETECTEUR DE TEMPERATURE
+- DETECTEUR DE TEMPERATURE
 	MCP9804-E/MS
 	1.51€
 	http://fr.farnell.com/microchip/mcp9804-e-ms/capteur-de-temperature-i2c-2-7v/dp/1825061?CMP=KNC-GFR-FFR-GEN-KWL-G12-MICROCHIP
+	V in = 2.7 - 5.5
 
-DETECTEUR DE MOUVEMENT
+	TMP112
+	V in = 1.4 - 3.6
+
+- DETECTEUR DE MOUVEMENT
 	EKMB1301112K
 	19€
 	http://fr.farnell.com/panasonic-ew/ekmb1301112k/capteur-mouvement-5m-noir/dp/2095742
-
-IMU
-	LSM330DLC
-	7.34€
-	http://fr.farnell.com/stmicroelectronics/lsm330dlc/acc-gyro-3d-16g-2000dps-28lga/dp/2295820?mckv=YAIYoqrL|pcrid|49252926662|kword|lsm330dlc|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-G12
+	V in = 2.3 - 4
+- IMU
+	MPU-9150
+	14€
+	http://www.digikey.fr/product-detail/fr/MPU-9150/1428-1009-1-ND/4038014
+	V in = 2.375 - 3.465
 
 CAMERA
 	OV2640 2Mp HD CMOS Camera Module /w Adapter Board JPEG OUT
 	10$
 	http://www.uctronics.com/ov2640-2mp-hd-cmos-camera-module-adapter-board-jpeg-out-p-1442.html
 
-	CONNECTEUR MICRO SD
-	4€
-	http://fr.farnell.com/kyocera/045138008100858/connecteur-carte-micro-sd/dp/2134442
+- CONNECTEUR MICRO SD
+    ST1W008S4ER1500
+    1.64€
+    http://www.mouser.fr/ProductDetail/JAE-Electronics/ST1W008S4ER1500/?qs=6kmNHVaEmPjWnCoWguoJKQ%3D%3D
 
 CAPTEUR DE PRESSION
 	?????????????????????? ~= 15€
 
-CAPTEUR DE CO2
+- CAPTEUR DE CO2
 	50$
 	Virtuabotix Carbon Dioxide CO2 Sensor MG811
 	https://www.virtuabotix.com/product/virtuabotix-carbon-dioxide-co2-sensor-mg811/
 	
 BATTERIE
-	??????????????????????
+	Polymer Lithium Ion Battery - 2000mAh
+	13$
+	https://www.sparkfun.com/products/8483
 
-WIFI
-	ESP8266
-	$8.95
-	http://www.adafruit.com/product/2282
-ou
-	RT5350
-	12.75$
-	http://www.aliexpress.com/item/RS232-RS485-serial-to-wifi-module-with-onboard-internal-antenna-bridge-AP-router-free-shipping/1775804540.html
+MICRO USB
+    MOL-473460001    
+    0.84€
+    http://fr.farnell.com/molex/47346-0001/femelle-micro-usb-b-bottom-mount/dp/1568026?CMP=GRHB-OCTOPART-1000681
 
-ou 
-10Mbit/s
-http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
+- WIFI
+	AMW004 10Mbit/s
+	24$
+	http://store.ack.me/ProductDetail/AMW004WALLABY-ACKme-Networks/493015/pid=1148#.VPjp8p_0_Qo
+
+- LED ROUGE
+    KINGBRIGHT  KP-1608SURC  LED CMS 0603 ROUGE
+    0.3€
+    http://fr.farnell.com/kingbright/kp-1608surc/led-0603-rouge/dp/8529868
+
+- LED VERTE
+    KINGBRIGHT  KP-1608SGC  LED CMS 0603 VERT
+    0.08€
+    http://fr.farnell.com/kingbright/kp-1608sgc/led-0-8mm-x-1-2mm-green-12mcd/dp/8529833
+
+-LED BLEUE
+    KINGBRIGHT  KP-1608PBC-A  LED CMS 0603 BLEU
+    1€22
+    http://fr.farnell.com/kingbright/kp-1608pbc-a/led-cms-0603-bleu/dp/8529809?ost=8529809
