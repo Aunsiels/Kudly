@@ -17,21 +17,27 @@ MICROPHONE
 	STM32F427VIT6
 	10.36€
 	http://fr.farnell.com/stmicroelectronics/stm32f427vit6/microcontroleur-32-bits-arm-cortex/dp/2333369?mckv=sewB0ZQ8i|pcrid|28292843714|kword|stm32f427vit6|match|p|plid|&CMP=KNC-GFR-FFR-GEN-SKU-MDC
+	V in = 1.8 - 3.6
 
 - DETECTEUR DE TEMPERATURE
 	MCP9804-E/MS
 	1.51€
 	http://fr.farnell.com/microchip/mcp9804-e-ms/capteur-de-temperature-i2c-2-7v/dp/1825061?CMP=KNC-GFR-FFR-GEN-KWL-G12-MICROCHIP
+	V in = 2.7 - 5.5
+
+	TMP112
+	V in = 1.4 - 3.6
 
 - DETECTEUR DE MOUVEMENT
 	EKMB1301112K
 	19€
 	http://fr.farnell.com/panasonic-ew/ekmb1301112k/capteur-mouvement-5m-noir/dp/2095742
-
+	V in = 2.3 - 4
 - IMU
 	MPU-9150
 	14€
 	http://www.digikey.fr/product-detail/fr/MPU-9150/1428-1009-1-ND/4038014
+	V in = 2.375 - 3.465
 
 CAMERA
 	OV2640 2Mp HD CMOS Camera Module /w Adapter Board JPEG OUT
