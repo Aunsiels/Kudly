@@ -29,9 +29,9 @@ MICROPHONE
 	V in = 1.4 - 3.6
 
 - DETECTEUR DE MOUVEMENT
-	EKMB1301112K
-	19€
-	http://fr.farnell.com/panasonic-ew/ekmb1301112k/capteur-mouvement-5m-noir/dp/2095742
+	EKMB1301111K
+    http://fr.farnell.com/panasonic-electric-works/ekmb1301111k/sensor-motion-5m-white/dp/2095741
+	17€
 	V in = 2.3 - 4
 - IMU
 	MPU-9150
