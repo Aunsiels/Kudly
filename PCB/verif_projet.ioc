@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Sun Mar 15 17:40:11 CET 2015
+#Sun Mar 15 17:45:06 CET 2015
 File.Version=5
 KeepUserPlacement=false
 Mcu.Family=STM32F4
@@ -156,7 +156,7 @@ PD12.Locked=true
 PD12.Mode=CTS_RTS
 PD12.Signal=USART3_RTS
 PD13.Locked=true
-PD13.Signal=S_TIM4_CH2
+PD13.Signal=GPIO_Input
 PD14.Locked=true
 PD14.Signal=GPIO_Output
 PD15.Locked=true
@@ -216,8 +216,6 @@ SH.GPXTI1.0=GPIO_EXTI1
 SH.GPXTI1.ConfNb=1
 SH.GPXTI15.0=GPIO_EXTI15
 SH.GPXTI15.ConfNb=1
-SH.S_TIM4_CH2.0=TIM4_CH2
-SH.S_TIM4_CH2.ConfNb=1
 SH.S_TIM5_CH1.0=TIM5_CH1,PWM Generation1 CH1
 SH.S_TIM5_CH1.ConfNb=1
 SH.S_TIM5_CH2.0=TIM5_CH2,PWM Generation2 CH2
