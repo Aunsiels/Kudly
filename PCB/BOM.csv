@@ -1,0 +1,48 @@
+References	Quantité	Part Number	Description	Code Fournisseur	Option	
+R9	1	00-0026	Resistor 10 ohms / 5% / case 0603	RS : 322-9080	 	ok
+R16,R17	2	00-0033	Resistor 20 ohms / 5% / case 0603	 	 	ok
+R23,R24,R25,R26	4	00-0048	Resistor 82 ohms / 5% / case 0603	 	 	FA
+R1,R10,R12,R13,R14,R15,R27,R31	8	00-0074	Resistor 1.0k ohms / 5% / case 0603	RS : 322-9355	 	ok
+R3,R4,R7,R8,R11,R28,R29,R30,R32,R33	10	00-0098	Resistor 10k ohms / 5% / case 0603	RS : 322-9484	 	ok
+R21	1	00-0115	Resistor 51k ohms / 5% / case 0603	 	 	ok
+R2,R6	2	01-0204	Resistor 130 ohms / 1% / case 0603	 	 	ok
+R20	1	01-0367	Resistor 6.49k ohms / 1% / case 0603	 	 	FA
+R19	1	01-0452	Resistor 49.9k ohms / 1% / case 0603	 	 	FA
+R22	1	01-0506	Resistor 182k ohms / 1% / case 0603	 	 	FA
+R18	1	01-0570	Resistor 845k ohms / 1% / case 0603	 	 	FA
+C44,C53	2	10-0004	Capacitor Ceramic Y5V / 22uF / 10V / ±80% / case 1210 / ESR 0.01 ohm @ 1MHz / 1.6A / Murata GJ232NF51A226ZDOIL (GRM235Y5V226Z10)	RS : 312-3128	 	ok
+C32	1	10-0007	Capacitor Ceramic X7R / 2.2nF / 50V / ±20% / case 0603	RS : 264-4573	 	ok
+C23,C24,C37	3	10-0015	Capacitor Ceramic X7R / 47nF / 50V / ±10% / case 0805	RS : 264-4393	 	FA
+C2,C3	2	10-0026	Capacitor Ceramic 22pF / 10V / ±20% / case 0603	RS : 264-4501	 	ok
+C1	1	10-0031	Capacitor Ceramic 15pF / 10V / ±20% / case 0603	RS : 211-3142	 	FA
+C41	1	10-0046	Capacitor Ceramic X5R / 100uF / 6.3V / ±20% / case 1210 / Kemet C1210C107M9PAC7800	Fa : 1108328	 	FA
+C38	1	10-0053	Capacitor Ceramic 100pF / NPO / 50V / ±5% / case 0603	Fa : 499122	 	FA
+C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C18,C19,C20,C21,C22,C30,C31,C33,C40,C47,C48	25	10-0058	Capacitor Ceramic X7R / 100nF / 16V / ±10% / case 0402	Fa : 1362420	 	ok
+C34,C35,C36,C52	4	10-0068	Capacitor Ceramic 1uF / X5R / 25V / ±5% / case 0603	 	 	ok
+C42	1	10-0084	Capacitor Ceramic COG / 47pF / 50V / ±10% / case 0603	Fa : 1907292 	 	FA
+C43	1	10-0086	Capacitor Ceramic X7R / 680pF / 16V / ±20% / case 0603	Fa : 1856320	 	FA
+C25,C26,C27,C28,C29,C45,C46,C49,C50,C51	10	10-0103	Capacitor Ceramic X5R / 10uF / 6.3V / ±20% / case 0603	Fa : 1759393 	 	FA
+Q1,Q2,Q3,Q4,Q5,Q6	6	30-0019	N-Channel MOSFET, 5.9A, 0.024ohms, Diodes Inc DMN2050L , case SOT23	Fa : 2061409 	 	ok
+U2	1	40-0206	MP3 / OGG / AAC / WMA / FLAC / G711 / G722 audio codec, VLSI solution VS1063A, case LQFP48	 	 	VLSI
+U9	1	40-0212	3A low noise buck boost DC/DC converter, Linear Technology LTC3113IFE, case power TSSOP20	 	 	DIGIKEY
+U4	1	40-0223	LDO Low noise voltage regulator, 1.8V, 150mA, case SOT23-5	Fa : 3605802	 	FA
+U5	1	40-0253	3 axis gyroscope - accéléromètre - magnétomètre, +/- 250 à 2000°/s, 2-16g, +/-1200uT, 3.3V, I2C, Ivensense MPU9150, case QFN24, http://bit.ly/1qwKWHm	CDI : MPU9150	 	DIGIKEY
+U1	1	40-0262	ARM Cortex-M4 32b MCU + FPU, 180Mhz, 2MB Flash/256+4KB RAM, ST STM32F427VIT6, case LQFP100	DG : 497-14049-ND	 	FA
+U7	1	40-0265	±0.5°C Maximum Accuracy Digital Temperature Sensor, I2C, Microchip MCP9808-E/MS, case MSOP8	Fa : 2080523	 	FA
+L1	1	50-0007	Inductor 2.2uH 5.7A 18mOhms Vishay Dale IHLP-2525CZ-01-2.2UH	Fa : 1187064	 	FA
+L2	1	50-0024	Ferrite 6.8uH, 200mA, Q=20 @7MHZ, résonance=36MHz, Multicomp MCFT000162, case 0805	Fa : 1711886	 	FA
+J7,J8,J11,J14	4	70-0002	Jumper 2 points 2.54mm avec cavalier associe	 	 	
+J6	1	70-0003	Jumper 3 points en ligne 2.54mm avec cavalier associe	 	 	
+J12,J13	2	70-0014	4pins smd on board connector Micromatch AMP 7-188275-4	RS : 366-1721	 	
+J2,J10	2	70-0040	Embase jack, stereo 3.5mm, SMD, Lumberg 1503 02	Fa : 1216979	 	FA
+J5	1	70-0058	Connecteur MicroSD, à charnière, JAE ST1W008S4ER1500	Fa : 1702072 	 	DIGIKEY
+J15	1	70-0065	Femelle micro-USB B bottom SMD mount connector, Molex 47346-0001	Fa : 1568026	 	FA 20 pcs
+J1	1	70-0081	Dual row 1.27 CMS 2x5 points connector, Samtec FTSH-105-01-L-DV 	Fa : 1667759	 	FA 20 pcs
+J18	1	70-0086	Embase mâle CMS JST 2 broches, 2mm, avec détrompeur, à sortie verticale, B2B-PH-SM4-TB	Fa : 9492534	 	FA 20 pcs
+J3,J19	2	70-0087	U.FL SMD receptacle, Hirose U.FL-R-SMT(01)	Fa : 3908021	 	ok
+J4	1	80-0018	Interrupteur à glissière CMS, SPDT, C&K PCM12SMTR	Fa : 9575146	 	FA
+SW1,SW2	2	80-0035	Button Switch latéral / 2 pins / SMD / Omron B3U-3000P	Fa : 1333655	 	FA 25 pcs
+U10	1	80-0056	Ultra-low power Wi-Fi networking module for battery powered applications , ACKME Networks AMW006 Numbat, 3.3V	Fa : 2454198	 	ok
+J9	1	80-0060	Module OV2640 uctronics à piquer	 	 	ok
+QZ1	1	81-0013	Quartz 8 MHz, +/- 30ppm, 40 ohms, 18pF, case HC49SMD	Fa : 1538763 	 	ok
+QZ2	1	83-0009	3.3V Oscillator 12.288 MHz / +/-25ppm / TXC 7W-12.288MBA-T	Fa : 1842089	 	FA
