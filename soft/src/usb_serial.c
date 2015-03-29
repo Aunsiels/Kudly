@@ -3,22 +3,22 @@
 #include "usb_serial.h"
 #include "buzzer.h"
 
-SerialUSBDriver SDU2;
+static SerialUSBDriver SDU1;
 
 /*
- * Endpoints to be used for USBD2.
+ * Endpoints to be used for USBD1.
  */
-#define USBD2_DATA_REQUEST_EP           1
-#define USBD2_DATA_AVAILABLE_EP         1
-#define USBD2_INTERRUPT_REQUEST_EP      2
+#define USBD1_DATA_REQUEST_EP           1
+#define USBD1_DATA_AVAILABLE_EP         1
+#define USBD1_INTERRUPT_REQUEST_EP      2
 
 //The driver of the serial usb
 
 static const SerialUSBConfig serialusbcfg = {
-    &USBD2,
-    USBD2_DATA_REQUEST_EP,
-    USBD2_DATA_AVAILABLE_EP,
-    USBD2_INTERRUPT_REQUEST_EP
+    &USBD1,
+    USBD1_DATA_REQUEST_EP,
+    USBD1_DATA_AVAILABLE_EP,
+    USBD1_INTERRUPT_REQUEST_EP
 };
 
 /*
@@ -97,7 +97,7 @@ static const uint8_t vcom_configuration_descriptor_data[67] = {
     USB_DESC_BYTE         (0x01),         /* bSlaveInterface0 (Data Class
                                              Interface).                      */
     /* Endpoint 2 Descriptor.*/
-    USB_DESC_ENDPOINT     (USBD2_INTERRUPT_REQUEST_EP|0x80,
+    USB_DESC_ENDPOINT     (USBD1_INTERRUPT_REQUEST_EP|0x80,
                            0x03,          /* bmAttributes (Interrupt).        */
                            0x0008,        /* wMaxPacketSize.                  */
                            0xFF),         /* bInterval.                       */
@@ -113,12 +113,12 @@ static const uint8_t vcom_configuration_descriptor_data[67] = {
                                              4.7).                            */
                            0x00),         /* iInterface.                      */
     /* Endpoint 3 Descriptor.*/
-    USB_DESC_ENDPOINT     (USBD2_DATA_AVAILABLE_EP,       /* bEndpointAddress.*/
+    USB_DESC_ENDPOINT     (USBD1_DATA_AVAILABLE_EP,       /* bEndpointAddress.*/
                            0x02,          /* bmAttributes (Bulk).             */
                            0x0040,        /* wMaxPacketSize.                  */
                            0x00),         /* bInterval.                       */
     /* Endpoint 1 Descriptor.*/
-    USB_DESC_ENDPOINT     (USBD2_DATA_REQUEST_EP|0x80,    /* bEndpointAddress.*/
+    USB_DESC_ENDPOINT     (USBD1_DATA_REQUEST_EP|0x80,    /* bEndpointAddress.*/
                            0x02,          /* bmAttributes (Bulk).             */
                            0x0040,        /* wMaxPacketSize.                  */
                            0x00)          /* bInterval.                       */
@@ -158,11 +158,10 @@ static const uint8_t vcom_string1[] = {
 static const uint8_t vcom_string2[] = {
     USB_DESC_BYTE(56),                    /* bLength.                         */
     USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-    'C', 0, 'h', 0, 'i', 0, 'b', 0, 'i', 0, 'O', 0, 'S', 0, '/', 0,
-    'R', 0, 'T', 0, ' ', 0, 'V', 0, 'i', 0, 'r', 0, 't', 0, 'u', 0,
-    'a', 0, 'l', 0, ' ', 0, 'C', 0, 'O', 0, 'M', 0, ' ', 0, 'P', 0,
-    'o', 0, 'r', 0, 't', 0
+    'K', 0, 'u', 0, 'd', 0, 'l', 0, 'y', 0, ' ', 0, 'b', 0, 'e', 0,
+    'a', 0, 'r', 0, ' ', 0
 };
+
 
 /*
  * Serial Number string.
@@ -271,11 +270,11 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
       /* Enables the endpoints specified into the configuration.
          Note, this callback is invoked from an ISR so I-Class functions
          must be used.*/
-      usbInitEndpointI(usbp, USBD2_DATA_REQUEST_EP, &ep1config);
-      usbInitEndpointI(usbp, USBD2_INTERRUPT_REQUEST_EP, &ep2config);
+      usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
+      usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
 
       /* Resetting the state of the CDC subsystem.*/
-      sduConfigureHookI(&SDU2);
+      sduConfigureHookI(&SDU1);
 
       chSysUnlockFromIsr();
       return;
@@ -302,8 +301,8 @@ static const USBConfig usbcfg = {
 void init_usb_serial (){
 
     //Serial over usb initialization
-    sduObjectInit(&SDU2);
-    sduStart(&SDU2, &serialusbcfg);
+    sduObjectInit(&SDU1);
+    sduStart(&SDU1, &serialusbcfg);
 
     /*
      * Activates the USB driver and then the USB bus pull-up on D+.
@@ -316,3 +315,9 @@ void init_usb_serial (){
     usbConnectBus(serialusbcfg.usbp);
 
 }
+
+void read_serial(uint8_t * buffer, int size){
+    (SDU1.vmt)->write(&SDU2, buffer, size);
+}
+
+
