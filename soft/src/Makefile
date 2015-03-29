@@ -91,7 +91,7 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(LWSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       main.c
+       main.c usb_serial.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
