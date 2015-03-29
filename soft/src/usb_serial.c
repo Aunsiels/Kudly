@@ -2,6 +2,7 @@
 #include "hal.h"
 #include "usb_serial.h"
 #include "buzzer.h"
+#include "chprintf.h"
 
 static SerialUSBDriver SDU1;
 
@@ -320,4 +321,11 @@ void read_serial(uint8_t * buffer, int size){
     (SDU1.vmt)->write(&SDU2, buffer, size);
 }
 
+void write_serial(const char * fmt,...){
+    va_list ap;
 
+    va_start(ap, fmt);
+    chprintf(&SDU1, fmt, ap);
+    va_end(ap);
+        
+}

@@ -22,14 +22,28 @@ void init_usb_serial (void);
 /**
  *
  * \brief Writes datas over the usb.
- * \param buffer A buffer containing the datas to send.
- * \param length The length of the buffer.
+ * \param fmt Formatting string
  *
- * This is a blocking function that writes datas over the usb connection.
+ * \details This function implements a minimal @p printf() like functionality
+ *     with output on a @p BaseSequentialStream.
+ *     The general parameters format is:
+ *         [-][width|*][.precision|*][l|L]p.
+ *     The following parameter types (p) are supported:
+ *          - <b>x</b> hexadecimal integer.
+ *          - <b>X</b> hexadecimal long.
+ *          - <b>o</b> octal integer.
+ *          - <b>O</b> octal long.
+ *          - <b>d</b> decimal signed integer.
+ *          - <b>D</b> decimal signed long.
+ *          - <b>u</b> decimal unsigned integer.
+ *          - <b>U</b> decimal unsigned long.
+ *          - <b>c</b> character.
+ *          - <b>s</b> string.
+ *          .
  *
  */
 
-void write_serial(uint8_t * buffer, int size);
+void write_serial(const char * fmt,...);
 
 
 /**
