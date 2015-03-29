@@ -25,7 +25,7 @@ void init_usb_serial (void);
  * \param buffer A buffer containing the datas to send.
  * \param length The length of the buffer.
  *
- * This function writes datas over the usb connection.
+ * This is a blocking function that writes datas over the usb connection.
  *
  */
 
@@ -38,7 +38,7 @@ void write_serial(uint8_t * buffer, int size);
  * \param buffer A buffer where the received datas will be written.
  * \param length The length of the buffer.
  *
- * This function reads datas reveived on the usb.
+ * This is a blocking function that reads datas reveived on the usb.
  *
  */
 
