@@ -1,4 +1,4 @@
 *~
 *.swp
-build/*
-.dep/*
+build*
+.dep*
