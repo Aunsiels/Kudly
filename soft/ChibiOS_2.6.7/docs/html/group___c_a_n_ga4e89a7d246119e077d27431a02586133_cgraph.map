@@ -1,0 +1,12 @@
+<map id="canStop" name="canStop">
+<area shape="rect" id="node2" href="$group___c_a_n.html#gad6fff809711eb161f9c53acf4f3f8470" title="Deactivates the CAN peripheral. " alt="" coords="140,5,232,29"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga4e38b4bee3d2330f6a0f1cdb7660af20" title="Performs a reschedule if a higher priority thread is runnable. " alt="" coords="121,53,251,77"/>
+<area shape="rect" id="node8" href="$group__semaphores.html#gae7972b6b22b80ac09bac5a186277ab81" title="Performs a reset operation on the semaphore. " alt="" coords="138,128,234,152"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="517,5,648,29"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="299,53,469,77"/>
+<area shape="rect" id="node5" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="696,55,783,79"/>
+<area shape="rect" id="node7" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="538,53,627,77"/>
+<area shape="rect" id="node9" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="519,103,646,127"/>
+<area shape="rect" id="node10" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="337,152,431,176"/>
+<area shape="rect" id="node11" href="$group__internals.html#gacacfe77140cab62948e63d898bf4dfba" title="Removes the last&#45;out Thread from a queue and returns it. " alt="" coords="340,200,428,224"/>
+</map>

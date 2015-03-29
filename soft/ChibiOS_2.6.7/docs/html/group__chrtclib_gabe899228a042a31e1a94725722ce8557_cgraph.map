@@ -1,0 +1,4 @@
+<map id="rtcGetTimeUnixUsec" name="rtcGetTimeUnixUsec">
+<area shape="rect" id="node2" href="$group___r_t_c.html#ga997558eedf987b7a1697f8deb9897f17" title="Get current time. " alt="" coords="369,5,455,29"/>
+<area shape="rect" id="node3" href="$group__chrtclib.html#ga4b950076f1e0f35d703efa745136e879" title="Gets raw time from RTC and converts it to unix format. " alt="" coords="191,29,321,53"/>
+</map>

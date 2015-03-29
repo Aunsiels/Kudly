@@ -1,0 +1,13 @@
+<map id="ATSAM4L Interrupt Vectors" name="ATSAM4L Interrupt Vectors">
+<area shape="rect" id="node1" href="$group___a_r_m_c_mx___l_p_c11xx___v_e_c_t_o_r_s.html" title="LPC11xx Interrupt Vectors" alt="" coords="493,5,661,29"/>
+<area shape="rect" id="node2" href="$group___a_r_m_c_mx___l_p_c13xx___v_e_c_t_o_r_s.html" title="LPC13xx Interrupt Vectors" alt="" coords="493,53,661,77"/>
+<area shape="rect" id="node3" href="$group___a_r_m_c_mx___s_t_m32_f0xx___v_e_c_t_o_r_s.html" title="STM32F0xx Interrupt\l Vectors" alt="" coords="507,102,646,138"/>
+<area shape="rect" id="node4" href="$group___a_r_m_c_mx___s_p_e_c_i_f_i_c.html" title="Specific Implementations" alt="" coords="5,256,171,280"/>
+<area shape="rect" id="node5" href="$group___a_r_m_c_mx___s_t_m32_f1xx___v_e_c_t_o_r_s.html" title="STM32F1xx Interrupt\l Vectors" alt="" coords="507,162,646,198"/>
+<area shape="rect" id="node6" href="$group___a_r_m_c_mx___s_t_m32_f2xx___v_e_c_t_o_r_s.html" title="STM32F2xx Interrupt\l Vectors" alt="" coords="507,222,646,258"/>
+<area shape="rect" id="node7" href="$group___a_r_m_c_mx___l_p_c122x___v_e_c_t_o_r_s.html" title="LPC122x Interrupt Vectors" alt="" coords="492,283,661,307"/>
+<area shape="rect" id="node8" href="$group___a_r_m_c_mx___s_t_m32_f3xx___v_e_c_t_o_r_s.html" title="STM32F3xx Interrupt\l Vectors" alt="" coords="507,331,646,367"/>
+<area shape="rect" id="node9" href="$group___a_r_m_c_mx___s_t_m32_f4xx___v_e_c_t_o_r_s.html" title="STM32F4xx Interrupt\l Vectors" alt="" coords="507,391,646,427"/>
+<area shape="rect" id="node11" href="$group___a_r_m_c_mx___l_p_c8xx___v_e_c_t_o_r_s.html" title="LPC8xx Interrupt Vectors" alt="" coords="496,452,657,476"/>
+<area shape="rect" id="node12" href="$group___a_r_m_c_mx___s_t_m32_l1xx___v_e_c_t_o_r_s.html" title="STM32L1xx Interrupt\l Vectors" alt="" coords="507,501,646,537"/>
+</map>

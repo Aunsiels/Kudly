@@ -1,0 +1,6 @@
+<map id="_port_irq_epilogue" name="_port_irq_epilogue">
+<area shape="rect" id="node2" href="$group___a_r_m_c_mx___v6_m___c_o_r_e.html#ga2ef6c3a8679a73ff49601e4e0abacdef" title="Post&#45;IRQ switch code. " alt="" coords="197,5,344,29"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga8ab220825d7ba94ae1933855cc902d43" title="Evaluates if preemption is required. " alt="" coords="180,53,361,77"/>
+<area shape="rect" id="node4" href="$group__core.html#gad28405e9f7f53722447e674ff80c3ac9" title="Kernel&#45;lock action from an interrupt handler. " alt="" coords="207,101,334,125"/>
+<area shape="rect" id="node5" href="$group__core.html#ga34dcbe2bba4aec9d2cfdc5cb5bebd4fe" title="Kernel&#45;unlock action from an interrupt handler. " alt="" coords="200,149,341,173"/>
+</map>

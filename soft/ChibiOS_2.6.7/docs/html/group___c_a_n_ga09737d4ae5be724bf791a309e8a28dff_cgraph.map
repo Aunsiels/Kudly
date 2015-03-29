@@ -1,0 +1,8 @@
+<map id="canWakeup" name="canWakeup">
+<area shape="rect" id="node2" href="$group___c_a_n.html#ga7a5e18d180ae064548783e6ac18903ba" title="Enforces leaving the sleep mode. " alt="" coords="147,5,257,29"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga4e38b4bee3d2330f6a0f1cdb7660af20" title="Performs a reschedule if a higher priority thread is runnable. " alt="" coords="137,53,267,77"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="335,29,465,53"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="315,77,485,101"/>
+<area shape="rect" id="node5" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="535,29,621,53"/>
+<area shape="rect" id="node7" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="533,77,623,101"/>
+</map>

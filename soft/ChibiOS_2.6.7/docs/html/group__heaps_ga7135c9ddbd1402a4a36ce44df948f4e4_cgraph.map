@@ -1,0 +1,4 @@
+<map id="chHeapInit" name="chHeapInit">
+<area shape="rect" id="node2" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="139,5,209,29"/>
+<area shape="rect" id="node3" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="135,53,213,77"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="sdStop" name="sdStop">
+<area shape="rect" id="node2" href="$group__io__queues.html#ga2252ca3e5d6ee6d8d323d025365aee59" title="Resets an input queue. " alt="" coords="139,180,222,204"/>
+<area shape="rect" id="node7" href="$group__io__queues.html#ga0a35a7de945e4b56b5fb5f5c8567e296" title="Resets an output queue. " alt="" coords="137,131,225,155"/>
+<area shape="rect" id="node8" href="$group__scheduler.html#ga4e38b4bee3d2330f6a0f1cdb7660af20" title="Performs a reschedule if a higher priority thread is runnable. " alt="" coords="116,29,245,53"/>
+<area shape="rect" id="node11" href="$group___s_e_r_i_a_l.html#gae6846b20159e89464b61665f50468d8f" title="Low level serial driver stop. " alt="" coords="137,228,224,252"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="514,179,641,203"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="332,229,425,253"/>
+<area shape="rect" id="node6" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="533,79,622,103"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="691,92,777,116"/>
+<area shape="rect" id="node9" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="512,5,643,29"/>
+<area shape="rect" id="node10" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="293,29,464,53"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="gptStopTimer" name="gptStopTimer">
+<area shape="rect" id="node2" href="$group___g_p_t.html#gae53d7dcc146cc55a284690bfa82d210f" title="Stops the timer. " alt="" coords="152,29,255,53"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="303,5,429,29"/>
+<area shape="rect" id="node5" href="$group___g_p_t.html#ga79af60d200fd27a59501331b7b26b47d" title="Stops the timer. " alt="" coords="303,53,429,77"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="477,5,564,29"/>
+</map>

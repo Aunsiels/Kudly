@@ -1,0 +1,13 @@
+<map id="_port_irq_epilogue" name="_port_irq_epilogue">
+<area shape="rect" id="node2" href="$group___a_r_m_c_mx___v7_m___c_o_r_e.html#ga2ef6c3a8679a73ff49601e4e0abacdef" title="Post&#45;IRQ switch code. " alt="" coords="197,77,344,101"/>
+<area shape="rect" id="node10" href="$group__scheduler.html#ga8ab220825d7ba94ae1933855cc902d43" title="Evaluates if preemption is required. " alt="" coords="180,125,361,149"/>
+<area shape="rect" id="node11" href="$group__core.html#gad28405e9f7f53722447e674ff80c3ac9" title="Kernel&#45;lock action from an interrupt handler. " alt="" coords="207,173,334,197"/>
+<area shape="rect" id="node12" href="$group__core.html#ga34dcbe2bba4aec9d2cfdc5cb5bebd4fe" title="Kernel&#45;unlock action from an interrupt handler. " alt="" coords="200,221,341,245"/>
+<area shape="rect" id="node3" href="$group__debug.html#gafeda2744210f63b8533dcbfda9192601" title="Guard code for chSysLock(). " alt="" coords="423,5,532,29"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga46ffa866557e26da879f2d04b7efebb5" title="Switches to the first thread on the runnable queue. " alt="" coords="409,101,545,125"/>
+<area shape="rect" id="node8" href="$group__debug.html#ga85804af9095c23265e6902fbaf7ca038" title="Guard code for chSysUnlock(). " alt="" coords="416,53,539,77"/>
+<area shape="rect" id="node9" href="$group__core.html#ga242f36ee65eb9b19258654f7a3b63f87" title="Kernel&#45;unlock action. " alt="" coords="434,149,521,173"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="637,29,724,53"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="595,77,766,101"/>
+<area shape="rect" id="node7" href="$group__scheduler.html#ga00ba2b2d1831c7d7821f9be234750404" title="Switches to the first thread on the runnable queue. " alt="" coords="593,125,768,149"/>
+</map>

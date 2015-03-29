@@ -1,0 +1,10 @@
+<map id="test_wait_threads" name="test_wait_threads">
+<area shape="rect" id="node2" href="$group__threads.html#ga94a5727ecdbe0f738dfc8e1ede1c3409" title="Blocks the execution of the invoking thread until the specified thread terminates then the exit code ..." alt="" coords="176,101,255,125"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga97c1c514b755a1e71caf2f19c1ccf986" title="Puts the current thread to sleep into the specified state. " alt="" coords="303,53,415,77"/>
+<area shape="rect" id="node6" href="$group__dynamic__threads.html#gaa22f80040cf192015be4607f31a0ac80" title="Releases a reference to a thread object. " alt="" coords="308,101,409,125"/>
+<area shape="rect" id="node9" href="$group__internals.html#ga5818ce2d363d36402baece614b06e41b" title="Pushes a Thread on top of a stack list. " alt="" coords="319,149,398,173"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="463,5,593,29"/>
+<area shape="rect" id="node5" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="483,53,573,77"/>
+<area shape="rect" id="node7" href="$group__heaps.html#ga0fc553df0138f02e0b233be91e413c79" title="Frees a previously allocated memory block. " alt="" coords="484,101,572,125"/>
+<area shape="rect" id="node8" href="$group__pools.html#ga978f8d038e8e981bf9e5a104b81c6cb6" title="Releases an object into a memory pool. " alt="" coords="487,149,569,173"/>
+</map>

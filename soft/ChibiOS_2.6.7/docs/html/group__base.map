@@ -1,0 +1,7 @@
+<map id="Base Kernel Services" name="Base Kernel Services">
+<area shape="rect" id="node1" href="$group__threads.html" title="Threads" alt="" coords="346,5,415,29"/>
+<area shape="rect" id="node2" href="$group__kernel.html" title="Kernel" alt="" coords="5,77,63,101"/>
+<area shape="rect" id="node4" href="$group__time.html" title="Time and Virtual Timers" alt="" coords="301,53,460,77"/>
+<area shape="rect" id="node5" href="$group__scheduler.html" title="Scheduler" alt="" coords="341,101,420,125"/>
+<area shape="rect" id="node6" href="$group__system.html" title="System Management" alt="" coords="309,149,452,173"/>
+</map>

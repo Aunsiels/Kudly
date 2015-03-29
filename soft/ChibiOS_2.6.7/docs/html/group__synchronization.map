@@ -1,0 +1,11 @@
+<map id="Synchronization" name="Synchronization">
+<area shape="rect" id="node1" href="$group__condvars.html" title="Condition Variables" alt="" coords="283,5,414,29"/>
+<area shape="rect" id="node2" href="$group__io__queues.html" title="I/O Queues" alt="" coords="305,53,392,77"/>
+<area shape="rect" id="node3" href="$group__kernel.html" title="Kernel" alt="" coords="5,173,63,197"/>
+<area shape="rect" id="node4" href="$group__mailboxes.html" title="Mailboxes" alt="" coords="309,101,388,125"/>
+<area shape="rect" id="node5" href="$group__semaphores.html" title="Counting Semaphores" alt="" coords="274,149,423,173"/>
+<area shape="rect" id="node7" href="$group__events.html" title="Event Flags" alt="" coords="305,197,392,221"/>
+<area shape="rect" id="node8" href="$group__binary__semaphores.html" title="Binary Semaphores" alt="" coords="281,245,416,269"/>
+<area shape="rect" id="node9" href="$group__messages.html" title="Synchronous Messages" alt="" coords="269,293,428,317"/>
+<area shape="rect" id="node10" href="$group__mutexes.html" title="Mutexes" alt="" coords="314,341,383,365"/>
+</map>

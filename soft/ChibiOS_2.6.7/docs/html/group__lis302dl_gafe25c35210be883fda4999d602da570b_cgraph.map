@@ -1,0 +1,5 @@
+<map id="lis302dlWriteRegister" name="lis302dlWriteRegister">
+<area shape="rect" id="node2" href="$group___s_p_i.html#ga00809152c869db80192aa3e04266a99a" title="Asserts the slave select signal and prepares for transfers. " alt="" coords="201,5,276,29"/>
+<area shape="rect" id="node3" href="$group___s_p_i.html#ga382cfbdffd2df57cf3843d45164e8bfc" title="Sends data over the SPI bus. " alt="" coords="205,53,273,77"/>
+<area shape="rect" id="node4" href="$group___s_p_i.html#gae291c012872da9c89dec23581f701b5f" title="Deasserts the slave select signal. " alt="" coords="195,101,283,125"/>
+</map>

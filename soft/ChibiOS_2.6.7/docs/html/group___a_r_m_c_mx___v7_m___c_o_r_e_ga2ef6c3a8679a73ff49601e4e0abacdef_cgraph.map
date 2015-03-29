@@ -1,0 +1,11 @@
+<map id="_port_switch_from_isr" name="_port_switch_from_isr">
+<area shape="rect" id="node2" href="$group__scheduler.html#ga46ffa866557e26da879f2d04b7efebb5" title="Switches to the first thread on the runnable queue. " alt="" coords="200,29,336,53"/>
+<area shape="rect" id="node7" href="$group__debug.html#gafeda2744210f63b8533dcbfda9192601" title="Guard code for chSysLock(). " alt="" coords="213,77,323,101"/>
+<area shape="rect" id="node9" href="$group__debug.html#ga85804af9095c23265e6902fbaf7ca038" title="Guard code for chSysUnlock(). " alt="" coords="207,125,329,149"/>
+<area shape="rect" id="node10" href="$group__core.html#ga242f36ee65eb9b19258654f7a3b63f87" title="Kernel&#45;unlock action. " alt="" coords="225,173,311,197"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="386,5,557,29"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga00ba2b2d1831c7d7821f9be234750404" title="Switches to the first thread on the runnable queue. " alt="" coords="384,53,559,77"/>
+<area shape="rect" id="node4" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="609,5,698,29"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="607,53,700,77"/>
+<area shape="rect" id="node8" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="428,113,515,137"/>
+</map>

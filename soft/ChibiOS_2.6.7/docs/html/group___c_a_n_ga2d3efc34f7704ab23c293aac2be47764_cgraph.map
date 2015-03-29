@@ -1,0 +1,5 @@
+<map id="canInit" name="canInit">
+<area shape="rect" id="node2" href="$group___c_a_n.html#gaa215539c505ce7099f30c0aace00bf25" title="Low level CAN driver initialization. " alt="" coords="112,5,196,29"/>
+<area shape="rect" id="node3" href="$group___c_a_n.html#gadf8c892ca4bd2544d03be8a690885aef" title="Initializes the standard part of a CANDriver structure. " alt="" coords="244,5,339,29"/>
+<area shape="rect" id="node4" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="387,5,465,29"/>
+</map>

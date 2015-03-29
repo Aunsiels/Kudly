@@ -1,0 +1,7 @@
+<map id="_heap_init" name="_heap_init">
+<area shape="rect" id="node2" href="$group__memcore.html#ga5394bda5b809ecf6b80b041b6b9ebaf4" title="Allocates a memory block. " alt="" coords="132,5,220,29"/>
+<area shape="rect" id="node5" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="141,53,211,77"/>
+<area shape="rect" id="node6" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="137,101,215,125"/>
+<area shape="rect" id="node3" href="$group__memcore.html#ga30a45ff539c9ed5f2f4b1e87e72eb767" title="Allocates a memory block. " alt="" coords="268,5,359,29"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="407,5,533,29"/>
+</map>
