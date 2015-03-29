@@ -214,9 +214,9 @@
  * PA10 - GPIOA_DCMI_D1         (input pull-up).
  * PA11 - GPIOA_OTG_FS_DM       (alternate 10).
  * PA12 - GPIOA_OTG_FS_DP       (alternate 10).
- * PA13 - GPIOA_SWDIO           (alternate 0, pull-up).
+ * PA13 - GPIOA_SWDIO           (alternate 0).
  * PA14 - GPIOA_SWCLK           (alternate 0, pull-down).
- * PA15 - GPIOA_I2S3_WS         (alternate 0, pull-up).
+ * PA15 - GPIOA_I2S3_WS         (alternate 6).
  */
 #define VAL_GPIOA_MODER     (PIN_MODE_INPUT(GPIOA_BUTTON_WKUP) |            \
                              PIN_MODE_ALTERNATE(GPIOA_ETH_RMII_REF_CLK) |   \
@@ -240,9 +240,7 @@
                              PIN_PUDR_PULLUP(GPIOA_DCMI_PIXCLK) |           \
                              PIN_PUDR_PULLDOWN(GPIOA_OTG_FS_VBUS) |         \
                              PIN_PUDR_PULLUP(GPIOA_DCMI_D1) |               \
-                             PIN_PUDR_PULLDOWN(GPIOA_SWCLK) |               \
-                             PIN_PUDR_PULLUP(GPIOA_SWDIO)   |               \
-                             PIN_PUDR_PULLUP(GPIOA_I2S3_WS))
+                             PIN_PUDR_PULLDOWN(GPIOA_SWCLK))
 #define VAL_GPIOA_ODR       0xFFFFFFDF
 #define VAL_GPIOA_AFRL      (PIN_AFIO_AF(GPIOA_ETH_RMII_REF_CLK, 11) |      \
                              PIN_AFIO_AF(GPIOA_ETH_RMII_MDIO, 11) |         \
@@ -252,7 +250,7 @@
                              PIN_AFIO_AF(GPIOA_OTG_FS_DP, 10) |             \
                              PIN_AFIO_AF(GPIOA_SWDIO, 0) |                  \
                              PIN_AFIO_AF(GPIOA_SWCLK, 0) |                  \
-                             PIN_AFIO_AF(GPIOA_I2S3_WS, 0))
+                             PIN_AFIO_AF(GPIOA_I2S3_WS, 6))
 
 /*
  * Port B setup.
@@ -260,8 +258,8 @@
  * PB0  - GPIOB_LCD_BL          (output push-pull).
  * PB1  - GPIOB_BUZ             (output push-pull).
  * PB2  - GPIOB_CAM_ENB         (input floating).
- * PB3  - GPIOB_I2S3_CK         (alternate 0, floating).
- * PB4  - GPIOB_LCD_MISO        (alternate 0, pull-up).
+ * PB3  - GPIOB_I2S3_CK         (alternate 6).
+ * PB4  - GPIOB_LCD_MISO        (input floating).
  * PB5  - GPIOB_I2S3_SD         (alternate 6).
  * PB6  - GPIOB_DCMI_D5         (input pull-up).
  * PB7  - GPIOB_DCMI_VSYNC      (input pull-up).
@@ -278,7 +276,7 @@
                              PIN_MODE_OUTPUT(GPIOB_BUZ) |                   \
                              PIN_MODE_INPUT(GPIOB_CAM_ENB) |                \
                              PIN_MODE_ALTERNATE(GPIOB_I2S3_CK) |            \
-                             PIN_MODE_ALTERNATE(GPIOB_LCD_MISO) |               \
+                             PIN_MODE_INPUT(GPIOB_LCD_MISO) |               \
                              PIN_MODE_ALTERNATE(GPIOB_I2S3_SD) |            \
                              PIN_MODE_INPUT(GPIOB_DCMI_D5) |                \
                              PIN_MODE_INPUT(GPIOB_DCMI_VSYNC) |             \
@@ -294,12 +292,10 @@
 #define VAL_GPIOB_OSPEEDR   0xFFFFFFFF
 #define VAL_GPIOB_PUPDR     (PIN_PUDR_PULLUP(GPIOB_DCMI_D5) |               \
                              PIN_PUDR_PULLUP(GPIOB_DCMI_VSYNC) |            \
-                             PIN_PUDR_PULLDOWN(GPIOB_OTG_HS_VBUS) |         \
-                             PIN_PUDR_PULLUP(GPIOB_LCD_MISO))
+                             PIN_PUDR_PULLDOWN(GPIOB_OTG_HS_VBUS))
 #define VAL_GPIOB_ODR       0xFFFFFFFC
-#define VAL_GPIOB_AFRL      (PIN_AFIO_AF(GPIOB_I2S3_CK, 0) |                \
-                             PIN_AFIO_AF(GPIOB_I2S3_SD, 6) |                \
-                             PIN_AFIO_AF(GPIOB_LCD_MISO), 0)
+#define VAL_GPIOB_AFRL      (PIN_AFIO_AF(GPIOB_I2S3_CK, 6) |                \
+                             PIN_AFIO_AF(GPIOB_I2S3_SD, 6))
 #define VAL_GPIOB_AFRH      (PIN_AFIO_AF(GPIOB_CAN1_RX, 9) |                \
                              PIN_AFIO_AF(GPIOB_CAN1_TX, 9) |                \
                              PIN_AFIO_AF(GPIOB_ETH_RMII_TX_EN, 11) |        \
@@ -475,10 +471,10 @@
  * PF3  - GPIOF_3               (input pull-up).
  * PF4  - GPIOF_4               (input pull-up).
  * PF5  - GPIOF_5               (input pull-up).
- * PF6  - GPIOF_STAT1           (alternate 3 push-pull).
- * PF7  - GPIOF_STAT2           (input push-pull).
- * PF8  - GPIOF_STAT3           (input push-pull).
- * PF9  - GPIOF_CAM_PWR         (input push-pull).
+ * PF6  - GPIOF_STAT1           (output push-pull).
+ * PF7  - GPIOF_STAT2           (output push-pull).
+ * PF8  - GPIOF_STAT3           (output push-pull).
+ * PF9  - GPIOF_CAM_PWR         (output push-pull).
  * PF10 - GPIOF_10              (input pull-up).
  * PF11 - GPIOF_CAM_RS          (output push-pull).
  * PF12 - GPIOF_12              (input pull-up).
@@ -492,10 +488,10 @@
                              PIN_MODE_INPUT(GPIOF_3) |                      \
                              PIN_MODE_INPUT(GPIOF_4) |                      \
                              PIN_MODE_INPUT(GPIOF_5) |                      \
-                             PIN_MODE_ALTERNATE(GPIOF_STAT1) |              \
-                             PIN_MODE_INPUT(GPIOF_STAT2) |              \
-                             PIN_MODE_INPUT(GPIOF_STAT3) |              \
-                             PIN_MODE_INPUT(GPIOF_CAM_PWR) |            \
+                             PIN_MODE_OUTPUT(GPIOF_STAT1) |                 \
+                             PIN_MODE_OUTPUT(GPIOF_STAT2) |                 \
+                             PIN_MODE_OUTPUT(GPIOF_STAT3) |                 \
+                             PIN_MODE_OUTPUT(GPIOF_CAM_PWR) |               \
                              PIN_MODE_INPUT(GPIOF_10) |                     \
                              PIN_MODE_OUTPUT(GPIOF_CAM_RS) |                \
                              PIN_MODE_INPUT(GPIOF_12) |                     \
@@ -518,8 +514,6 @@
 #define VAL_GPIOF_ODR       0xFFFFFC3F
 #define VAL_GPIOF_AFRL      0x00000000
 #define VAL_GPIOF_AFRH      0x00000000
-#define VAL_GPIOA_AFRL      (PIN_AFIO_AF(GPIOF_STAT1, 3))
-#define VAL_GPIOA_AFRH      0x0000000
 
 /*
  * Port G setup.

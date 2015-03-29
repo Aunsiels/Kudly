@@ -77,8 +77,6 @@
 #include <lwip/netifapi.h>
 #include <lwip/netif.h>
 #include "lwip/dns.h"
-#include "chprintf.h"
-#include "usb_serial.h"
 
 #if SEMIHOSTING
     #include <stdio.h>
@@ -288,10 +286,7 @@ msg_t lwip_thread(void *p) {
   struct ip_addr  dnsserver;
   IP4_ADDR(&dnsserver,137,194,2,16);
   dns_setserver(0,&dnsserver); 
-  chprintf((BaseSequentialStream *) &SDU2, "NO DHCP nor AUTOIP\n");
 #endif
-
-  chprintf((BaseSequentialStream *) &SDU2, "Interface up\n");
 
   /* Setup event sources.*/
   evtInit(&evt, LWIP_LINK_POLL_INTERVAL);

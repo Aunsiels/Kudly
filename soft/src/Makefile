@@ -65,11 +65,11 @@ endif
 #
 
 # Define project name here
-PROJECT = ch
+PROJECT = Kudly
 
 # Imported source files and paths
-CHIBIOS = ../..
-include $(CHIBIOS)/boards/OLIMEX_STM32_P407/board.mk
+CHIBIOS = ../ChibiOS_2.6.7
+include $(CHIBIOS)/../board_Kudly/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
@@ -91,7 +91,7 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(LWSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       web/web.c main.c
+       main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -122,7 +122,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various ../include
 
 #
 # Project, sources and paths
