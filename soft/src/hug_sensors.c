@@ -5,7 +5,7 @@
  * \version 0.1
  * \date 30/03/2015
  *
- * This program controls hugs sensonrs
+ * This program controls hugs sensors
  *
  */
 
@@ -17,8 +17,7 @@
 #define ADC_GRP1_BUF_DEPTH      4
 
 EVENTSOURCE_DECL(eventHugSensors);
-uint32_t hug_value1;
-uint32_t hug_value2;
+hugSensorsValues * hugSensors;
 
 static adcsample_t samples1[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
 
@@ -38,7 +37,6 @@ static const ADCConversionGroup adcgrpcfg1 = {
 
 void initHugSensors(void) { 
   adcStart(&ADCD1, NULL);
-  
   adcStartConversion(&ADCD1, &adcgrpcfg1, samples1, ADC_GRP1_BUF_DEPTH);
   chThdSleepMilliseconds(1000);
 }
@@ -46,8 +44,8 @@ void initHugSensors(void) {
 static WORKING_AREA(waThreadHugSensors, 128);
 static msg_t ThreadHugSensors(void *arg) {
   while (TRUE) {
-    hug_value1 = (uint32_t) ((samples1[0] + samples1[2] + samples1[4] + samples1[6])/4);
-    hug_value2 = (uint32_t)(samples1[1] + samples1[3] + samples1[5] + samples1[7])/4;
+    hugSensors->hugSensor1 = (uint16_t) ((samples1[0] + samples1[2] + samples1[4] + samples1[6])/4);
+    hug_value2->hugSensor1 = (uint16_t)(samples1[1] + samples1[3] + samples1[5] + samples1[7])/4;
     chSysLockFromIsr();
     chEvtBroadcastI(&eventHugSensors);
     chSysUnlockFromIsr();

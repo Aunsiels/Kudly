@@ -2,6 +2,7 @@
 #define _HUG_SENSORS_H_
 
 extern EventSource eventHugSensors;
+
 void initHugSensors(void);
 void ThreadHugSensors(tprio_t priority, int * time);
 
