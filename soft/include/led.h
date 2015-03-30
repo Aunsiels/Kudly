@@ -5,24 +5,38 @@
 #ifndef LED_H
 #define LED_H
 
+#include <ch.h>
+#include <hal.h>
+
 /**
  * \brief Need to be called before using leds
  */
-void ledInit();
+void ledInit(void);
 
 /**
- * \brief Sets the color of leds
- * \param led Set to 1 or 2 to select the led, 0 sets the color for both leds 1 & 2
+ * \brief Sets the color of led 1
  * \param r   The amount of red, from 0 to 255
  * \param g   The amount of green, from 0 to 255
  * \param b   The amount of blue, from 0 to 255
  */
-void setColor(int led, uint8_t r, uint8_t g, uint8_t b);
+void setColor_led1(uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * \brief Toggles LEDs
- * \param led The led to toggle (1 or 2), or 0 to toggle both leds
+ * \brief Sets the color of led 2
+ * \param r   The amount of red, from 0 to 255
+ * \param g   The amount of green, from 0 to 255
+ * \param b   The amount of blue, from 0 to 255
  */
-void toggleLed(int led);
+void setColor_led1(uint8_t r, uint8_t g, uint8_t b);
+
+/**
+ * \brief Toggles led 1
+ */
+void toggleLed_led1(void);
+
+/**
+ * \brief Toggles led 2
+ */
+void toggleLed_led2(void);
 
 #endif
