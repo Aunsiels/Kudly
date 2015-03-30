@@ -68,8 +68,8 @@ endif
 PROJECT = Kudly
 
 # Imported source files and paths
-CHIBIOS = ../ChibiOS_2.6.7
-include $(CHIBIOS)/../board_Kudly/board.mk
+CHIBIOS = ./ChibiOS_2.6.7
+include board_Kudly/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
@@ -83,6 +83,8 @@ LDSCRIPT= $(PORTLD)/STM32F407xG.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
+# KSRC = Kurdly sources
+KUDLYSRC = ./src
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
        $(TESTSRC) \
@@ -91,7 +93,7 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(LWSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       main.c
+       $(KUDLYSRC)/main.c \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -122,7 +124,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
-         $(CHIBIOS)/os/various ../include
+         $(CHIBIOS)/os/various include
 
 #
 # Project, sources and paths
