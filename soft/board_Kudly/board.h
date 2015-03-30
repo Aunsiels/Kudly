@@ -18,7 +18,7 @@
 #define _BOARD_H_
 
 /*
- * Setup for Olimex STM32-P407 board.
+ * Setup for Kudly STM32-F427 board.
  * NOTE: Part of JTAG signals are used for other functions, this board can be
  *       used using SWD only.
  */
@@ -26,8 +26,8 @@
 /*
  * Board identifier.
  */
-#define BOARD_OLIMEX_STM32_P407
-#define BOARD_NAME              "Olimex STM32-P407"
+#define BOARD_KUDLY_STM32_P407_F427
+#define BOARD_NAME              "Kudly STM32-F427"
 
 /*
  * Ethernet PHY type.
