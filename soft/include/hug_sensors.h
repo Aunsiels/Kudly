@@ -4,7 +4,7 @@
 extern EventSource eventHugSensors;
 
 void initHugSensors(void);
-void ThreadHugSensors(tprio_t priority, int * time);
+void convertHugSensors(void);
 
 typedef struct {
   uint16_t hugSensor1;
