@@ -19,7 +19,7 @@ void ledInit(void);
  * \param g   The amount of green, from 0 to 255
  * \param b   The amount of blue, from 0 to 255
  */
-void setColor_led1(uint8_t r, uint8_t g, uint8_t b);
+void ledSetColor1(uint8_t r, uint8_t g, uint8_t b);
 
 /**
  * \brief Sets the color of led 2
@@ -27,16 +27,21 @@ void setColor_led1(uint8_t r, uint8_t g, uint8_t b);
  * \param g   The amount of green, from 0 to 255
  * \param b   The amount of blue, from 0 to 255
  */
-void setColor_led1(uint8_t r, uint8_t g, uint8_t b);
+void ledSetColor2(uint8_t r, uint8_t g, uint8_t b);
 
 /**
  * \brief Toggles led 1
  */
-void toggleLed_led1(void);
+void ledToggle1(void);
 
 /**
  * \brief Toggles led 2
  */
-void toggleLed_led2(void);
+void ledToggle2(void);
+
+/**
+ * \brief Testing leds thread
+ */
+void ledTest(void);
 
 #endif
