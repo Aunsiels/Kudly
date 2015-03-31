@@ -235,6 +235,57 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
     return res;
 }
 
+/* Print a given file*/
+FRESULT cat(BaseSequentialStream *chp, char *path) {
+    FRESULT res;
+    FIL fil;       /* File object */
+
+    res = f_open(&fil, path, FA_READ);
+    if (res) return res;
+
+    /* Read all lines and display it */
+    while (f_gets((TCHAR *)fbuff, sizeof(fbuff), &fil))
+        chprintf(chp,(char *)fbuff);
+
+    /* Close the file */
+    f_close(&fil);
+
+    return 0;
+}
+
+/*
+ * cat command for the shell
+ */
+void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)argv;
+    if (argc != 1) {
+        chprintf(chp, "Usage: cat file\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+    if (argv[0][0] == '/') {
+        cat(chp, argv[0]);
+    }else {
+        /* Initialization */
+        int length = strlen(current_dir);
+        if(current_dir[length-1] != '/'){
+            current_dir[length] = '/';
+            length++;
+        }
+        strcpy(current_dir+length, argv[0]);
+        cat(chp, current_dir);
+        /* Clear */
+        if (current_dir[length-1] == '/'){
+            current_dir[length-1] = 0;
+        } else {
+            current_dir[length] = 0;
+        }
+    }
+}
+
 /*
  * Ls command for the shell
  */

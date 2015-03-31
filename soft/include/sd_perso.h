@@ -25,6 +25,14 @@
 void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]);
 
 /* 
+ * \brief Command cat for the shell
+ * \param chp The stream where the string will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ * */
+void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/* 
  * \brief ls command for the shell
  * \param chp The stream where the string will be written.
  * \param argc The number of arguments
