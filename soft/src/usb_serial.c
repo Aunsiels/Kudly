@@ -3,7 +3,7 @@
 #include "usb_serial.h"
 #include "chprintf.h"
 
-static SerialUSBDriver SDU1;
+SerialUSBDriver SDU1;
 
 /*
  * Endpoints to be used for USBD1.

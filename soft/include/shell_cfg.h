@@ -1,5 +1,5 @@
 /**
- * \file usb_serial.h
+ * \file shell_cfg.h
  * \brief Shell
  * \author KudlyProject
  * \version 0.1

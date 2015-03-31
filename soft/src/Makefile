@@ -76,6 +76,7 @@ include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/os/various/lwip_bindings/lwip.mk
 include $(CHIBIOS)/test/test.mk
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 
 # Define linker script file here
 LDSCRIPT= $(PORTLD)/STM32F407xG.ld
@@ -91,7 +92,7 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(LWSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       main.c usb_serial.c
+       main.c usb_serial.c shell_cfg.c sd_perso.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -122,6 +123,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
+         $(FATFSINC) \
          $(CHIBIOS)/os/various ../include
 
 #

@@ -11,10 +11,8 @@
 /* Thread of the shell */
 static Thread *shelltp = NULL;
 
-static uint8_t receivedDatas[1];
-
 /* Command to test the shell */
-static void cmd_toggle(BaseSequentialStream *chp, int argc, char *argv[]) {
+static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
 
     if (argc > 0) {
@@ -26,12 +24,13 @@ static void cmd_toggle(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
+  {"test"   , cmdTest    },
   {NULL     , NULL       }
 };
 
 /* Config of the shell */
 static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU2,
+  (BaseSequentialStream *)&SDU1,
   commands
 };
 
@@ -40,9 +39,9 @@ void shell_init(){
     /* Initialization of the thread */
     shellInit();
     /* Start the shell */
-    while (!(!shelltp && (SDU2.config->usbp->state == USB_ACTIVE)))
+    while (!(!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)))
         chThdSleepMilliseconds(1000);
-    if (!shelltp && (SDU2.config->usbp->state == USB_ACTIVE)){
+    if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)){
         shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
     }
 }

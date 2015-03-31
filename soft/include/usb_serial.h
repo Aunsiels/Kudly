@@ -58,4 +58,10 @@ void write_serial(const char * fmt,...);
 
 void read_serial(uint8_t * buffer, int size);
 
+/*
+ * \def SerialUSBDriver SDU1
+ * \brief The driver for the serial over usb
+ */
+extern SerialUSBDriver SDU1;
+
 #endif
