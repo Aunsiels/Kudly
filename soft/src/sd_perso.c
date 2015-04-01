@@ -8,47 +8,6 @@
 #define POLLING_DELAY                   10
 
 /*
- * Find the last / before the given position
- */
-
-static char * findLastSlash (char * begin, char * end) {
-    char * pos = begin;
-    char * next = begin;
-    while((next = strchr(next, '/')) != NULL && next < end){
-        pos = next;
-    }
-    return pos;
-}
-
-/*
- * Transform a path to a condensed one, i.e. without ./ and ../
- */
-static void transformPath (BaseSequentialStream *chp, char * path) {
-    int length = strlen(path);
-    char * lastslash = path;
-    while(lastslash - path < length){
-        /* Find the file */
-        char * nextslash = strchr(lastslash + 1, '/');
-        /* End of the string found without / */
-        if (nextslash == NULL) return;
-        /* If we stay in the same directory */
-        if( nextslash - lastslash == 2 && lastslash[1] == '.'){
-            strcpy(lastslash, nextslash);
-            length -= 2;
-        /* if we go to the former directory */
-        } else if (nextslash - lastslash == 3 && lastslash[1] == '.'
-            && lastslash[2] == '.'){
-            lastslash = findLastSlash(path, lastslash);
-            length -= nextslash - lastslash; 
-            strcpy(lastslash,nextslash);
-        } else {
-            lastslash = nextslash;
-        }
-    }
-    chprintf(chp, "Path : %s\r\n", path);
-}
-
-/*
  * Current directory
  */
 
@@ -266,24 +225,7 @@ void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]) {
         chprintf(chp, "File System not mounted\r\n");
         return;
     }
-    if (argv[0][0] == '/') {
-        cat(chp, argv[0]);
-    }else {
-        /* Initialization */
-        int length = strlen(current_dir);
-        if(current_dir[length-1] != '/'){
-            current_dir[length] = '/';
-            length++;
-        }
-        strcpy(current_dir+length, argv[0]);
-        cat(chp, current_dir);
-        /* Clear */
-        if (current_dir[length-1] == '/'){
-            current_dir[length-1] = 0;
-        } else {
-            current_dir[length] = 0;
-        }
-    }
+    cat(chp, argv[0]);
 }
 
 /*
@@ -299,6 +241,14 @@ void cmdLs(BaseSequentialStream *chp, int argc, char *argv[]) {
         chprintf(chp, "File System not mounted\r\n");
         return;
     }
+
+    FRESULT res;
+    res = f_getcwd((TCHAR *) current_dir, sizeof(current_dir));
+    if (res) {
+        chprintf(chp, "Error while getting the current path");
+        return;
+    }
+
     /* Prints the files */
     ls(chp, current_dir);
 }
@@ -316,6 +266,12 @@ void cmdPwd(BaseSequentialStream *chp, int argc, char *argv[]) {
         chprintf(chp, "File System not mounted\r\n");
         return;
     }
+    FRESULT res;
+    res = f_getcwd((TCHAR *) current_dir, sizeof(current_dir));
+    if (res) {
+        chprintf(chp, "Error while getting the current path");
+        return;
+    }
     chprintf(chp, "Current directory : %s\r\n", current_dir);
 }
 
@@ -324,7 +280,6 @@ void cmdPwd(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
-    int length = 0;
     if (argc > 1) {
         chprintf(chp, "Usage: cd or cd path\r\n");
         return;
@@ -336,32 +291,103 @@ void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
     if (argc == 0){
         current_dir[0] = 0;
     }else {
-        if(argv[0][0] == '/'){
-            strcpy(current_dir, argv[0]);
-        }else {
-            length = strlen(current_dir);
-            if (length != 0 && current_dir[length-1] != '/'){
-                current_dir[length] = '/';
-                ++length;
-            }
-            strcpy(current_dir+length,argv[0]);
-            length = strlen(current_dir);
-            if (length != 0 && current_dir[length-1] != '/'){
-                current_dir[length] = '/';
-                current_dir[length+1] = 0;
-            }
-                
+        FRESULT res;
+        res = f_chdir((TCHAR *) argv[0]);
+        if (res) {
+            chprintf(chp,"Error while changing the directory\r\n");
+            return;
         }
-        transformPath(chp, current_dir);
-        length = strlen(current_dir);
-        /* Remove the / */
-        if (length != 0 && current_dir[length-1] == '/'){
-            current_dir[length-1] = 0;
-        }
-        chprintf(chp, "Current directory : %s\r\n", current_dir);
-        /* TODO : check if it is a directory ? */
+        chprintf(chp, "Current directory : %s\r\n", argv[0]);
     }
 }
+
+/*
+ * mkdir command for the shell.
+ */
+void cmdMkdir(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)argv;
+    if (argc != 1) {
+        chprintf(chp, "Usage: mkdir dirname\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+    FRESULT res;
+    res = f_mkdir(argv[0]);
+    if (res) {
+        chprintf(chp, "Cannot create that directory\r\n");
+    }
+}
+
+
+/*
+ * rm command for the shell.
+ */
+void cmdRm(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)argv;
+    if (argc != 1) {
+        chprintf(chp, "Usage: rm name\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+    FRESULT res;
+    res = f_unlink(argv[0]);
+    if (res) {
+        chprintf(chp, "Cannot delete this file\r\n");
+    }
+}
+
+
+/*
+ * touch command for the shell.
+ */
+void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)argv;
+    if (argc != 1) {
+        chprintf(chp, "Usage: touch name\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+    FRESULT res;
+    FIL* fil = NULL;
+    res = f_open(fil,argv[0],FA_CREATE_NEW);
+    if (res == FR_EXIST) {
+        chprintf(chp, "The file already exists\r\n");
+    } else if (res) {
+        chprintf(chp, "Cannot create this file\r\n");
+    }
+    if (fil != NULL)
+        f_close(fil);
+}
+
+/*
+ * mv command for the shell.
+ */
+void cmdMv(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)argv;
+    if (argc != 2) {
+        chprintf(chp, "Usage: rm old_name new_name\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+    FRESULT res;
+    res = f_rename(argv[0],argv[1]);
+    if (res) {
+        chprintf(chp, "Cannot move this file\r\n");
+    }
+}
+
 
 /*
  * MMC card insertion event.
@@ -404,6 +430,13 @@ static WORKING_AREA(waSD, 512);
  */
 static msg_t sdThread(void *arg) {
     (void) arg;
+
+    /* Initialize SPI pins */
+    palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));
+    palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5));
+    palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5));
+
     /* Initializes mmc */
     mmcObjectInit(&MMCD1);
     mmcStart(&MMCD1, &mmccfg);
@@ -473,3 +506,195 @@ void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]) {
   scan_files(chp, (char *)fbuff);
 }
 
+/* test mkdir and rm functions */
+FRESULT testMkdir(BaseSequentialStream *chp, char * dirname) {
+    FRESULT err;
+    char * args[1];
+
+    chprintf(chp, "Create a directory\r\n");
+    /* Create a directory */
+    args[0] = dirname;
+    cmdMkdir(chp, 1, args);
+    chprintf(chp, "End of the directory creation\r\n");
+
+    /* Checks if the file exists */
+    FILINFO* fno = NULL;
+    err = f_stat(dirname, fno);
+
+    if (err == FR_NO_FILE) {
+        chprintf(chp, "The directory was not created\r\n");
+    } else if (err) {
+        chprintf(chp, "An error occured after directory creation\r\n");
+    }
+    return err;
+}
+
+/* test rm function */
+FRESULT testRm(BaseSequentialStream *chp, char * name) {
+    FRESULT err;
+    char * args[1];
+
+    chprintf(chp, "Remove the directory\r\n");
+    /* Remove the directory created */
+    args[0] = name;
+    cmdRm(chp, 1, args);
+    chprintf(chp, "End of the directory removal\r\n");
+
+    /* Checks if the file was removed */
+    FILINFO* fno = NULL;
+    err = f_stat(name, fno);
+
+    if (err == FR_NO_FILE) {
+        chprintf(chp, "The directory was removed\r\n");
+        return FR_OK;
+    } else if (err) {
+        chprintf(chp, "An error occured after directory removal\r\n");
+        return err;
+    }
+
+    return 1;
+}
+
+FRESULT testTouch(BaseSequentialStream *chp, char * filename){
+    FRESULT err;
+    char * args[1];
+
+    chprintf(chp, "Create a file\r\n");
+    /* Create a directory */
+    args[0] = filename;
+    cmdTouch(chp, 1, args);
+    chprintf(chp, "End of the file creation\r\n");
+
+    /* Checks if the file exists */
+    FILINFO* fno = NULL;
+    err = f_stat(filename, fno);
+
+    if (err == FR_NO_FILE) {
+        chprintf(chp, "The file was not created\r\n");
+    } else if (err) {
+        chprintf(chp, "An error occured after file creation\r\n");
+    }
+    return err;
+}
+
+FRESULT testMv(BaseSequentialStream *chp, char * from, char * to) {
+    FRESULT err;
+    char * args[2];
+
+    args[0] = from;
+    args[1] = to;
+    chprintf(chp, "Begin to move the file\r\n");
+    cmdMv(chp,2, args);
+    chprintf(chp, "End of the moving action\r\n");
+
+    /* Checks if the file exists */
+    FILINFO* fno = NULL;
+    err = f_stat(to, fno);
+
+    if (err == FR_NO_FILE) {
+        chprintf(chp, "The file was not moved\r\n");
+    } else if (err) {
+        chprintf(chp, "An error occured after the moving action\r\n");
+    }
+    return err;
+}
+
+/* Test Write/read */
+FRESULT testWR(BaseSequentialStream *chp){
+    /* File object */
+    FIL fil;
+    FRESULT res;
+
+    chprintf(chp, "Open a file in write mode\r\n");
+    res = f_open(&fil, "testwr", FA_WRITE | FA_CREATE_NEW);
+    if(res) {
+        chprintf(chp,"A problem occured while opening the file\r\n");
+        return res;
+    }
+    chprintf(chp, "File opened\r\n");
+    chprintf(chp, "Write data\r\n");
+    int written = f_printf(&fil, (const TCHAR*) "This is a test !\n");
+    if (written != 17) {
+        chprintf(chp, "The characters were not all written\r\n");
+        testRm(chp, "testwr");
+        return 1;
+    }
+    chprintf(chp, "Data written\r\n");
+    chprintf(chp, "Close file\r\n");
+    res = f_close(&fil);
+    if (res) {
+        chprintf(chp, "An error occured while opening the file\r\n");
+        testRm(chp, "testwr");
+        return res;
+    }
+    chprintf(chp, "Open a file in read mode\r\n");
+    res = f_open(&fil, "testwr", FA_READ);
+    if(res) {
+        chprintf(chp,"A problem occured while opening the file\r\n");
+        return res;
+    }
+    chprintf(chp, "File opened\r\n");
+    char buff[20];
+    chprintf(chp, "Read data\r\n");
+    char * buffres = f_gets(buff, sizeof(buff), &fil);
+    if (buff != buffres){
+        chprintf(chp, "A problem occured while reading data\r\n");
+        testRm(chp, "testwr");
+        return 1;
+    }
+    if (strcmp(buff, "This is a test !\n") != 0){
+        chprintf(chp, "The datas read are not the same than the one written\r\n");
+        testRm(chp, "testwr");
+        return 1;
+    }
+    chprintf(chp, "The reading is OK\r\n");
+    chprintf(chp, "Close file\r\n");
+    res = f_close(&fil);
+    if (res) {
+        chprintf(chp, "An error occured while opening the file\r\n");
+        testRm(chp, "testwr");
+        return res;
+    }
+    return testRm(chp, "testwr");
+}
+
+/* Test the functionalities of the sd card */
+void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
+    (void)argv;
+    if (argc > 0) {
+        chprintf(chp, "Usage: tree\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        chprintf(chp, "File System not mounted\r\n");
+        return;
+    }
+
+    /* mkdir */
+    if(testMkdir(chp,"abc123")) goto ERROR;
+
+    /* mv dir */
+    if(testMv(chp, "abc123", "123abc")) goto ERROR;
+
+    /* rm dir */
+    if(testRm(chp, "123abc")) goto ERROR;
+
+    /* touch */
+    if(testTouch(chp, "123abc")) goto ERROR;
+
+    /* mv file */
+    if(testMv(chp, "123abc", "abc123")) goto ERROR;
+
+    /* rm file */
+    if(testRm(chp, "abc123")) goto ERROR;
+
+    /* test write and read in a file */
+    if(testWR(chp)) goto ERROR;
+
+    chprintf(chp, "The SD test SUCCEEDED\r\n");
+
+    return;
+
+ERROR :
+    chprintf(chp, "The SD test FAILED\r\n");
+}

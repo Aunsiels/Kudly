@@ -16,47 +16,92 @@
 #include "ch.h"
 #include "ff.h"
 
-/* 
+/**
  * \brief Command tree for the shell
- * \param chp The stream where the string will be written.
+ * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters
  * */
 void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/* 
+/** 
  * \brief Command cat for the shell
- * \param chp The stream where the string will be written.
+ * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters
  * */
 void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/* 
+/** 
  * \brief ls command for the shell
- * \param chp The stream where the string will be written.
+ * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters
  * */
 void cmdLs(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/* \brief pwd command for the shell
- * \param chp The stream where the string will be written.
+/**
+ * \brief pwd command for the shell
+ * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters
  * */
 void cmdPwd(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/* \brief cd command for the shell
- * \param chp The stream where the string will be written.
+/**
+ * \brief cd command for the shell
+ * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters
  * */
 void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/* 
+/**
+ * \brief remove command for the shell
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ * */
+void cmdRm(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief move command for the shell
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ * */
+void cmdMv(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief make directory command for the shell
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ * */
+void cmdMkdir(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief touch command for the shell
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ * */
+void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
  * \brief Initializes the sd card spi 
  * */
 void sdPersoInit(void);
+
+/**
+ * \brief Test SD functionalities 
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ * This function tests some functions used on the SD such as writting in a file,
+ * reading a file, create a directory...
+ * */
+void testSd(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif
