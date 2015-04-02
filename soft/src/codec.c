@@ -50,7 +50,7 @@ static void writeRegister(uint8_t adress, uint16_t command){
   spiSend(&SPID4,sizeof(instruction),instruction);
 
   RESET_MODE;
-  
+
   /* Wait until the writing operation is done */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
     chThdSleepMilliseconds(10);
@@ -75,9 +75,9 @@ void sendData(const uint8_t * data){
   int size = sizeof(data);
   int i;
   int j = 0;
-  
+
   DATA_MODE;
-  
+
   while(j < size){
     /* Wait until it's possible to send data (must be checked every 32 bytes) */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
@@ -118,7 +118,15 @@ void codecInit(){
   writeRegister(SCI_AUDATA,0x3E80);
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
- 
+
 
 }
 
+void codecLowPower(){
+  /* Set clock settings : x1.0 to disable the PLL and save power */
+  writeRegister(SCI_CLOCKF,0x0000);
+  /* Reduce the samplerate, the VSDSP core will just wait for an interrupt, thus saving power */
+  writeRegister(SCI_AUDATA,0x0010);
+  /* Set the attenuation to his maximum */
+  writeRegister(SCI_VOL,0xffff);
+}
