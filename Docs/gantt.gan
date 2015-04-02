@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Kudly" company="KudlyProject" webLink="http://" view-date="2015-04-02" view-index="0" gantt-divider-location="486" resource-divider-location="478" version="2.7" locale="fr">
+<?xml version="1.0" encoding="UTF-8"?><project name="Kudly" company="KudlyProject" webLink="http://" view-date="2015-04-02" view-index="0" gantt-divider-location="368" resource-divider-location="478" version="2.7" locale="fr">
     <description><![CDATA[Kudly, the connected bear]]></description>
     <view zooming-state="default:2" id="gantt-chart">
-        <field id="tpd3" name="Nom" width="48" order="0"/>
+        <field id="tpd3" name="Nom" width="47" order="0"/>
         <field id="tpd4" name="Date de début" width="28" order="1"/>
         <field id="tpd5" name="Date de fin" width="23" order="2"/>
     </view>
@@ -239,9 +239,9 @@
         <displaycolumn property-id="tpd9" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd8" order="-1" width="75" visible="false"/>
         <displaycolumn property-id="tpd0" order="-1" width="75" visible="false"/>
-        <displaycolumn property-id="tpd3" order="0" width="225" visible="true"/>
-        <displaycolumn property-id="tpd4" order="1" width="130" visible="true"/>
-        <displaycolumn property-id="tpd5" order="2" width="109" visible="true"/>
+        <displaycolumn property-id="tpd3" order="0" width="166" visible="true"/>
+        <displaycolumn property-id="tpd4" order="1" width="98" visible="true"/>
+        <displaycolumn property-id="tpd5" order="2" width="82" visible="true"/>
     </taskdisplaycolumns>
     <previous/>
     <roles roleset-name="Default"/>
