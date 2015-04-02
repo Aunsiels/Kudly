@@ -8,6 +8,11 @@
 #define LED_H
 
 /**
+ * Event source to listen to if you want to see if there is a mouvement.
+ */
+EVENTSOURCE_DECL(pirEvent);
+
+/**
  * \brief This function initializes the pir sensor.
  */
 void pirInit(void);

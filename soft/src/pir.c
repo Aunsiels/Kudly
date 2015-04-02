@@ -2,6 +2,18 @@
 #include "ch.h"
 #include "pir.h"
 
+EVENTSOURCE_DECL(pirEvent);
+
+/*
+ * Callback function for the pir
+ */
+static void extPir(EXTDriver * extp, expchannel_t channel){
+    (void) extp;
+    (void) channel;
+    chSysLockFromIsr();
+    chEvtBroadcastI(&pirEvent);
+    chSysUnlockFromIsr();
+}
 
 /*
  * Pir interrupt configuration
