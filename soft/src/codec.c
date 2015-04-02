@@ -22,7 +22,7 @@
 
 
 /* Macro used for going in data,command or reset mode */
-#define RESET_MODE palSetPad(GPIOE,GPIOE_SPI4_XDCS);palSetPad(GPIOE,GPIOE_SPI4_XCS)
+#define RESET_MODE   palSetPad(GPIOE,GPIOE_SPI4_XDCS);palSetPad(GPIOE,GPIOE_SPI4_XCS)
 #define COMMAND_MODE palSetPad(GPIOE,GPIOE_SPI4_XDCS);palClearPad(GPIOE,GPIOE_SPI4_XCS)
 #define DATA_MODE    palSetPad(GPIOE,GPIOE_SPI4_XCS);palClearPad(GPIOE,GPIOE_SPI4_XDCS)
 
@@ -69,6 +69,25 @@ static uint16_t readRegister(uint8_t adress){
 
   /* Return only the 2 last bytes (data from the register) */
   return ((registerContent[2]<<8) + registerContent[3]);
+}
+
+void sendData(const uint8_t * data){
+  int size = sizeof(data);
+  int i;
+  int j;
+  
+  while(j < size){
+    /* Wait until the it's possible to send data (must be checked every 32 bytes) */
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+      chThdSleepMilliseconds(10);
+    }
+    for(i = 0 ; i < 32 ; i++){
+      spiSend(&SPID4,1,data++);
+      j++;
+      if(j == size)
+	break;
+    }
+  }
 }
 
 void codecInit(){
