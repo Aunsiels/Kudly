@@ -51,7 +51,7 @@ static void writeRegister(uint8_t adress, uint16_t command){
 
   RESET_MODE;
   
-  /* Wait until the writing operaion is done */
+  /* Wait until the writing operation is done */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
     chThdSleepMilliseconds(10);
   }
@@ -61,7 +61,7 @@ static uint16_t readRegister(uint8_t adress){
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
-  instruction[0] = 0x02;
+  instruction[0] = 0x03;
   instruction[1] = adress;
   spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
 
@@ -74,10 +74,12 @@ static uint16_t readRegister(uint8_t adress){
 void sendData(const uint8_t * data){
   int size = sizeof(data);
   int i;
-  int j;
+  int j = 0;
+  
+  DATA_MODE;
   
   while(j < size){
-    /* Wait until the it's possible to send data (must be checked every 32 bytes) */
+    /* Wait until it's possible to send data (must be checked every 32 bytes) */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
       chThdSleepMilliseconds(10);
     }
@@ -88,6 +90,8 @@ void sendData(const uint8_t * data){
 	break;
     }
   }
+
+  RESET_MODE;
 }
 
 void codecInit(){
