@@ -1,0 +1,6 @@
+<map id="chRegNextThread" name="chRegNextThread">
+<area shape="rect" id="node2" href="$group__dynamic__threads.html#gaa22f80040cf192015be4607f31a0ac80" title="Releases a reference to a thread object. " alt="" coords="175,29,276,53"/>
+<area shape="rect" id="node3" href="$group__heaps.html#ga0fc553df0138f02e0b233be91e413c79" title="Frees a previously allocated memory block. " alt="" coords="324,5,412,29"/>
+<area shape="rect" id="node4" href="$group__pools.html#ga978f8d038e8e981bf9e5a104b81c6cb6" title="Releases an object into a memory pool. " alt="" coords="327,53,409,77"/>
+<area shape="rect" id="node5" href="$group__pools.html#gab5c6c04fd14fbeee2183ca955371c515" title="Releases an object into a memory pool. " alt="" coords="460,53,547,77"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="halInit" name="halInit">
+<area shape="rect" id="node2" href="$group___a_d_c.html#gafd645b17cf0581bcaa22c56011c775e4" title="ADC Driver initialization. " alt="" coords="121,5,179,29"/>
+<area shape="rect" id="node4" href="$group___c_a_n.html#ga2d3efc34f7704ab23c293aac2be47764" title="CAN Driver initialization. " alt="" coords="121,53,179,77"/>
+<area shape="rect" id="node5" href="$group___e_x_t.html#ga2b4bbaeee648e129158a8e188c1ff952" title="EXT Driver initialization. " alt="" coords="122,101,178,125"/>
+<area shape="rect" id="node6" href="$group___g_p_t.html#ga4a57bda7b0af99d1b280fae5c2d7c4b3" title="GPT Driver initialization. " alt="" coords="121,149,179,173"/>
+<area shape="rect" id="node7" href="$group___h_a_l.html#ga07d5821e5a06754e2ce920c97890d06f" title="Low level HAL driver initialization. " alt="" coords="109,197,191,221"/>
+<area shape="rect" id="node8" href="$group___i2_c.html#ga1e0a81a1ad1fd7710ca189236e3e5476" title="I2C Driver initialization. " alt="" coords="123,245,177,269"/>
+<area shape="rect" id="node9" href="$group___i_c_u.html#ga28c2664fcfec4879984aa10acac57390" title="ICU Driver initialization. " alt="" coords="123,293,177,317"/>
+<area shape="rect" id="node10" href="$group___m_a_c.html#ga2f76703cfc76da57feedb57e9d37c8a4" title="MAC Driver initialization. " alt="" coords="119,341,181,365"/>
+<area shape="rect" id="node11" href="$group___m_m_c___s_p_i.html#ga351951c841ece80fc692195ab37b2f06" title="MMC over SPI driver initialization. " alt="" coords="117,389,183,413"/>
+<area shape="rect" id="node12" href="$group___p_w_m.html#ga1c8ae46921c4ae7d57bd44dd994e10bd" title="PWM Driver initialization. " alt="" coords="117,437,183,461"/>
+<area shape="rect" id="node13" href="$group___r_t_c.html#ga5f6cddc7c2e2cbff9fcc8edc2ac6b841" title="RTC Driver initialization. " alt="" coords="123,485,177,509"/>
+<area shape="rect" id="node14" href="$group___s_d_c.html#ga98f72333da8e5670502db1c31fe05acf" title="SDC Driver initialization. " alt="" coords="121,533,179,557"/>
+<area shape="rect" id="node15" href="$group___s_e_r_i_a_l.html#gaced9c1cfde941c7614183b1c887e862b" title="Serial Driver initialization. " alt="" coords="123,581,177,605"/>
+<area shape="rect" id="node16" href="$group___s_e_r_i_a_l___u_s_b.html#ga558c25112215dc3b86a30cac68553540" title="Serial Driver initialization. " alt="" coords="120,629,180,653"/>
+<area shape="rect" id="node17" href="$group___s_p_i.html#ga3c484a97cdec02c5dbf46a11245e3395" title="SPI Driver initialization. " alt="" coords="122,677,178,701"/>
+<area shape="rect" id="node18" href="$group___t_m.html#ga29b1080a5968ae5b0ea238c379ff4d65" title="Initializes the Time Measurement unit. " alt="" coords="123,725,177,749"/>
+<area shape="rect" id="node19" href="$group___u_a_r_t.html#ga09a7a9ed4194733a7b753c3b795b1734" title="UART Driver initialization. " alt="" coords="119,773,181,797"/>
+<area shape="rect" id="node20" href="$group___u_s_b.html#ga4552b1c9fe142a402c84c15444d3d927" title="USB Driver initialization. " alt="" coords="120,821,180,845"/>
+<area shape="rect" id="node3" href="$group___a_d_c.html#ga2bfcc655059180451273682ca7e0068c" title="Low level ADC driver initialization. " alt="" coords="239,5,323,29"/>
+</map>

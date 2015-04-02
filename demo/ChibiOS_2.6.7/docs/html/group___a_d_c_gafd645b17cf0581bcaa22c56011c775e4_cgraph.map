@@ -1,0 +1,6 @@
+<map id="adcInit" name="adcInit">
+<area shape="rect" id="node2" href="$group___a_d_c.html#ga2bfcc655059180451273682ca7e0068c" title="Low level ADC driver initialization. " alt="" coords="112,29,196,53"/>
+<area shape="rect" id="node3" href="$group___a_d_c.html#gac7f619e304c79c17f19221d05138d405" title="Initializes the standard part of a ADCDriver structure. " alt="" coords="244,29,339,53"/>
+<area shape="rect" id="node4" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="391,5,461,29"/>
+<area shape="rect" id="node5" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="387,53,465,77"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="adcAcquireBus" name="adcAcquireBus">
+<area shape="rect" id="node2" href="$group__mutexes.html#gafa06b82e3496c44eb7bf31d9f1b655ba" title="Locks the specified mutex. " alt="" coords="162,106,241,130"/>
+<area shape="rect" id="node9" href="$group__semaphores.html#gabc8f7e509870e9b0527a6a68fad71425" title="Performs a wait operation on a semaphore. " alt="" coords="160,154,243,178"/>
+<area shape="rect" id="node3" href="$group__mutexes.html#ga2d6350c2d147d1165c359f30798205f5" title="Locks the specified mutex. " alt="" coords="293,106,379,130"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="589,178,720,202"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga97c1c514b755a1e71caf2f19c1ccf986" title="Puts the current thread to sleep into the specified state. " alt="" coords="429,178,541,202"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="439,34,532,58"/>
+<area shape="rect" id="node7" href="$group__internals.html#gafff11bcd31d7dc3d1a0a6c66f3fc6ec9" title="Removes a Thread from a queue and returns it. " alt="" coords="450,82,521,106"/>
+<area shape="rect" id="node8" href="$group__internals.html#ga02226b866ae704435baf2ffe259ba0b2" title="Inserts a thread into a priority ordered queue. " alt="" coords="444,130,527,154"/>
+<area shape="rect" id="node10" href="$group__semaphores.html#gaa2c0367078533e291d2e889e251d8b67" title="Performs a wait operation on a semaphore. " alt="" coords="291,178,381,202"/>
+</map>

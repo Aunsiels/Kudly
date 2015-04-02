@@ -1,0 +1,18 @@
+<map id="lwip_thread" name="lwip_thread">
+<area shape="rect" id="node2" href="$group__events.html#ga419b9d244a5625b0007f3204ae43e2b0" title="Adds (OR) a set of event flags on the current thread, this is much faster than using chEvtBroadcast()..." alt="" coords="149,5,259,29"/>
+<area shape="rect" id="node3" href="$group__events.html#ga4002600fe552128aaf96a6a1d3ada3ee" title="Registers an Event Listener on an Event Source. " alt="" coords="140,53,268,77"/>
+<area shape="rect" id="node4" href="$group__events.html#gabd731d3ed2f037b2409e370676575f8d" title="Waits for any of the specified events. " alt="" coords="157,101,251,125"/>
+<area shape="rect" id="node8" href="$group__threads.html#ga5a5d9388c64e4c1a3aec129d2831eefe" title="Changes the running thread priority level then reschedules if necessary. " alt="" coords="147,149,261,173"/>
+<area shape="rect" id="node11" href="$group__event__timer.html#gaa58fe826b42e0d64f32b6a40f54bb430" title="Starts the timer. " alt="" coords="171,197,237,221"/>
+<area shape="rect" id="node14" href="$group___m_a_c.html#gab5bf748233450f371b5a88f2accf87e1" title="Updates and returns the link status. " alt="" coords="141,245,267,269"/>
+<area shape="rect" id="node16" href="$group___m_a_c.html#ga60efeea4e7d078afc84a122de9c73f53" title="Configures and activates the MAC peripheral. " alt="" coords="167,293,241,317"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga97c1c514b755a1e71caf2f19c1ccf986" title="Puts the current thread to sleep into the specified state. " alt="" coords="339,101,451,125"/>
+<area shape="rect" id="node6" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="543,101,673,125"/>
+<area shape="rect" id="node7" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="741,101,831,125"/>
+<area shape="rect" id="node9" href="$group__scheduler.html#ga4e38b4bee3d2330f6a0f1cdb7660af20" title="Performs a reschedule if a higher priority thread is runnable. " alt="" coords="331,149,460,173"/>
+<area shape="rect" id="node10" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="523,149,693,173"/>
+<area shape="rect" id="node12" href="$group__time.html#ga1c44c3a0bc64b2954d95cd98b2e7124e" title="Enables a virtual timer. " alt="" coords="360,197,431,221"/>
+<area shape="rect" id="node13" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="545,197,671,221"/>
+<area shape="rect" id="node15" href="$group___m_a_c.html#ga5d9f510e66cbdd6f4968c5411c2de7a5" title="Updates and returns the link status. " alt="" coords="316,245,475,269"/>
+<area shape="rect" id="node17" href="$group___m_a_c.html#gac692ef12e2b14afd329e350501b529cb" title="Configures and activates the MAC peripheral. " alt="" coords="346,293,445,317"/>
+</map>

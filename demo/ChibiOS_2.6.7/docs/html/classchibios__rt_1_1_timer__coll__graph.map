@@ -1,0 +1,4 @@
+<map id="chibios_rt::Timer" name="chibios_rt::Timer">
+<area shape="rect" id="node2" href="$struct_virtual_timer.html" title="Virtual Timer descriptor structure. " alt="" coords="115,5,206,99"/>
+<area shape="rect" id="node3" href="$struct_v_t_list.html" title="Virtual timers list header. " alt="" coords="167,177,263,258"/>
+</map>

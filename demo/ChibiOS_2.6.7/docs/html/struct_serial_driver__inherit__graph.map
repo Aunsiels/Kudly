@@ -1,0 +1,5 @@
+<map id="SerialDriver" name="SerialDriver">
+<area shape="rect" id="node2" href="$struct_base_asynchronous_channel.html" title="Base asynchronous channel class. " alt="" coords="5,240,183,309"/>
+<area shape="rect" id="node3" href="$struct_base_channel.html" title="Base channel class. " alt="" coords="45,123,143,192"/>
+<area shape="rect" id="node4" href="$struct_base_sequential_stream.html" title="Base stream class. " alt="" coords="17,5,171,75"/>
+</map>

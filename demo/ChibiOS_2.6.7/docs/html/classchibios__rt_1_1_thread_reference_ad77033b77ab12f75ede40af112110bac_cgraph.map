@@ -1,0 +1,5 @@
+<map id="chibios_rt::ThreadReference::resumeI" name="chibios_rt::ThreadReference::resumeI">
+<area shape="rect" id="node2" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="236,11,329,35"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="377,11,504,35"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="552,11,639,35"/>
+</map>

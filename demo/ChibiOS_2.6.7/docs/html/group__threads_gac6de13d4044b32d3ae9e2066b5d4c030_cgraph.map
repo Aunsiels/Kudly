@@ -1,0 +1,5 @@
+<map id="chThdCreateI" name="chThdCreateI">
+<area shape="rect" id="node2" href="$group__threads.html#ga83ee3aef5f09a1547c8cb35360edea45" title="Initializes a thread structure. " alt="" coords="170,5,258,29"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="151,53,277,77"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="325,53,412,77"/>
+</map>

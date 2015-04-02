@@ -1,0 +1,13 @@
+<map id="ARMv6&#45;M Specific Implementation" name="ARMv6&#45;M Specific Implementation">
+<area shape="rect" id="node1" href="$group___r_v_c_t___a_r_m_c_mx___v7_m___c_o_r_e.html" title="ARMv7&#45;M Specific Implementation" alt="" coords="523,5,733,29"/>
+<area shape="rect" id="node2" href="$group___i_a_r___a_r_m_c_mx___v7_m___c_o_r_e.html" title="ARMv7&#45;M Specific Implementation" alt="" coords="523,53,733,77"/>
+<area shape="rect" id="node3" href="$group___i_a_r___a_r_m_c_mx___c_o_r_e.html" title="Core Port Implementation" alt="" coords="5,221,173,245"/>
+<area shape="rect" id="node4" href="$group___m_s_p430___c_o_r_e.html" title="Core Port Implementation" alt="" coords="544,101,712,125"/>
+<area shape="rect" id="node5" href="$group___a_v_r___c_o_r_e.html" title="Core Port Implementation" alt="" coords="544,149,712,173"/>
+<area shape="rect" id="node6" href="$group___a_r_m_c_mx___v6_m___c_o_r_e.html" title="ARMv6&#45;M Specific Implementation" alt="" coords="523,197,733,221"/>
+<area shape="rect" id="node7" href="$group___r_v_c_t___a_r_m_c_mx___v6_m___c_o_r_e.html" title="ARMv6&#45;M Specific Implementation" alt="" coords="523,245,733,269"/>
+<area shape="rect" id="node9" href="$group___a_r_m_c_mx___v7_m___c_o_r_e.html" title="ARMv7&#45;M Specific Implementation" alt="" coords="523,293,733,317"/>
+<area shape="rect" id="node10" href="$group___p_p_c___c_o_r_e.html" title="PowerPC specific port code, structures and macros. " alt="" coords="544,341,712,365"/>
+<area shape="rect" id="node11" href="$group__core.html" title="Port" alt="" coords="605,389,651,413"/>
+<area shape="rect" id="node12" href="$group___a_r_m___c_o_r_e.html" title="Core Port Implementation" alt="" coords="544,437,712,461"/>
+</map>

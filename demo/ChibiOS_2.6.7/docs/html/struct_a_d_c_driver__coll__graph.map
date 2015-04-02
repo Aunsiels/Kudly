@@ -1,0 +1,10 @@
+<map id="ADCDriver" name="ADCDriver">
+<area shape="rect" id="node9" href="$struct_a_d_c_conversion_group.html" title="Conversion group configuration structure. " alt="" coords="538,549,682,631"/>
+<area shape="rect" id="node2" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="436,5,490,75"/>
+<area shape="rect" id="node3" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="190,135,290,324"/>
+<area shape="rect" id="node4" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="203,555,310,625"/>
+<area shape="rect" id="node5" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="20,396,109,465"/>
+<area shape="rect" id="node6" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="101,5,164,75"/>
+<area shape="rect" id="node7" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="188,5,264,75"/>
+<area shape="rect" id="node8" href="$struct_a_d_c_config.html" title="Driver configuration structure. " alt="" coords="552,195,633,264"/>
+</map>

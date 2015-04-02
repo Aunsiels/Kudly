@@ -1,0 +1,12 @@
+<map id="sduConfigureHookI" name="sduConfigureHookI">
+<area shape="rect" id="node2" href="$group__io__queues.html#ga2252ca3e5d6ee6d8d323d025365aee59" title="Resets an input queue. " alt="" coords="229,115,311,139"/>
+<area shape="rect" id="node7" href="$group__io__queues.html#ga0a35a7de945e4b56b5fb5f5c8567e296" title="Resets an output queue. " alt="" coords="226,54,314,78"/>
+<area shape="rect" id="node8" href="$group___u_s_b.html#ga081bb719a339d5ce0e396629c1b4c2d6" title="Prepares for a receive transaction on an OUT endpoint. " alt="" coords="183,250,357,274"/>
+<area shape="rect" id="node10" href="$group___u_s_b.html#ga2b3b984513a296ddf74ff4bab4e4b1f4" title="Starts a receive transaction on an OUT endpoint. " alt="" coords="211,178,329,202"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="613,79,740,103"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="439,30,532,54"/>
+<area shape="rect" id="node6" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="441,78,530,102"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="788,79,875,103"/>
+<area shape="rect" id="node9" href="$group___u_s_b.html#gae9d647c758b6557f59511366b372d0eb" title="Prepares for a receive operation. " alt="" coords="405,275,565,299"/>
+<area shape="rect" id="node11" href="$group___u_s_b.html#ga9ef9040f705088dab583a31b544abb0f" title="Starts a receive operation on an OUT endpoint. " alt="" coords="426,227,545,251"/>
+</map>

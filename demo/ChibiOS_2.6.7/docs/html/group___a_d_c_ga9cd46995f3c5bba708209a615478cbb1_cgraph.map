@@ -1,0 +1,5 @@
+<map id="adcStopConversionI" name="adcStopConversionI">
+<area shape="rect" id="node2" href="$group___a_d_c.html#ga16ce41e3fdca5b04f046f1e9099f3e92" title="Stops an ongoing conversion. " alt="" coords="188,5,348,29"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="205,53,331,77"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="396,53,483,77"/>
+</map>

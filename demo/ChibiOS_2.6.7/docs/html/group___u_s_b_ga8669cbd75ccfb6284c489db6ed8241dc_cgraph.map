@@ -1,0 +1,5 @@
+<map id="usbInitEndpointI" name="usbInitEndpointI">
+<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="172,5,299,29"/>
+<area shape="rect" id="node4" href="$group___u_s_b.html#ga56beda46a0db91e28a97d5710f66827e" title="Enables an endpoint. " alt="" coords="165,53,305,77"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="353,5,440,29"/>
+</map>

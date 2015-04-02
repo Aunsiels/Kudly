@@ -1,0 +1,8 @@
+<map id="mmcSequentialRead" name="mmcSequentialRead">
+<area shape="rect" id="node2" href="$group___s_p_i.html#ga43889a7d4c473f653596f8c0acafce2a" title="Ignores data on the SPI bus. " alt="" coords="199,5,273,29"/>
+<area shape="rect" id="node3" href="$group___s_p_i.html#gadd99ad823b391dde114f04dedafe5e80" title="Receives data from the SPI bus. " alt="" coords="195,53,277,77"/>
+<area shape="rect" id="node4" href="$group___s_p_i.html#gad3a359eea03e68e95899886ae93a06e4" title="Deactivates the SPI peripheral. " alt="" coords="203,101,269,125"/>
+<area shape="rect" id="node7" href="$group___s_p_i.html#gae291c012872da9c89dec23581f701b5f" title="Deasserts the slave select signal. " alt="" coords="192,149,280,173"/>
+<area shape="rect" id="node5" href="$group___s_p_i.html#gafa343fd905298991aa4005015263bcd2" title="Deasserts the slave select signal. " alt="" coords="328,77,440,101"/>
+<area shape="rect" id="node6" href="$group___s_p_i.html#ga8d6b2e0764d39b892b51e6abe4923f80" title="Deactivates the SPI peripheral. " alt="" coords="339,125,429,149"/>
+</map>

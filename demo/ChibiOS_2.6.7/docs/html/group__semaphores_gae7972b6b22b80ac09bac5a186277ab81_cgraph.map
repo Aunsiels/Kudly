@@ -1,0 +1,6 @@
+<map id="chSemResetI" name="chSemResetI">
+<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="291,5,417,29"/>
+<area shape="rect" id="node4" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="149,29,243,53"/>
+<area shape="rect" id="node5" href="$group__internals.html#gacacfe77140cab62948e63d898bf4dfba" title="Removes the last&#45;out Thread from a queue and returns it. " alt="" coords="152,77,240,101"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="465,5,552,29"/>
+</map>

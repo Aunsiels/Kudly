@@ -1,0 +1,9 @@
+<map id="ch_swc_event_t" name="ch_swc_event_t">
+<area shape="rect" id="node2" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="300,396,400,585"/>
+<area shape="rect" id="node3" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="299,799,406,868"/>
+<area shape="rect" id="node4" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="496,657,585,727"/>
+<area shape="rect" id="node7" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="325,928,380,997"/>
+<area shape="rect" id="node5" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="263,267,325,336"/>
+<area shape="rect" id="node6" href="$structintctx.html" title="System saved context. " alt="" coords="241,5,347,195"/>
+<area shape="rect" id="node8" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="349,267,425,336"/>
+</map>

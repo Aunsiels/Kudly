@@ -1,0 +1,9 @@
+<map id="chibios_rt::BaseThread" name="chibios_rt::BaseThread">
+<area shape="rect" id="node2" href="$classchibios__rt_1_1_thread_reference.html" title="Thread reference class. " alt="" coords="5,384,188,609"/>
+<area shape="rect" id="node3" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="355,135,455,324"/>
+<area shape="rect" id="node4" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="390,747,497,817"/>
+<area shape="rect" id="node5" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="399,462,488,531"/>
+<area shape="rect" id="node7" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="597,955,652,1024"/>
+<area shape="rect" id="node6" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="327,5,389,75"/>
+<area shape="rect" id="node8" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="413,5,489,75"/>
+</map>

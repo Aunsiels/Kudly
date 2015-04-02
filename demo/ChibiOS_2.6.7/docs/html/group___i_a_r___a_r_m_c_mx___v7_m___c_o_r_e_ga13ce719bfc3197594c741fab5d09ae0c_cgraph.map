@@ -1,0 +1,5 @@
+<map id="CH_IRQ_HANDLER" name="CH_IRQ_HANDLER">
+<area shape="rect" id="node2" href="$group__system.html#ga1e42ee112f4a5d2c95be07d523c247be" title="Handles time ticks for round robin preemption and timer increments. " alt="" coords="173,5,309,29"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="357,5,484,29"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="532,5,619,29"/>
+</map>

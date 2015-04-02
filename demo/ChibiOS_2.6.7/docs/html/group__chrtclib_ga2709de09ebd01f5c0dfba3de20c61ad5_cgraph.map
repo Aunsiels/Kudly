@@ -1,0 +1,4 @@
+<map id="rtcGetTimeFatFromCounter" name="rtcGetTimeFatFromCounter">
+<area shape="rect" id="node2" href="$group__chrtclib.html#gaad81ca7a7b3c311100326a191c59c119" title="Gets raw time from RTC and converts it to canonicalized format. " alt="" coords="228,5,331,29"/>
+<area shape="rect" id="node3" href="$group___r_t_c.html#ga997558eedf987b7a1697f8deb9897f17" title="Get current time. " alt="" coords="379,5,464,29"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="usbStartTransmitI" name="usbStartTransmitI">
+<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="176,5,303,29"/>
+<area shape="rect" id="node4" href="$group___u_s_b.html#gab03273c7bdd1779638ef66bd3b20b2b9" title="Starts a transmit operation on an IN endpoint. " alt="" coords="184,53,295,77"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="351,5,437,29"/>
+</map>

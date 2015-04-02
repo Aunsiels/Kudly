@@ -1,0 +1,4 @@
+<map id="spiStop" name="spiStop">
+<area shape="rect" id="node2" href="$group___s_p_i.html#ga8d6b2e0764d39b892b51e6abe4923f80" title="Deactivates the SPI peripheral. " alt="" coords="130,5,219,29"/>
+<area shape="rect" id="node3" href="$group___s_p_i.html#gafa343fd905298991aa4005015263bcd2" title="Deasserts the slave select signal. " alt="" coords="119,53,231,77"/>
+</map>

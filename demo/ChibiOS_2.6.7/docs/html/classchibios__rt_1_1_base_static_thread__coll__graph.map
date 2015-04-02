@@ -1,0 +1,5 @@
+<map id="chibios_rt::BaseStaticThread&lt; N &gt;" name="chibios_rt::BaseStaticThread&lt; N &gt;">
+<area shape="rect" id="node2" href="$classchibios__rt_1_1_base_thread.html" title="Abstract base class for a ChibiOS/RT thread. " alt="" coords="38,529,193,755"/>
+<area shape="rect" id="node3" href="$classchibios__rt_1_1_thread_reference.html" title="Thread reference class. " alt="" coords="24,255,207,480"/>
+<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="65,5,165,195"/>
+</map>

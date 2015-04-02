@@ -1,0 +1,5 @@
+<map id="usbDisableEndpointsI" name="usbDisableEndpointsI">
+<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="219,5,346,29"/>
+<area shape="rect" id="node4" href="$group___u_s_b.html#ga97950278d6eaaf64ba91cd460523aeb0" title="Disables all the active endpoints except the endpoint zero. " alt="" coords="197,53,368,77"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="416,5,503,29"/>
+</map>

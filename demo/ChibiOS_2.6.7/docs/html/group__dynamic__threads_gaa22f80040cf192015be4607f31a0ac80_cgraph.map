@@ -1,0 +1,6 @@
+<map id="chThdRelease" name="chThdRelease">
+<area shape="rect" id="node2" href="$group__heaps.html#ga0fc553df0138f02e0b233be91e413c79" title="Frees a previously allocated memory block. " alt="" coords="155,5,243,29"/>
+<area shape="rect" id="node3" href="$group__pools.html#ga978f8d038e8e981bf9e5a104b81c6cb6" title="Releases an object into a memory pool. " alt="" coords="157,53,240,77"/>
+<area shape="rect" id="node4" href="$group__pools.html#gab5c6c04fd14fbeee2183ca955371c515" title="Releases an object into a memory pool. " alt="" coords="291,53,377,77"/>
+<area shape="rect" id="node5" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="425,53,552,77"/>
+</map>

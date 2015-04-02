@@ -1,0 +1,6 @@
+<map id="ResetHandler" name="ResetHandler">
+<area shape="rect" id="node2" href="$group___a_r_m_c_mx___s_t_a_r_t_u_p.html#ga32c73ccd62cbae6568272cc6949531f2" title="Early initialization. " alt="" coords="156,5,241,29"/>
+<area shape="rect" id="node3" href="$group___a_r_m_c_mx___s_t_a_r_t_u_p.html#gadca2e82ea68b95ba91c8b32a3291db67" title="Late initialization. " alt="" coords="159,53,238,77"/>
+<area shape="rect" id="node4" href="$group___a_r_m_c_mx___s_t_a_r_t_u_p.html#gabc6427a5464f9d7b1105ea186f9acb01" title="Default main() function exit handler. " alt="" coords="152,101,245,125"/>
+<area shape="rect" id="node5" href="$group___a_r_m_c_mx___s_t_a_r_t_u_p.html#ga6288eba0f8e8ad3ab1544ad731eb7667" title="Application main() function. " alt="" coords="173,149,224,173"/>
+</map>

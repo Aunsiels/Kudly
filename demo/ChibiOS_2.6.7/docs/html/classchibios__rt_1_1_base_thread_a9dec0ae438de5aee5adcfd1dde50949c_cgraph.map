@@ -1,0 +1,6 @@
+<map id="chibios_rt::BaseThread::setPriority" name="chibios_rt::BaseThread::setPriority">
+<area shape="rect" id="node2" href="$group__threads.html#ga5a5d9388c64e4c1a3aec129d2831eefe" title="Changes the running thread priority level then reschedules if necessary. " alt="" coords="208,29,323,53"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#ga4e38b4bee3d2330f6a0f1cdb7660af20" title="Performs a reschedule if a higher priority thread is runnable. " alt="" coords="371,29,500,53"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="568,5,699,29"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga6827a67e839462e65b5765ef15709c97" title="Switches to the first thread on the runnable queue. " alt="" coords="548,53,719,77"/>
+</map>

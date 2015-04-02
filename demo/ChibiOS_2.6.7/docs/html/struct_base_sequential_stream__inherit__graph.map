@@ -1,0 +1,8 @@
+<map id="BaseSequentialStream" name="BaseSequentialStream">
+<area shape="rect" id="node2" href="$struct_base_channel.html" title="Base channel class. " alt="" coords="64,123,161,192"/>
+<area shape="rect" id="node6" href="$struct_base_file_stream.html" title="Base file stream class. " alt="" coords="185,123,296,192"/>
+<area shape="rect" id="node7" href="$struct_memory_stream.html" title="Memory stream object. " alt="" coords="321,123,430,192"/>
+<area shape="rect" id="node3" href="$struct_base_asynchronous_channel.html" title="Base asynchronous channel class. " alt="" coords="24,240,201,309"/>
+<area shape="rect" id="node4" href="$struct_serial_driver.html" title="Full duplex serial driver class. " alt="" coords="5,357,95,427"/>
+<area shape="rect" id="node5" href="$struct_serial_u_s_b_driver.html" title="Full duplex serial driver class. " alt="" coords="119,357,232,427"/>
+</map>

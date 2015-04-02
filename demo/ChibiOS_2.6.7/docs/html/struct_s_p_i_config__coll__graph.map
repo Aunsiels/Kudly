@@ -1,0 +1,6 @@
+<map id="SPIConfig" name="SPIConfig">
+<area shape="rect" id="node2" href="$struct_s_p_i_driver.html" title="Structure representing an SPI driver. " alt="" coords="89,396,163,465"/>
+<area shape="rect" id="node3" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="268,5,323,75"/>
+<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="259,135,359,324"/>
+<area shape="rect" id="node5" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="327,396,434,465"/>
+</map>

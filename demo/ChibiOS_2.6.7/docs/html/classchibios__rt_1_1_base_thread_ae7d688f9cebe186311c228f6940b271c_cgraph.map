@@ -1,0 +1,7 @@
+<map id="chibios_rt::BaseThread::exit" name="chibios_rt::BaseThread::exit">
+<area shape="rect" id="node2" href="$group__threads.html#ga24ab3a3a4d70214ee360867a1c3c75ac" title="Terminates the current thread. " alt="" coords="208,53,284,77"/>
+<area shape="rect" id="node3" href="$group__threads.html#ga0275693521c0965a5aa3881d7f331f1a" title="Terminates the current thread. " alt="" coords="332,53,416,77"/>
+<area shape="rect" id="node4" href="$group__scheduler.html#ga97c1c514b755a1e71caf2f19c1ccf986" title="Puts the current thread to sleep into the specified state. " alt="" coords="464,5,576,29"/>
+<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="473,53,567,77"/>
+<area shape="rect" id="node6" href="$group__internals.html#gad9aa523aebdaeefa3cc4a311bc210e8a" title="Pops a Thread from the top of a stack list and returns it. " alt="" coords="476,101,564,125"/>
+</map>

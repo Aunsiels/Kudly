@@ -1,0 +1,10 @@
+<map id="chThdCreateStatic" name="chThdCreateStatic">
+<area shape="rect" id="node2" href="$group__threads.html#gab1a711303711a9b5fcd284c55ec965df" title="Memory fill utility. " alt="" coords="180,5,293,29"/>
+<area shape="rect" id="node3" href="$group__scheduler.html#gae47a8819a21ef2d521124e76bfb37c95" title="Wakes up a thread. " alt="" coords="183,53,290,77"/>
+<area shape="rect" id="node8" href="$group__threads.html#gac6de13d4044b32d3ae9e2066b5d4c030" title="Creates a new thread into a static memory area. " alt="" coords="188,103,285,127"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="483,5,613,29"/>
+<area shape="rect" id="node6" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="341,53,435,77"/>
+<area shape="rect" id="node5" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="661,29,748,53"/>
+<area shape="rect" id="node7" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="485,53,611,77"/>
+<area shape="rect" id="node9" href="$group__threads.html#ga83ee3aef5f09a1547c8cb35360edea45" title="Initializes a thread structure. " alt="" coords="344,152,432,176"/>
+</map>

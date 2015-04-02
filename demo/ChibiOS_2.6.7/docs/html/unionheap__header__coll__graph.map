@@ -1,0 +1,5 @@
+<map id="heap_header" name="heap_header">
+<area shape="rect" id="node2" href="$structmemory__heap.html" title="Structure describing a memory heap. " alt="" coords="82,300,185,369"/>
+<area shape="rect" id="node3" href="$struct_semaphore.html" title="Semaphore structure. " alt="" coords="187,153,275,222"/>
+<area shape="rect" id="node4" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="177,5,284,75"/>
+</map>

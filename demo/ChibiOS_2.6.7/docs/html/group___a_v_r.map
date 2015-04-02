@@ -1,0 +1,6 @@
+<map id="MegaAVR" name="MegaAVR">
+<area shape="rect" id="node1" href="$group___a_v_r___c_o_r_e.html" title="Core Port Implementation" alt="" coords="255,5,423,29"/>
+<area shape="rect" id="node2" href="$group___a_v_r___s_t_a_r_t_u_p.html" title="Startup Support" alt="" coords="282,53,395,77"/>
+<area shape="rect" id="node3" href="$group___a_v_r___c_o_n_f.html" title="Configuration Options" alt="" coords="265,101,412,125"/>
+<area shape="rect" id="node4" href="$group__gcc.html" title="GCC Ports" alt="" coords="5,53,87,77"/>
+</map>

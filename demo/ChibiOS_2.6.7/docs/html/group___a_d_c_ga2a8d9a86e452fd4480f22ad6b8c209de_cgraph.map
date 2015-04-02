@@ -1,0 +1,5 @@
+<map id="adcStartConversionI" name="adcStartConversionI">
+<area shape="rect" id="node2" href="$group___a_d_c.html#ga5a23ece28ce81cc00e2ddb614d656339" title="Starts an ADC conversion. " alt="" coords="191,5,353,29"/>
+<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="209,53,335,77"/>
+<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="401,53,488,77"/>
+</map>
