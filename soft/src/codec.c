@@ -3,22 +3,22 @@
 #include "codec.h"
 
 /* Registers definition */
-#define SCI_MODE 0x0
-#define SCI_STATUS 0x1
-#define SCI_BASS 0x2
-#define SCI_CLOCKF 0x3
+#define SCI_MODE        0x0
+#define SCI_STATUS      0x1
+#define SCI_BASS        0x2
+#define SCI_CLOCKF      0x3
 #define SCI_DECODE_TIME 0x4
-#define SCI_AUDATA 0x5
-#define SCI_WRAM 0x6
-#define SCI_WRAMADDR 0x7
-#define SCI_HDAT0 0x8
-#define SCI_HDAT1 0x9
-#define SCI_AIADDR 0xA
-#define SCI_VOL 0xB
-#define SCI_AICTRL0 0xC
-#define SCI_AICTRL1 0xD
-#define SCI_AICTRL2 0xE
-#define SCI_AICTRL3 0xF
+#define SCI_AUDATA      0x5
+#define SCI_WRAM        0x6
+#define SCI_WRAMADDR    0x7
+#define SCI_HDAT0       0x8
+#define SCI_HDAT1       0x9
+#define SCI_AIADDR      0xA
+#define SCI_VOL         0xB
+#define SCI_AICTRL0     0xC
+#define SCI_AICTRL1     0xD
+#define SCI_AICTRL2     0xE
+#define SCI_AICTRL3     0xF
 
 
 /* Macro used for going in data,command or reset mode */
@@ -50,6 +50,11 @@ static void writeRegister(uint8_t adress, uint16_t command){
   spiSend(&SPID4,sizeof(instruction),instruction);
 
   RESET_MODE;
+  
+  /* Wait until the writing operaion is done */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+    chThdSleepMilliseconds(10);
+  }
 }
 
 static uint16_t readRegister(uint8_t adress){
