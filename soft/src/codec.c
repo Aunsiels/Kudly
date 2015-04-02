@@ -30,7 +30,7 @@
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
   NULL,
-  GPIOB,
+  GPIOE,
   12,
   0
 };
@@ -110,9 +110,15 @@ void codecInit(){
   spiStart(&SPID4, &hs_spicfg);
   spiSelect(&SPID4);
 
-  /* Set Volume */
-  writeRegister(0xB,0xF0);
-
-  readRegister(0xB);
+  /* Use native SPI modes, little-endian for SDI input, and use both XDCS ans XCS for chip select */
+  writeRegister(SCI_MODE,0xA00);
+  /* Set Clock settings : x4.5 multiplier (+ x1 when needed, to encode in Ogg Vorbis)  */
+  writeRegister(SCI_CLOCKF,0xC800);
+  /* Set encoding samplerate to 16000Hz, in mono mode */
+  writeRegister(SCI_AUDATA,0x3E80);
+  /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
+  writeRegister(SCI_VOL,0x2424);
+ 
 
 }
+
