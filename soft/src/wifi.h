@@ -3,12 +3,12 @@
 
 extern char wifi_buffer[];
 
-void wifiInitByUsb(void);
+void wifiInitByUsart(void);
 
-void wifiWriteByUsb(char * message, int length);
+void wifiWriteByUsart(char * message, int length);
 
-void wifiStopByUsb(void);
+void wifiStopByUsart(void);
 
-void wifiReadByUsbTimeout(int timeout);
+void wifiReadByUsartTimeout(int timeout);
 
 #endif
