@@ -1,6 +1,7 @@
 /**
  * \file pir.h
- * \brief This function initializes the pir and the interrupts.
+ * \brief This package initializes the pir.
+ * The PIR uses EXTI so, extPersoInit in ext_init must be call before starting the pir.
  */
 
 #ifndef LED_H
