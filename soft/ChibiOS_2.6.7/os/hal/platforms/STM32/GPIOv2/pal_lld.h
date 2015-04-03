@@ -205,22 +205,6 @@ typedef struct {
   /** @brief Port E setup data.*/
   stm32_gpio_setup_t    PEData;
 #endif
-#if STM32_HAS_GPIOF || defined(__DOXYGEN__)
-  /** @brief Port F setup data.*/
-  stm32_gpio_setup_t    PFData;
-#endif
-#if STM32_HAS_GPIOG || defined(__DOXYGEN__)
-  /** @brief Port G setup data.*/
-  stm32_gpio_setup_t    PGData;
-#endif
-#if STM32_HAS_GPIOH || defined(__DOXYGEN__)
-  /** @brief Port H setup data.*/
-  stm32_gpio_setup_t    PHData;
-#endif
-#if STM32_HAS_GPIOI || defined(__DOXYGEN__)
-  /** @brief Port I setup data.*/
-  stm32_gpio_setup_t    PIData;
-#endif
 } PALConfig;
 
 /**
