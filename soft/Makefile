@@ -74,7 +74,6 @@ include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
-include $(CHIBIOS)/os/various/lwip_bindings/lwip.mk
 include $(CHIBIOS)/test/test.mk
 
 # Define linker script file here
@@ -219,7 +218,7 @@ RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
 
 jlink:
-	JLinkGDBServer -if swd -device "STM32F407ZG" -LocalhostOnly
+	JLinkGDBServer -if swd -device "STM32F427VI" -LocalhostOnly
 
 gdb:
 	arm-none-eabi-gdb build/Kudly.elf

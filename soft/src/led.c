@@ -36,6 +36,14 @@ void ledInit(void) {
     pwmStart(&PWMD5, &pwmcfg_led1);
     pwmStart(&PWMD1, &pwmcfg_led2);
 
+    palSetPadMode(GPIOA, 0, PIN_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, 1, PIN_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, 2, PIN_MODE_ALTERNATE(2));
+
+    palSetPadMode(GPIOE, 8, PIN_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOB, 0, PIN_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOB, 1, PIN_MODE_ALTERNATE(1));
+
     pwmEnableChannel(&PWMD5, 0, 0);
     pwmEnableChannel(&PWMD5, 1, 0);
     pwmEnableChannel(&PWMD5, 2, 0);
@@ -50,7 +58,9 @@ void ledSetColorRGB(int led, int r, int g, int b) {
         pwmEnableChannel(&PWMD5, 0, r);
         pwmEnableChannel(&PWMD5, 1, g);
         pwmEnableChannel(&PWMD5, 2, b);
-    } else if(led == 2 || led == 0) {
+    } 
+    
+    if(led == 2 || led == 0) {
         pwmEnableChannel(&PWMD1, 0, r);
         pwmEnableChannel(&PWMD1, 1, g);
         pwmEnableChannel(&PWMD1, 2, b);
