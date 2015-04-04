@@ -29,7 +29,7 @@ void sccbInit(){
 /*
  * Sends the begin of transimission sequence
  */
-void sccbStartTransmission() {
+static void sccbStartTransmission(void){
     /* Not initialized yet */
     if(state != SCCB_READY) return;
 
@@ -54,7 +54,7 @@ void sccbStartTransmission() {
 /*
  * Sends the end of transmission sequence
  */
-void sccbStopTransmission(){
+static void sccbStopTransmission(void){
     /* Not initialized yet */
     if(state != SCCB_READY) return;
 
@@ -74,7 +74,7 @@ void sccbStopTransmission(){
 /*
  * Send Acknowledgement after reading
  */
-void sccbNA(){
+static void sccbNA(void){
     /* Not initialized yet */
     if(state != SCCB_READY) return;
 
@@ -101,7 +101,7 @@ void sccbNA(){
 /*
  * Send a byte to the camera
  */
-int sccbSendByte(uint8_t data){
+static int sccbSendByte(uint8_t data){
     /* Not initialized yet */
     if(state != SCCB_READY) return 0;
     
@@ -148,7 +148,7 @@ int sccbSendByte(uint8_t data){
 /*
  * Read byte sent by the camera
  */
-uint8_t sccbReadByte(){
+static uint8_t sccbReadByte(void){
     /* Not initialized yet */
     if(state != SCCB_READY) return 0;
     
