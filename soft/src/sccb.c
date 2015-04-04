@@ -251,10 +251,26 @@ void cmdWrite(BaseSequentialStream *chp, int argc, char *argv[]){
     }
     char ** useless = NULL;
     uint8_t addr = strtol(argv[0], useless, 16);
-    uint8_t val  = strtol(argv[0], useless, 16);
+    uint8_t val  = strtol(argv[1], useless, 16);
 
     if(sccbWrite(addr, val)){
         chprintf(chp, "Transmission succeeded\r\n");
+    } else {
+        chprintf(chp, "Transmission failed\r\n");
+    }
+}
+
+void cmdRead(BaseSequentialStream *chp, int argc, char *argv[]){
+    if (argc != 1){
+        chprintf(chp, "Usage : sccbRead register(hex)\r\n");
+        return;
+    }
+    char ** useless = NULL;
+    uint8_t addr = strtol(argv[0], useless, 16);
+    uint8_t value = 0;
+
+    if(sccbRead(addr, &value)){
+        chprintf(chp, "Value of the register : %X\r\n", value);
     } else {
         chprintf(chp, "Transmission failed\r\n");
     }
