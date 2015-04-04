@@ -10,7 +10,7 @@ int main(void) {
     ledInit();
     ledTest();
 
-    while (TRUE) {
-        chThdSleepMilliseconds(500);
+    while (1) {
+        chThdSleepMilliseconds(1000);
     }
 }

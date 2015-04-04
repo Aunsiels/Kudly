@@ -106,42 +106,45 @@ static msg_t ledTest_thd(void * args) {
     pwmEnableChannel(&PWMD1, 1, 255);
     pwmEnableChannel(&PWMD1, 2, 255);
 
-    chThdSleepMilliseconds(500);
+    chThdSleepMilliseconds(1000);
 
     ledSetColorRGB(0, 0, 0, 0);
 
-    chThdSleepMilliseconds(500);
+    chThdSleepMilliseconds(1000);
 
     ledSetColorRGB(1, 255, 0, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(1, 0, 255, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(1, 0, 0, 255);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(1, 0, 0, 0);
+    chThdSleepMilliseconds(1000);
 
     ledSetColorRGB(2, 255, 0, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(2, 0, 255, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(2, 0, 0, 255);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorRGB(2, 0, 0, 0);
+    chThdSleepMilliseconds(1000);
 
     ledSetColorHSV(1, 255, 0, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(1, 0, 255, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(1, 0, 0, 255);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(1, 0, 0, 0);
+    chThdSleepMilliseconds(1000);
 
     ledSetColorHSV(2, 255, 0, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(2, 0, 255, 0);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(2, 0, 0, 255);
-    chThdSleepMilliseconds(400);
+    chThdSleepMilliseconds(1000);
     ledSetColorHSV(2, 0, 0, 0);
 
     chThdSleep(TIME_INFINITE);
