@@ -2,11 +2,13 @@
 #include "ch.h"
 #include "sccb.h"
 
-#define DELAY 30
-#define SCCB_UNINIT 0
-#define SCCB_READY  1
-#define SIO_C 9
-#define SIO_D 8
+#define DELAY             30
+#define SCCB_UNINIT       0
+#define SCCB_READY        1
+#define SIO_C             9
+#define SIO_D             8
+#define WRITE_ADDRESS     60
+#define READ_ADDRESS      61
 
 static int state = 0;
 
@@ -52,7 +54,7 @@ void sccbStartTransmission() {
 /*
  * Sends the end of transmission sequence
  */
-void sccbStopTransimission(){
+void sccbStopTransmission(){
     /* Not initialized yet */
     if(state != SCCB_READY) return;
 
@@ -179,4 +181,31 @@ uint8_t sccbReadByte(){
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_OUTPUT_OPENDRAIN);
 
     return data;
+}
+
+/*
+ * Write data to a register of the camera
+ */
+int sccbWrite(uint8_t registerAddress, uint8_t value){
+    /* Not initialized yet */
+    if(state != SCCB_READY) return 0;
+
+    sccbStartTransmission();  
+
+    /* 
+     * The slave address is on 7 bits, the last one (the less significative) is
+     * 0 if we are writting.
+     */
+     if (sccbSendByte(2 * WRITE_ADDRESS)){
+         if (sccbSendByte(registerAddress)){
+             if (sccbSendByte(value)){
+                 sccbStopTransmission();
+                 return 1;
+             }
+         }
+     }
+
+     /* Something failed */
+     sccbStopTransmission();
+     return 0;
 }
