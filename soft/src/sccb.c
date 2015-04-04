@@ -1,6 +1,8 @@
 #include "hal.h"
 #include "ch.h"
 #include "sccb.h"
+#include "chprintf.h"
+#include <stdlib.h>
 
 #define DELAY             30
 #define SCCB_UNINIT       0
@@ -240,4 +242,20 @@ int sccbRead(uint8_t registerAddress, uint8_t * value){
     sccbStopTransmission();
     /* The transmission failed */
     return 0;
+}
+
+void cmdWrite(BaseSequentialStream *chp, int argc, char *argv[]){
+    if (argc != 2){
+        chprintf(chp, "Usage : sccbWrite register(hex) value(hex)\r\n");
+        return;
+    }
+    char ** useless = NULL;
+    uint8_t addr = strtol(argv[0], useless, 16);
+    uint8_t val  = strtol(argv[0], useless, 16);
+
+    if(sccbWrite(addr, val)){
+        chprintf(chp, "Transmission succeeded\r\n");
+    } else {
+        chprintf(chp, "Transmission failed\r\n");
+    }
 }

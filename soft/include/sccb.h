@@ -27,4 +27,12 @@ int sccbWrite(uint8_t registerAddress, uint8_t value);
  */
 int sccbRead(uint8_t registerAddress, uint8_t * value);
 
+/**
+ * \brief Command the write in a register from the shell
+ * \param chp The channel where the strings are written.
+ * \param argc The number of arguments
+ * \param argv The arguments
+ */
+void cmdWrite(BaseSequentialStream *chp, int argc, char *argv[]);
+
 #endif
