@@ -68,3 +68,24 @@ void sccbStopTransimission(){
     /* Bus free time before new start */
     chThdSleepMicroseconds(DELAY);
 }
+
+/*
+ * Send Acknowledgement after reading
+ */
+void sccbNA(){
+    /* Not initialized yet */
+    if(state != SCCB_READY) return;
+
+    /* Shows that data have been received */
+    palSetPad(GPIOC, SIO_D);
+    chThdSleepMicroseconds(DELAY);
+
+    palSetPad(GPIOC, SIO_C);
+    chThdSleepMicroseconds(DELAY);
+
+    palClearPad(GPIOC, SIO_C);
+    chThdSleepMicroseconds(DELAY);
+
+    palClearPad(GPIOC, SIO_D);
+    chThdSleepMicroseconds(DELAY);
+}
