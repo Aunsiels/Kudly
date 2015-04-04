@@ -2,7 +2,7 @@
 #include "ch.h"
 #include "sccb.h"
 
-#define DELAY
+#define DELAY 30
 #define SCCB_UNINIT 0
 #define SCCB_READY  1
 #define SIO_C 9
@@ -24,4 +24,31 @@ void sccbInit(){
     state = SCCB_READY;
 }
 
+/*
+ * Sends the begin of transimission sequence
+ */
+void sccbStartTransmission() {
+    /* Not initialized yet */
+    if(state != SCCB_READY) return;
 
+    /* A transmission begins with SIO_C and SIO_D both high and then both low */
+    palSetPad(GPIOC, SIO_D);
+    /* start condition setup time, min 600ns */
+    chThdSleepMicroseconds(DELAY);
+
+    palSetPad(GPIOC, SIO_C);
+    /* t high, min 600ns */
+    chThdSleepMicroseconds(DELAY);
+
+    palClearPad(GPIOC, SIO_D);
+    /* start condition hold time, min 600ns */
+    chThdSleepMicroseconds(DELAY);
+
+    palClearPad(GPIOC, SIO_C);
+    /* t low, min 1.3us */
+    chThdSleepMicroseconds(DELAY);
+}
+
+/*
+ * Sends the end of transmission sequence
+ */
