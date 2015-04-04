@@ -101,7 +101,7 @@ void sccbNA(){
  */
 int sccbSendByte(uint8_t data){
     /* Not initialized yet */
-    if(state != SCCB_READY) return;
+    if(state != SCCB_READY) return 0;
     
     int i, success;
     /* We send all the bits, beginning the MSB*/
@@ -141,4 +141,42 @@ int sccbSendByte(uint8_t data){
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_OUTPUT_OPENDRAIN);
 
     return success;
+}
+
+/*
+ * Read byte sent by the camera
+ */
+uint8_t sccbReadByte(){
+    /* Not initialized yet */
+    if(state != SCCB_READY) return 0;
+    
+    /* Ready to read */
+    palSetPadMode(GPIOC, SIO_D, PAL_MODE_INPUT);
+    chThdSleepMicroseconds(DELAY);
+
+    uint8_t data = 0;
+
+    int i;
+    /* We read all the bits, beginning the MSB*/
+    for(i = 0; i < 8; ++i){
+        /* TIC */
+        palSetPad(GPIOC, SIO_C);
+        chThdSleepMicroseconds(DELAY);
+
+        /* Lets read */
+        /* We first move the last read data */
+        data = data << 1;
+        /* Read the value */
+        if (palReadPad(GPIOC, SIO_D))
+            data++;
+
+        /* TAC */
+        palClearPad(GPIOC, SIO_C);
+        chThdSleepMicroseconds(DELAY);
+    }
+
+    /* We put the output mode again */
+    palSetPadMode(GPIOC, SIO_D, PAL_MODE_OUTPUT_OPENDRAIN);
+
+    return data;
 }
