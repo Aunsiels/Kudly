@@ -216,3 +216,9 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
+
+jlink:
+	JLinkGDBServer -if swd -device "STM32F427VI" -LocalhostOnly
+
+gdb:
+	arm-none-eabi-gdb build/Kudly.elf
