@@ -52,3 +52,19 @@ void sccbStartTransmission() {
 /*
  * Sends the end of transmission sequence
  */
+void sccbStopTransimission(){
+    /* Not initialized yet */
+    if(state != SCCB_READY) return;
+
+    /* An end is SIO_D low and then both SIO_C and SIO_D high */
+    palClearPad(GPIOC, SIO_D);
+    chThdSleepMicroseconds(DELAY);
+
+    palSetPad(GPIOC, SIO_C);
+    /* Stop condition setup time */
+    chThdSleepMicroseconds(DELAY);
+
+    palSetPad(GPIOC,SIO_D);
+    /* Bus free time before new start */
+    chThdSleepMicroseconds(DELAY);
+}
