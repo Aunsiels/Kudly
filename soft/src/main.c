@@ -1,5 +1,6 @@
 #include "ch.h"
 #include "hal.h"
+#include "codec.h"
 
 int main(void) {
 
@@ -14,6 +15,9 @@ int main(void) {
   palSetPad(GPIOA,0);
   palClearPad(GPIOA,1);
   palClearPad(GPIOA,2);
+  
+  codecInit();
+  
 
   while (TRUE) {
     chThdSleepMilliseconds(500);

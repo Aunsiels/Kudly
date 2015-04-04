@@ -86,6 +86,19 @@ void codecReset(void){
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
 
+  if(readRegister(SCI_VOL) == 0x2424){
+    while(1){
+      chThdSleepMilliseconds(100);
+      palTogglePad(GPIOA,1);
+    }
+  }
+  else{
+    while(1){
+      chThdSleepMilliseconds(100);
+      palTogglePad(GPIOA,2);
+    }
+  }
+
   
 }
 
