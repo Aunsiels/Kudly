@@ -196,7 +196,7 @@ int sccbWrite(uint8_t registerAddress, uint8_t value){
      * The slave address is on 7 bits, the last one (the less significative) is
      * 0 if we are writting.
      */
-     if (sccbSendByte(2 * WRITE_ADDRESS)){
+     if (sccbSendByte(WRITE_ADDRESS)){
          if (sccbSendByte(registerAddress)){
              if (sccbSendByte(value)){
                  sccbStopTransmission();
@@ -208,4 +208,36 @@ int sccbWrite(uint8_t registerAddress, uint8_t value){
      /* Something failed */
      sccbStopTransmission();
      return 0;
+}
+
+/*
+ * Read the value of a register
+ */
+
+int sccbRead(uint8_t registerAddress, uint8_t * value){
+    sccbStartTransmission();
+
+    if (sccbSendByte(WRITE_ADDRESS)){
+        if(sccbSendByte(registerAddress)){
+            /* Now the camera will answer */
+            sccbStopTransmission();
+            /* The camera needs a new transmission */
+            sccbStartTransmission();
+
+            /* We now ask to read on the read address */
+            if (sccbSendByte(READ_ADDRESS)){
+                /* Read value */
+                *value = sccbReadByte();
+                /* Acknowledgement */
+                sccbNA();
+                /* Stop transmission */
+                sccbStopTransmission();
+                return 1;
+            }
+        }
+    }
+    /* Stop transmission */
+    sccbStopTransmission();
+    /* The transmission failed */
+    return 0;
 }
