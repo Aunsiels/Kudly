@@ -94,6 +94,7 @@ CSRC = $(PORTSRC) \
        $(LWSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
+       $(KUDLYSRC)/led.c \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -216,3 +217,10 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
+
+jlink:
+	JLinkGDBServer -if swd -device "STM32F427VIT6" -LocalhostOnly
+
+gdb:
+	arm-none-eabi-gdb build/Kudly.elf
+

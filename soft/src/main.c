@@ -1,12 +1,16 @@
 #include "ch.h"
 #include "hal.h"
+#include "led.h"
 
 int main(void) {
 
-  halInit();
-  chSysInit();
+    halInit();
+    chSysInit();
 
-  while (TRUE) {
-    chThdSleepMilliseconds(500);
-  }
+    ledInit();
+    ledTest();
+
+    while (TRUE) {
+        chThdSleepMilliseconds(500);
+    }
 }
