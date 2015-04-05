@@ -4,7 +4,7 @@
 #include <hal.h>
 
 static PWMConfig pwmcfg_led1 = {
-    10000,
+    100000,
     256,
     NULL,
     {
@@ -13,37 +13,40 @@ static PWMConfig pwmcfg_led1 = {
         {PWM_OUTPUT_ACTIVE_HIGH, NULL},
         {PWM_OUTPUT_DISABLED, NULL}
     },
+    0,
     0,
     0
 };
 
 static PWMConfig pwmcfg_led2 = {
-    10000,
+    100000,
     256,
     NULL,
     {
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
         {PWM_OUTPUT_DISABLED, NULL}
     },
+    0,
     0,
     0
 };
 
 void ledInit(void) {
-    //Led 1 on timer 5, led 2 on timer 1
+    
+  //Led 1 on timer 5, led 2 on timer 1
     pwmStart(&PWMD5, &pwmcfg_led1);
     pwmStart(&PWMD1, &pwmcfg_led2);
 
-    palSetPadMode(GPIOA, 0, PIN_MODE_ALTERNATE(2));
-    palSetPadMode(GPIOA, 1, PIN_MODE_ALTERNATE(2));
-    palSetPadMode(GPIOA, 2, PIN_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, GPIOA_LED1_R, PAL_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, GPIOA_LED1_G, PAL_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, GPIOA_LED1_B, PAL_MODE_ALTERNATE(2));
 
-    palSetPadMode(GPIOE, 8, PIN_MODE_ALTERNATE(1));
-    palSetPadMode(GPIOB, 0, PIN_MODE_ALTERNATE(1));
-    palSetPadMode(GPIOB, 1, PIN_MODE_ALTERNATE(1));
-
+    palSetPadMode(GPIOB, GPIOB_LED2_R, PAL_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOB, GPIOB_LED2_G, PAL_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOE, GPIOE_LED2_B, PAL_MODE_ALTERNATE(1));
+    
     pwmEnableChannel(&PWMD5, 0, 0);
     pwmEnableChannel(&PWMD5, 1, 0);
     pwmEnableChannel(&PWMD5, 2, 0);
@@ -61,9 +64,9 @@ void ledSetColorRGB(int led, int r, int g, int b) {
     } 
     
     if(led == 2 || led == 0) {
-        pwmEnableChannel(&PWMD1, 0, r);
+        pwmEnableChannel(&PWMD1, 2, r);
         pwmEnableChannel(&PWMD1, 1, g);
-        pwmEnableChannel(&PWMD1, 2, b);
+        pwmEnableChannel(&PWMD1, 0, b);
     }
 }
 
@@ -98,56 +101,70 @@ void ledSetColorHSV(int led, int h, int s, int v) {
 
 static msg_t ledTest_thd(void * args) {
     (void)args;
-    pwmEnableChannel(&PWMD5, 0, 255);
-    pwmEnableChannel(&PWMD5, 1, 255);
-    pwmEnableChannel(&PWMD5, 2, 255);
+    
+    while(TRUE){
+      pwmEnableChannel(&PWMD5, 0, 255);
+      pwmEnableChannel(&PWMD5, 1, 255);
+      pwmEnableChannel(&PWMD5, 2, 255);
+      
+      pwmEnableChannel(&PWMD1, 0, 255);
+      pwmEnableChannel(&PWMD1, 1, 255);
+      pwmEnableChannel(&PWMD1, 2, 255);
+      
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(0, 0, 0, 0);
+      
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(1, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(2, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorHSV(1, 0, 100, 100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 120, 100, 100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 240, 100, 100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorHSV(2, 0, 100,100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 120, 100, 100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 240, 100, 100);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 0, 0, 0);
 
-    pwmEnableChannel(&PWMD1, 0, 255);
-    pwmEnableChannel(&PWMD1, 1, 255);
-    pwmEnableChannel(&PWMD1, 2, 255);
+      int i;
+      for(i = 1; i<255; i=i*2){
+	ledSetColorRGB(0, i, i, i);
+	chThdSleepMilliseconds(1000);	
+      }
+      
+      for(i = 1; i<360; i++){
+	ledSetColorHSV(0, i, 100, 100);
+	chThdSleepMilliseconds(20);	
+      }
+      chThdSleepMilliseconds(1000);	
 
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(0, 0, 0, 0);
-
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(1, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(2, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorHSV(1, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorHSV(2, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 0, 0);
-
-    chThdSleep(TIME_INFINITE);
+    }
     return 0;
 }
 
