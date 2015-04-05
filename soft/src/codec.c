@@ -25,19 +25,18 @@ static void writeRegister(uint8_t adress, uint16_t command){
   uint8_t command1 = (command << 8);
   uint8_t command2 = (command & 0xff);
   
+  /* Wait until the writing operation is done */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+  
   COMMAND_MODE;
   
   /* Construction of instruction (Write opcode, adress, command) */
-  spiSend(&SPID4,sizeof(&writeCommand),&writeCommand);
-  spiSend(&SPID4,sizeof(&adress),&adress);
-  spiSend(&SPID4,sizeof(&command1),&command1);
-  spiSend(&SPID4,sizeof(&command2),&command2);
-
+  spiSend(&SPID4,1,&writeCommand);
+  spiSend(&SPID4,1,&adress);
+  spiSend(&SPID4,1,&command1);
+  spiSend(&SPID4,1,&command2);
 
   RESET_MODE;
-
-  /* Wait until the writing operation is done */
-  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
 }
 
@@ -47,18 +46,17 @@ static uint16_t readRegister(uint8_t adress){
   
   /* Wait until it's possible to read from SCI */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-    
+  writeSerial("Read Command : 0x%x\r\n",readCommand); 
+  writeSerial("Adress : 0x%x\r\n",adress); 
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
-  spiSend(&SPID4,sizeof(&readCommand),&readCommand);
-  spiSend(&SPID4,sizeof(&adress),&adress);
-  spiReceive(&SPID4,sizeof(&readData1),&readData1);
-  spiReceive(&SPID4,sizeof(&readData2),&readData2);
-    
+  spiSend(&SPID4,1,&readCommand);
+  spiSend(&SPID4,1,&adress);
+  spiReceive(&SPID4,1,&readData1);
+  spiReceive(&SPID4,1,&readData2);
+  
   RESET_MODE;
-
-  palClearPad(GPIOA,0);palClearPad(GPIOA,1);palClearPad(GPIOA,2);
 
   data = ((readData1) << 8);
   data |= readData2;
@@ -106,13 +104,13 @@ void codecReset(void){
   writeRegister(SCI_AUDATA,0x3E80);
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
+  
+  int i;
 
   while(1){
     palTogglePad(GPIOE,8);chThdSleepMilliseconds(500);
-    /*writeSerial("Registre SCI_MODE : %x\r\n",*/readRegister(SCI_MODE);
-  /*writeSerial("Registre SCI_CLOCKF : %x\r\n",*/readRegister(SCI_CLOCKF);
-/*writeSerial("Registre SCI_AUDATA : %x\r\n",*/readRegister(SCI_AUDATA);
-/*writeSerial("Registre SCI_VOL : %x\r\n\r\n",*/readRegister(SCI_VOL);
+    for(i = 0 ; i < 16 ; i++ )
+      writeSerial("Registre %u : %x\r\n",i,readRegister(i));
   }
   
 }
@@ -123,10 +121,10 @@ void codecInit(){
   palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP);
-  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
-  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
-  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
-
+  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5));
+  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5));
+  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5));
+  
   /* Start of SPI bus */
   spiAcquireBus(&SPID4);
   spiStart(&SPID4, &hs_spicfg);

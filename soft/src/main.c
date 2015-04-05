@@ -12,7 +12,7 @@ int main(void) {
     chSysInit();
 
     /* Initialize the serial over usb */
-    //initUsbSerial();
+    initUsbSerial();
     
     /* Initialize the shell */
     //shellPersoInit();
