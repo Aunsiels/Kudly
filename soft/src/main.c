@@ -4,24 +4,27 @@
 #include "usb_serial.h"
 #include "shell_cfg.h"
 #include "sd_perso.h"
+#include "codec.h"
 
 int main(void) {
 
     halInit();
     chSysInit();
 
-    ledInit();
-    ledTest();
-
     /* Initialize the serial over usb */
     initUsbSerial();
-
-    //Initialize shell
+    
+    /* Initialize the shell */
     shellPersoInit();
+    
+    codecInit();
 
-    //Initialize SD card
-    sdPersoInit();
-
-    chThdSleepMilliseconds(TIME_INFINITE);
+    palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
+    
+    while(TRUE){
+      chThdSleepMilliseconds(500);
+      palTogglePad(GPIOA,0);
+    }
+    
     return 0;
 }

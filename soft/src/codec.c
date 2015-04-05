@@ -2,28 +2,37 @@
 #include "hal.h"
 #include "codecDefinitions.h"
 #include "codec.h"
+#include "usb_serial.h"
 
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
   NULL,
   GPIOE,
-  12,
+  11,
   0
 };
 
 /* Buffer used for construcion of read and write command instructions */
-static uint8_t instruction[4];
-static uint8_t registerContent[4];
+static const uint8_t writeCommand = 2;
+static const uint8_t readCommand = 3;
+static uint8_t readData1 = 1;
+static uint8_t readData2 = 1;
+
+
 
 static void writeRegister(uint8_t adress, uint16_t command){
+  
+  uint8_t command1 = (command << 8);
+  uint8_t command2 = (command & 0xff);
+  
   COMMAND_MODE;
-
+  
   /* Construction of instruction (Write opcode, adress, command) */
-  instruction[0] = 0x02;
-  instruction[1] = adress;
-  instruction[2] = (command >> 8);
-  instruction[3] = command;
-  spiSend(&SPID4,sizeof(instruction),instruction);
+  spiSend(&SPID4,sizeof(&writeCommand),&writeCommand);
+  spiSend(&SPID4,sizeof(&adress),&adress);
+  spiSend(&SPID4,sizeof(&command1),&command1);
+  spiSend(&SPID4,sizeof(&command2),&command2);
+
 
   RESET_MODE;
 
@@ -33,17 +42,26 @@ static void writeRegister(uint8_t adress, uint16_t command){
 }
 
 static uint16_t readRegister(uint8_t adress){
+
+  uint16_t data;
+
+  /* Wait until it's possible to read from SCI */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+  
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
-  instruction[0] = 0x03;
-  instruction[1] = adress;
-  spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-
+  spiSend(&SPID4,sizeof(&readCommand),&readCommand);
+  spiSend(&SPID4,sizeof(&adress),&adress);
+  spiReceive(&SPID4,sizeof(&readData1),&readData1);
+  spiReceive(&SPID4,sizeof(&readData2),&readData2);
+    
   RESET_MODE;
 
-  /* Return only the 2 last bytes (data from the register) */
-  return ((registerContent[2]<<8) + registerContent[3]);
+  data = ((readData1) << 8);
+  data |= readData2;
+  /* Return data from the register */
+  return (data);
 }
 
 void sendData(const uint8_t * data){
@@ -87,19 +105,13 @@ void codecReset(void){
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
 
-  if(readRegister(SCI_VOL) == 0x2424){
-    while(1){
-      chThdSleepMilliseconds(100);
-      palTogglePad(GPIOA,1);
-    }
+  while(1){
+    chThdSleepMilliseconds(1000);
+    writeSerial("Registre SCI_MODE : %x\r\n",readRegister(SCI_MODE));
+    writeSerial("Registre SCI_CLOCKF : %x\r\n",readRegister(SCI_CLOCKF));
+    writeSerial("Registre SCI_AUDATA : %x\r\n",readRegister(SCI_AUDATA));
+    writeSerial("Registre SCI_VOL : %x\r\n\r\n",readRegister(SCI_VOL));
   }
-  else{
-    while(1){
-      chThdSleepMilliseconds(100);
-      palTogglePad(GPIOA,2);
-    }
-  }
-
   
 }
 
