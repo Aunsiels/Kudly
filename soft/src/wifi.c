@@ -2,6 +2,7 @@
 #include "hal.h"
 #include "wifi.h"
 #include "string.h"
+#include "chprintf.h"
 #include "usb_serial.h"
 
 // Mailbox for received data
@@ -25,8 +26,9 @@ static msg_t usartRead_thd(void * args) {
     while(1) {
         if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
             writeSerial("%c", c);
+
             /*
-             * Send byte to the codec, the SD card...
+             * Then send byte to the codec, the SD card...
              */
         }
     }
@@ -71,7 +73,7 @@ void wifiReadByUsart(void){
     sdRead(&SD3,(uint8_t *) wifi_buffer, 256);
 }
 
-void usartRead(void) {
+void wifiUsartRead(void) {
     static WORKING_AREA(usartRead_wa, 128);
     static WORKING_AREA(usartReadInMB_wa, 128);
 
@@ -84,3 +86,33 @@ void usartRead(void) {
             NORMALPRIO, usartRead_thd, NULL);
 }
 
+/*
+ * wifi command for shell
+ */
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+    //static int startCmd, endCmd;
+    (void)argv;
+
+    static int i;
+    static char space[1] = " ";
+    static char end[2] = "\n\r";
+
+    // Wrong command
+    if(argc == 0) {
+        chprintf(chp, "Usage : wifi command\r\n");
+        return;
+    }
+
+    /* 
+     * Parsing command & sending to wifi
+     */
+        for(i = 0 ; i < argc ; i++) {
+            wifiWriteByUsart(argv[i], strlen(argv[i]));
+            wifiWriteByUsart(space, 1);
+        }
+
+        wifiWriteByUsart(end, 2);
+
+    return;
+}

@@ -13,6 +13,8 @@ void wifiReadByUsartTimeout(int timeout);
 
 void wifiReadByUsart(void);
 
-void usartRead(void);
+void wifiUsartRead(void);
+
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif
