@@ -11,4 +11,6 @@ void wifiStopByUsart(void);
 
 void wifiReadByUsartTimeout(int timeout);
 
+void wifiReadByUsart(void);
+
 #endif

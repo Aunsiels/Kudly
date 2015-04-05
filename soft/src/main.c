@@ -6,8 +6,8 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 
-char wifi_buffer[16];
-char message[]="get wlan.ssid\r\n";
+char wifi_buffer[7];
+char message[]="\r\n";
 
 int main(void) {
 
@@ -15,7 +15,7 @@ int main(void) {
     chSysInit();
 
     /* Initialize the serial over usb */
-    //initUsbSerial();
+    initUsbSerial();
 
     //Initialize shell
     //shellPersoInit();
@@ -23,14 +23,22 @@ int main(void) {
     //Initialize SD card
     //sdPersoInit();
 
-    ledInit();
-    ledTest();
+    //ledInit();
+    //ledTest();
     
-    //wifiInitByUsart();
-    //wifiWriteByUsart(message, sizeof(message));
+    wifiInitByUsart();
     //wifiReadByUsartTimeout(2000);
     //writeSerial(wifi_buffer);
 
+
+    while(TRUE){
+      chThdSleepMilliseconds(2000);
+      wifiWriteByUsart(message, sizeof(message));
+      writeSerial(message);
+      wifiReadByUsart();
+      (SDU1.vmt)->write(&SDU1, (uint8_t*)wifi_buffer, 7);
+      writeSerial("\r\n");
+    }
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }
