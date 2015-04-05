@@ -10,26 +10,17 @@ int main(void) {
     halInit();
     chSysInit();
 
-    ledInit();
-    ledTest();
-    /*
-    palSetPadMode(GPIOB,0, PAL_MODE_OUTPUT_PUSHPULL);
-
-
-    while(TRUE){
-      palTogglePad(GPIOB,0);
-      chThdSleepMilliseconds(1000);
-      palTogglePad(GPIOB,0);
-      chThdSleepMilliseconds(1000);
-      }*/
     /* Initialize the serial over usb */
-    //initUsbSerial();
+    initUsbSerial();
 
     //Initialize shell
-    //shellPersoInit();
+    shellPersoInit();
 
     //Initialize SD card
-    //sdPersoInit();
+    sdPersoInit();
+
+    ledInit();
+    ledTest();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
