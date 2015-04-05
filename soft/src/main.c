@@ -8,7 +8,6 @@
 
 char message[]="set wlan.ssid \"54vergniaud\"\r\n";
 char message1[]="set wlan.passkey \"rose2015rulez\"\r\n";
-char message2[]="save\r\n";
 
 
 int main(void) {
@@ -27,6 +26,8 @@ int main(void) {
 
     //ledInit();
     //ledTest();
+    //
+    writeSerial("Starting !");
     
     wifiInitByUsart();
     //wifiReadByUsartTimeout(2000);
@@ -40,11 +41,6 @@ int main(void) {
     chThdSleepMilliseconds(2000);
     wifiWriteByUsart(message1, sizeof(message1));
     wifiReadByUsartTimeout(2000);
-
-    chThdSleepMilliseconds(2000);
-    wifiWriteByUsart(message2, sizeof(message2));
-    wifiReadByUsartTimeout(2000);
-    chThdSleepMilliseconds(2000);
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

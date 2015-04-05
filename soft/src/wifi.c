@@ -4,38 +4,83 @@
 #include "string.h"
 #include "usb_serial.h"
 
+// Mailbox for received data
+static msg_t mb_buf[32];
+MAILBOX_DECL(mb, mb_buf, 32);
 
-char wifi_buffer[256];
+char wifi_buffer[1];
+char c;
+
 static SerialConfig uartCfg =
 {
-  115200,
-  0,
-  0,
-0// bit rate
+    115200,
+    0,
+    0,
+    0// bit rate
 };
 
+static msg_t usartRead_thd(void * args) {
+    (void)args;
+
+    while(1) {
+        if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
+            writeSerial("%c", c);
+            /*
+             * Send byte to the codec, the SD card...
+             */
+        }
+    }
+
+    return 0;
+}
+
+static msg_t usartReadInMB_thd(void * args) {
+    (void)args;
+
+    while(1) {
+        sdRead(&SD3,(uint8_t *) wifi_buffer, 1);
+        chMBPost(&mb, wifi_buffer[0], TIME_INFINITE);
+    }
+
+    return 0;
+}
+
+
 void wifiInitByUsart(void){  
-  palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
-  palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
-  palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
-  palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
-  sdStart(&SD3, &uartCfg);
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
+    sdStart(&SD3, &uartCfg);
 }
 
 void wifiWriteByUsart(char * message, int length){
-  sdWrite(&SD3, (uint8_t*)message, length); 
+    sdWrite(&SD3, (uint8_t*)message, length); 
 }
 
 void wifiStopByUsart(void){
-  sdStop(&SD3);
+    sdStop(&SD3);
 }
 
 void wifiReadByUsartTimeout(int timeout){
-  (void)timeout;
-  sdReadTimeout(&SD3,(uint8_t *) wifi_buffer, 256, timeout);
-  writeSerial(wifi_buffer);
+    (void)timeout;
+    sdReadTimeout(&SD3,(uint8_t *) wifi_buffer, 1, timeout);
 }
 
 void wifiReadByUsart(void){
-  sdRead(&SD3,(uint8_t *) wifi_buffer, 256);
+    sdRead(&SD3,(uint8_t *) wifi_buffer, 256);
 }
+
+void usartRead(void) {
+    static WORKING_AREA(usartRead_wa, 128);
+    static WORKING_AREA(usartReadInMB_wa, 128);
+
+    chThdCreateStatic(
+            usartReadInMB_wa, sizeof(usartReadInMB_wa),
+            NORMALPRIO, usartReadInMB_thd, NULL);
+
+    chThdCreateStatic(
+            usartRead_wa, sizeof(usartRead_wa),
+            NORMALPRIO, usartRead_thd, NULL);
+}
+
