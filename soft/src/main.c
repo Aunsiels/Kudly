@@ -10,17 +10,17 @@ int main(void) {
     halInit();
     chSysInit();
 
-    ledInit();
-    ledTest();
-
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    /* Initialize shell */
+    //Initialize shell
     shellPersoInit();
-    
-    /* Initialize sd */
+
+    //Initialize SD card
     sdPersoInit();
+
+    ledInit();
+    ledTest();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
