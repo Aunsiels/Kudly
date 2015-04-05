@@ -432,7 +432,7 @@ static msg_t sdThread(void *arg) {
     (void) arg;
 
     /* Initialize SPI pins */
-    palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_OPENDRAIN);
     palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));
     palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5));
     palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5));

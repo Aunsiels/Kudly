@@ -19,9 +19,6 @@ int main(void) {
     //Initialize shell
     shellPersoInit();
 
-    //Initialize SD card
-    sdPersoInit();
-
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }
