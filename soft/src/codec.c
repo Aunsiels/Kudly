@@ -29,6 +29,7 @@ static void writeRegister(uint8_t adress, uint16_t command){
 
   /* Wait until the writing operation is done */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+
 }
 
 static uint16_t readRegister(uint8_t adress){
@@ -104,6 +105,7 @@ void codecReset(void){
 
 void codecInit(){
   /* Change the mode of the pins used for the codec and his SPI bus */
+
   palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP);
@@ -128,4 +130,5 @@ void codecLowPower(){
   writeRegister(SCI_AUDATA,0x0010);
   /* Set the attenuation to his maximum */
   writeRegister(SCI_VOL,0xffff);
+
 }
