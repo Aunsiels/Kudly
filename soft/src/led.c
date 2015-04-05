@@ -14,6 +14,7 @@ static PWMConfig pwmcfg_led1 = {
         {PWM_OUTPUT_DISABLED, NULL}
     },
     0,
+    0,
     0
 };
 
@@ -22,11 +23,12 @@ static PWMConfig pwmcfg_led2 = {
     256,
     NULL,
     {
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-        {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
+        { PWM_COMPLEMENTARY_OUTPUT_ACTIVE_HIGH, NULL},
         {PWM_OUTPUT_DISABLED, NULL}
     },
+    0,
     0,
     0
 };
@@ -36,13 +38,13 @@ void ledInit(void) {
     pwmStart(&PWMD5, &pwmcfg_led1);
     pwmStart(&PWMD1, &pwmcfg_led2);
 
-    palSetPadMode(GPIOA, 0, PIN_MODE_ALTERNATE(2));
-    palSetPadMode(GPIOA, 1, PIN_MODE_ALTERNATE(2));
-    palSetPadMode(GPIOA, 2, PIN_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, 0, PAL_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, 1, PAL_MODE_ALTERNATE(2));
+    palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(2));
 
-    palSetPadMode(GPIOE, 8, PIN_MODE_ALTERNATE(1));
-    palSetPadMode(GPIOB, 0, PIN_MODE_ALTERNATE(1));
-    palSetPadMode(GPIOB, 1, PIN_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOE, 8, PAL_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOB, 0, PAL_MODE_ALTERNATE(1));
+    palSetPadMode(GPIOB, 1, PAL_MODE_ALTERNATE(1));
 
     pwmEnableChannel(&PWMD5, 0, 0);
     pwmEnableChannel(&PWMD5, 1, 0);
@@ -98,56 +100,58 @@ void ledSetColorHSV(int led, int h, int s, int v) {
 
 static msg_t ledTest_thd(void * args) {
     (void)args;
-    pwmEnableChannel(&PWMD5, 0, 255);
-    pwmEnableChannel(&PWMD5, 1, 255);
-    pwmEnableChannel(&PWMD5, 2, 255);
-
-    pwmEnableChannel(&PWMD1, 0, 255);
-    pwmEnableChannel(&PWMD1, 1, 255);
-    pwmEnableChannel(&PWMD1, 2, 255);
-
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(0, 0, 0, 0);
-
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(1, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(1, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorRGB(2, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorRGB(2, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorHSV(1, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(1, 0, 0, 0);
-    chThdSleepMilliseconds(1000);
-
-    ledSetColorHSV(2, 255, 0, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 255, 0);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 0, 255);
-    chThdSleepMilliseconds(1000);
-    ledSetColorHSV(2, 0, 0, 0);
-
-    chThdSleep(TIME_INFINITE);
+    while(TRUE){
+      pwmEnableChannel(&PWMD5, 0, 255);
+      pwmEnableChannel(&PWMD5, 1, 255);
+      pwmEnableChannel(&PWMD5, 2, 255);
+      
+      pwmEnableChannel(&PWMD1, 0, 255);
+      pwmEnableChannel(&PWMD1, 1, 255);
+      pwmEnableChannel(&PWMD1, 2, 255);
+      
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(0, 0, 0, 0);
+      
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(1, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(1, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorRGB(2, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorRGB(2, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorHSV(1, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(1, 0, 0, 0);
+      chThdSleepMilliseconds(1000);
+      
+      ledSetColorHSV(2, 255, 0, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 0, 255, 0);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 0, 0, 255);
+      chThdSleepMilliseconds(1000);
+      ledSetColorHSV(2, 0, 0, 0);
+      
+      chThdSleepMilliseconds(1000);
+    }
     return 0;
 }
 
