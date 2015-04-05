@@ -6,8 +6,8 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 
-char message[]="set wlan.ssid \"54vergniaud\"\r\n";
-char message1[]="set wlan.passkey \"rose2015rulez\"\r\n";
+char message[]="get ne i\r\n";
+char message1[]="get ne d\r\n";
 
 
 int main(void) {
@@ -27,21 +27,22 @@ int main(void) {
     //ledInit();
     //ledTest();
     //
-    writeSerial("Starting !");
     
     wifiInitByUsart();
     //wifiReadByUsartTimeout(2000);
     //writeSerial(wifi_buffer);
 
-    
-    wifiWriteByUsart(message, sizeof(message));
-    //writeSerial(message);
-    wifiReadByUsartTimeout(2000);
+    usartRead();
 
     chThdSleepMilliseconds(2000);
-    wifiWriteByUsart(message1, sizeof(message1));
-    wifiReadByUsartTimeout(2000);
+
+    while(true) {
+        wifiWriteByUsart(message, sizeof(message));
+        wifiWriteByUsart(message1, sizeof(message1));
+        chThdSleepMilliseconds(1000);
+    }
 
     chThdSleepMilliseconds(TIME_INFINITE);
+
     return 0;
 }
