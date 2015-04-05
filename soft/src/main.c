@@ -6,8 +6,10 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 
-char wifi_buffer[7];
-char message[]="\r\n";
+char message[]="set wlan.ssid \"54vergniaud\"\r\n";
+char message1[]="set wlan.passkey \"rose2015rulez\"\r\n";
+char message2[]="save\r\n";
+
 
 int main(void) {
 
@@ -30,15 +32,20 @@ int main(void) {
     //wifiReadByUsartTimeout(2000);
     //writeSerial(wifi_buffer);
 
+    
+    wifiWriteByUsart(message, sizeof(message));
+    //writeSerial(message);
+    wifiReadByUsartTimeout(2000);
 
-    while(TRUE){
-      chThdSleepMilliseconds(2000);
-      wifiWriteByUsart(message, sizeof(message));
-      writeSerial(message);
-      wifiReadByUsart();
-      (SDU1.vmt)->write(&SDU1, (uint8_t*)wifi_buffer, 7);
-      writeSerial("\r\n");
-    }
+    chThdSleepMilliseconds(2000);
+    wifiWriteByUsart(message1, sizeof(message1));
+    wifiReadByUsartTimeout(2000);
+
+    chThdSleepMilliseconds(2000);
+    wifiWriteByUsart(message2, sizeof(message2));
+    wifiReadByUsartTimeout(2000);
+    chThdSleepMilliseconds(2000);
+
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }
