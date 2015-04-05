@@ -68,7 +68,7 @@ void sendData(const uint8_t * data){
 }
 
 void codecReset(void){
-  
+
   RESET_MODE;
 
   /* Software reset of the codec */
@@ -100,7 +100,7 @@ void codecReset(void){
     }
   }
 
-  
+
 }
 
 void codecInit(){
@@ -123,7 +123,7 @@ void codecInit(){
 
 }
 
-void codecLowPower(){
+void codecLowPower(void){
   /* Set clock settings : x1.0 to disable the PLL and save power */
   writeRegister(SCI_CLOCKF,0x0000);
   /* Reduce the samplerate, the VSDSP core will just wait for an interrupt, thus saving power */
@@ -131,4 +131,26 @@ void codecLowPower(){
   /* Set the attenuation to his maximum */
   writeRegister(SCI_VOL,0xffff);
 
+}
+
+void codecLoadPlugin(void) {
+  int i = 0;
+
+  while (i<sizeof(plugin)/sizeof(plugin[0])) {
+    unsigned short addr, n, val;
+    addr = plugin[i++];
+    n = plugin[i++];
+    if (n & 0x8000U) { /* RLE run, replicate n samples */
+      n &= 0x7FFF;
+      val = plugin[i++];
+      while (n--) {
+        writeRegister(addr, val);
+      }
+    } else {           /* Copy run, copy n samples */
+      while (n--) {
+        val = plugin[i++];
+        writeRegister(addr, val);
+      }
+    }
+  }
 }
