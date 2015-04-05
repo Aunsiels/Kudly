@@ -6,6 +6,7 @@
 #include "shell.h"
 #include <stdlib.h>
 #include "sd_perso.h"
+#include "sccb.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
@@ -25,18 +26,20 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-  {"testSD" , testSd     },
-  {"mv"     , cmdMv      },
-  {"rm"     , cmdRm      },
-  {"touch"  , cmdTouch   },
-  {"mkdir"  , cmdMkdir   },
-  {"cat"    , cmdCat     },
-  {"pwd"    , cmdPwd     },
-  {"cd"     , cmdCd      },
-  {"ls"     , cmdLs      },
-  {"test"   , cmdTest    },
-  {"tree"   , cmdTree    },
-  {NULL     , NULL       }
+  {"sccbWrite" , cmdWrite   },
+  {"sccbRead"  , cmdRead    },
+  {"testSD"    , testSd     },
+  {"mv"        , cmdMv      },
+  {"rm"        , cmdRm      },
+  {"touch"     , cmdTouch   },
+  {"mkdir"     , cmdMkdir   },
+  {"cat"       , cmdCat     },
+  {"pwd"       , cmdPwd     },
+  {"cd"        , cmdCd      },
+  {"ls"        , cmdLs      },
+  {"test"      , cmdTest    },
+  {"tree"      , cmdTree    },
+  {NULL        , NULL       }
 };
 
 /* Config of the shell */

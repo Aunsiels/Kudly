@@ -4,6 +4,7 @@
 #include "usb_serial.h"
 #include "shell_cfg.h"
 #include "sd_perso.h"
+#include "sccb.h"
 
 int main(void) {
 
@@ -16,8 +17,11 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    //Initialize shell
+    /* Initialize shell */
     shellPersoInit();
+
+    /* Init sccb */
+    sccbInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

@@ -3,6 +3,7 @@
 #include "sccb.h"
 #include "chprintf.h"
 #include <stdlib.h>
+#include "usb_serial.h"
 
 #define DELAY             30
 #define SCCB_UNINIT       0
@@ -135,7 +136,7 @@ static int sccbSendByte(uint8_t data){
     chThdSleepMicroseconds(DELAY);
 
     /* We read the acknowledgement */
-    success = 1 - palReadPad(GPIOC, SIO_D);    
+    success = palReadPad(GPIOC, SIO_D);    
 
     /* TAC */
     palClearPad(GPIOC, SIO_C);
