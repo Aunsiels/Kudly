@@ -44,10 +44,10 @@ static void writeRegister(uint8_t adress, uint16_t command){
 static uint16_t readRegister(uint8_t adress){
 
   uint16_t data;
-
+  
   /* Wait until it's possible to read from SCI */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  
+    
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
@@ -57,6 +57,8 @@ static uint16_t readRegister(uint8_t adress){
   spiReceive(&SPID4,sizeof(&readData2),&readData2);
     
   RESET_MODE;
+
+  palClearPad(GPIOA,0);palClearPad(GPIOA,1);palClearPad(GPIOA,2);
 
   data = ((readData1) << 8);
   data |= readData2;
@@ -106,11 +108,11 @@ void codecReset(void){
   writeRegister(SCI_VOL,0x2424);
 
   while(1){
-    chThdSleepMilliseconds(1000);
-    writeSerial("Registre SCI_MODE : %x\r\n",readRegister(SCI_MODE));
-    writeSerial("Registre SCI_CLOCKF : %x\r\n",readRegister(SCI_CLOCKF));
-    writeSerial("Registre SCI_AUDATA : %x\r\n",readRegister(SCI_AUDATA));
-    writeSerial("Registre SCI_VOL : %x\r\n\r\n",readRegister(SCI_VOL));
+    palTogglePad(GPIOE,8);chThdSleepMilliseconds(500);
+    /*writeSerial("Registre SCI_MODE : %x\r\n",*/readRegister(SCI_MODE);
+  /*writeSerial("Registre SCI_CLOCKF : %x\r\n",*/readRegister(SCI_CLOCKF);
+/*writeSerial("Registre SCI_AUDATA : %x\r\n",*/readRegister(SCI_AUDATA);
+/*writeSerial("Registre SCI_VOL : %x\r\n\r\n",*/readRegister(SCI_VOL);
   }
   
 }
@@ -121,9 +123,9 @@ void codecInit(){
   palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP);
-  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5));
-  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5));
-  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5));
+  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
+  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
+  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
 
   /* Start of SPI bus */
   spiAcquireBus(&SPID4);

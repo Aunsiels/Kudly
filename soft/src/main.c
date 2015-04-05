@@ -12,14 +12,20 @@ int main(void) {
     chSysInit();
 
     /* Initialize the serial over usb */
-    initUsbSerial();
+    //initUsbSerial();
     
     /* Initialize the shell */
-    shellPersoInit();
+    //shellPersoInit();
     
+    palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
+
+    palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
+ 
     codecInit();
 
-    palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
+    
     
     while(TRUE){
       chThdSleepMilliseconds(500);
