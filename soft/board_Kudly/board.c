@@ -51,9 +51,7 @@ bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
   static bool_t last_status = FALSE;
   (void)mmcp;
 
-  if ((palReadLatch(GPIOD) & PAL_PORT_BIT(10)) == 0)
-    return last_status;
-  return last_status = (bool_t)palReadPad(GPIOD, 10);
+  return last_status = TRUE;
 }
 
 /**

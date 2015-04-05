@@ -432,10 +432,10 @@ static msg_t sdThread(void *arg) {
     (void) arg;
 
     /* Initialize SPI pins */
-    palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_OPENDRAIN);
-    palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5));
-    palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5));
-    palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5));
+    palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_PUDR_PULLDOWN);
+    palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(5) | PAL_STM32_PUDR_PULLUP);
 
     /* Initializes mmc */
     mmcObjectInit(&MMCD1);

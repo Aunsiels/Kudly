@@ -16,8 +16,11 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    //Initialize shell
+    /* Initialize shell */
     shellPersoInit();
+    
+    /* Initialize sd */
+    sdPersoInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
