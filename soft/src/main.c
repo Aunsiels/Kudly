@@ -6,10 +6,6 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 
-char message[]="get ne i\r\n";
-char message1[]="get ne d\r\n";
-
-
 int main(void) {
 
     halInit();
@@ -19,28 +15,17 @@ int main(void) {
     initUsbSerial();
 
     //Initialize shell
-    //shellPersoInit();
+    shellPersoInit();
 
     //Initialize SD card
     //sdPersoInit();
 
     //ledInit();
     //ledTest();
-    //
     
     wifiInitByUsart();
-    //wifiReadByUsartTimeout(2000);
-    //writeSerial(wifi_buffer);
-
-    usartRead();
-
-    chThdSleepMilliseconds(2000);
-
-    while(true) {
-        wifiWriteByUsart(message, sizeof(message));
-        wifiWriteByUsart(message1, sizeof(message1));
-        chThdSleepMilliseconds(1000);
-    }
+  
+    wifiReadByUsart();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

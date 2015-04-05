@@ -5,14 +5,12 @@ extern char wifi_buffer[];
 
 void wifiInitByUsart(void);
 
-void wifiWriteByUsart(char * message, int length);
-
 void wifiStopByUsart(void);
-
-void wifiReadByUsartTimeout(int timeout);
 
 void wifiReadByUsart(void);
 
-void usartRead(void);
+void wifiWriteByUsart(char * message, int length);
+
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif

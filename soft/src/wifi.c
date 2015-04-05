@@ -8,15 +8,18 @@
 static msg_t mb_buf[32];
 MAILBOX_DECL(mb, mb_buf, 32);
 
+static char crlf[] ="\r\n";
+static char space[] =" ";
+
 char wifi_buffer[1];
 char c;
 
 static SerialConfig uartCfg =
 {
-    115200,
+    115200,// bit rate
     0,
     0,
-    0// bit rate
+    0
 };
 
 static msg_t usartRead_thd(void * args) {
@@ -58,20 +61,7 @@ void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length); 
 }
 
-void wifiStopByUsart(void){
-    sdStop(&SD3);
-}
-
-void wifiReadByUsartTimeout(int timeout){
-    (void)timeout;
-    sdReadTimeout(&SD3,(uint8_t *) wifi_buffer, 1, timeout);
-}
-
-void wifiReadByUsart(void){
-    sdRead(&SD3,(uint8_t *) wifi_buffer, 256);
-}
-
-void usartRead(void) {
+void wifiReadByUsart(void) {
     static WORKING_AREA(usartRead_wa, 128);
     static WORKING_AREA(usartReadInMB_wa, 128);
 
@@ -82,5 +72,15 @@ void usartRead(void) {
     chThdCreateStatic(
             usartRead_wa, sizeof(usartRead_wa),
             NORMALPRIO, usartRead_thd, NULL);
+}
+
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
+  (void)chp;
+  int i;
+  for(i = 0; i < argc; i++){
+    wifiWriteByUsart(argv[i], strlen(argv[i]));
+    wifiWriteByUsart(space, sizeof(space));
+  }
+  wifiWriteByUsart(crlf, sizeof(crlf));
 }
 

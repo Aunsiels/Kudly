@@ -6,6 +6,7 @@
 #include "shell.h"
 #include <stdlib.h>
 #include "sd_perso.h"
+#include "wifi.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
@@ -36,7 +37,8 @@ static const ShellCommand commands[] = {
   {"ls"     , cmdLs      },
   {"test"   , cmdTest    },
   {"tree"   , cmdTree    },
-  {NULL     , NULL       }
+  {"wifi"   , cmdWifi    },
+  {NULL   , NULL         }
 };
 
 /* Config of the shell */
