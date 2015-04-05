@@ -1,6 +1,9 @@
 #include "ch.h"
 #include "hal.h"
 #include "led.h"
+#include "usb_serial.h"
+#include "shell_cfg.h"
+#include "sd_perso.h"
 
 int main(void) {
 
@@ -10,7 +13,15 @@ int main(void) {
     ledInit();
     ledTest();
 
-    while (1) {
-        chThdSleepMilliseconds(1000);
-    }
+    /* Initialize the serial over usb */
+    initUsbSerial();
+
+    //Initialize shell
+    shellPersoInit();
+
+    //Initialize SD card
+    sdPersoInit();
+
+    chThdSleepMilliseconds(TIME_INFINITE);
+    return 0;
 }
