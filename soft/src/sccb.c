@@ -5,13 +5,13 @@
 #include <stdlib.h>
 #include "usb_serial.h"
 
-#define DELAY             30
+#define DELAY             2000
 #define SCCB_UNINIT       0
 #define SCCB_READY        1
 #define SIO_C             9
 #define SIO_D             8
-#define WRITE_ADDRESS     60
-#define READ_ADDRESS      61
+#define READ_ADDRESS      97
+#define WRITE_ADDRESS     96
 
 static int state = 0;
 
@@ -51,7 +51,7 @@ static void sccbStartTransmission(void){
 
     palClearPad(GPIOC, SIO_C);
     /* t low, min 1.3us */
-    chThdSleepMicroseconds(DELAY);
+    chThdSleepMicroseconds(DELAY/2);
 }
 
 /*
@@ -63,7 +63,7 @@ static void sccbStopTransmission(void){
 
     /* An end is SIO_D low and then both SIO_C and SIO_D high */
     palClearPad(GPIOC, SIO_D);
-    chThdSleepMicroseconds(DELAY);
+    chThdSleepMicroseconds(DELAY/2);
 
     palSetPad(GPIOC, SIO_C);
     /* Stop condition setup time */
@@ -115,7 +115,7 @@ static int sccbSendByte(uint8_t data){
             palSetPad(GPIOC, SIO_D);
         else
             palClearPad(GPIOC, SIO_D);
-        chThdSleepMicroseconds(DELAY);
+        chThdSleepMicroseconds(DELAY/2);
         
         /* TIC */
         palSetPad(GPIOC, SIO_C);
@@ -123,20 +123,21 @@ static int sccbSendByte(uint8_t data){
 
         /* TAC */
         palClearPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY);
+        chThdSleepMicroseconds(DELAY/2);
     }
 
+    palClearPad(GPIOC, SIO_D);
     /* Now we check if the camera received something */
     /* We get ready to ready what is on SIO_D */
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_INPUT);
-    chThdSleepMicroseconds(DELAY);
+    chThdSleepMicroseconds(DELAY/2);
 
     /* TIC */
     palSetPad(GPIOC, SIO_C);
     chThdSleepMicroseconds(DELAY);
 
     /* We read the acknowledgement */
-    success = palReadPad(GPIOC, SIO_D);    
+    success = 1 - palReadPad(GPIOC, SIO_D);    
 
     /* TAC */
     palClearPad(GPIOC, SIO_C);
@@ -144,6 +145,7 @@ static int sccbSendByte(uint8_t data){
 
     /* We put the output mode again */
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_OUTPUT_OPENDRAIN);
+    chThdSleepMicroseconds( DELAY);
 
     return success;
 }
@@ -166,7 +168,7 @@ static uint8_t sccbReadByte(void){
     for(i = 0; i < 8; ++i){
         /* TIC */
         palSetPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY);
+        chThdSleepMicroseconds(DELAY/2);
 
         /* Lets read */
         /* We first move the last read data */
@@ -177,7 +179,7 @@ static uint8_t sccbReadByte(void){
 
         /* TAC */
         palClearPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY);
+        chThdSleepMicroseconds(DELAY/2);
     }
 
     /* We put the output mode again */
@@ -262,6 +264,7 @@ void cmdWrite(BaseSequentialStream *chp, int argc, char *argv[]){
 }
 
 void cmdRead(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void) argv;
     if (argc != 1){
         chprintf(chp, "Usage : sccbRead register(hex)\r\n");
         return;
@@ -276,3 +279,5 @@ void cmdRead(BaseSequentialStream *chp, int argc, char *argv[]){
         chprintf(chp, "Transmission failed\r\n");
     }
 }
+
+
