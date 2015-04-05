@@ -4,6 +4,7 @@
 #include "usb_serial.h"
 #include "shell_cfg.h"
 #include "sd_perso.h"
+#include "sccb.h"
 
 int main(void) {
 
