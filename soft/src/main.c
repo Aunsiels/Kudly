@@ -14,20 +14,36 @@ int main(void) {
   halInit();
   chSysInit();
 
-  ledInit();
-  ledTest();
+  palSetPadMode(GPIOA ,GPIOA_LED1_R,PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOA ,GPIOA_LED1_G,PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOA ,GPIOA_LED1_B,PAL_MODE_OUTPUT_PUSHPULL);
+  
+  palSetPadMode(GPIOB ,GPIOB_LED2_G,PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOB ,GPIOB_LED2_B,PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOE ,GPIOE_LED2_R,PAL_MODE_OUTPUT_PUSHPULL);
+  
+  //ledInit();
+  //ledTest();
 
   /* Initialize the serial over usb */
-  initUsbSerial();
+  // initUsbSerial();
   //Initialize shell
-  shellPersoInit();
+  //shellPersoInit();
   
   //Initialize SD card
-  sdPersoInit();
+  //sdPersoInit();
   while(TRUE){
-    wifiInitByUsart();
-    wifiWriteByUsart(message, sizeof(message));
-    wifiReadByUsartTimeout(2000);
+    //    wifiInitByUsart();
+    //wifiWriteByUsart(message, sizeof(message));
+    //wifiReadByUsartTimeout(2000);
+    //writeSerial(wifi_buffer);
+    palTogglePad(GPIOA,GPIOA_LED1_R);
+    palTogglePad(GPIOE,GPIOE_LED2_R);
+
+    chThdSleepMilliseconds(1000);
+    palTogglePad(GPIOA,GPIOA_LED1_R);
+    palTogglePad(GPIOE,GPIOE_LED2_R);
+ 
     chThdSleepMilliseconds(1000);
   }
   return 0;
