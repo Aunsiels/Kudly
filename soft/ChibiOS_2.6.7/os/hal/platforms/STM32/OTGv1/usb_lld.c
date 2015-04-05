@@ -766,6 +766,7 @@ static msg_t usb_lld_pump(void *p) {
     }
     chSysLock();
   }
+  return 0;
 }
 
 #if STM32_USB_USE_OTG1 || defined(__DOXYGEN__)
