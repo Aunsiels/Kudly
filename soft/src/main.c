@@ -1,12 +1,12 @@
 #include "ch.h"
-#include "hal.h
-#include "codec.h
+#include "hal.h"
+#include "codec.h"
 #include "led.h"
 
 int main(void){
 
-  halInit()
-    chSysInit()
+  halInit();
+  chSysInit();
 
     /* Led used for debug */
     palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
@@ -16,9 +16,9 @@ int main(void){
   palSetPad(GPIOA,0);
   palClearPad(GPIOA,1)
     palClearPad(GPIOA,2);
-  
+
   codecInit();
-  
+
 
   while (TRUE){
     chThdSleepMilliseconds(500);
