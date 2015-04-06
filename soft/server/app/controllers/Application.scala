@@ -18,4 +18,8 @@ object Application extends Controller {
              Ok("Wrong pseudo/password")
          }
     }
+
+    def pwm = Action {
+        Ok("<led>\n<pwm_set n=\"1\" r=\"255\" g=\"125\" b=\"3\"/>\n</led>")
+    }
 }

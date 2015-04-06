@@ -9,6 +9,6 @@ GET     /                           controllers.Application.index
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Test of connexion
-GET    /connexion                  controllers.Application.connexion(pseudo : String, password : String)
+GET    /connexion                   controllers.Application.connexion(pseudo : String, password : String)
 
-
+GET    /pwm                         controllers.Application.pwm
