@@ -4,5 +4,4 @@
 void codecInit(void);
 void codecLowPower(void);
 
-
 #endif /* CODEC_H */

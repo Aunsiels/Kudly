@@ -146,4 +146,3 @@ void codecLowPower(){
   writeRegister(SCI_VOL,0xffff);
 
 }
-
