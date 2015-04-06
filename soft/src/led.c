@@ -175,3 +175,4 @@ void ledTest(void) {
     chThdCreateStatic(ledTest_wa, sizeof(ledTest_wa),
             NORMALPRIO, ledTest_thd, NULL);
 }
+

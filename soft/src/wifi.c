@@ -6,6 +6,7 @@
 #include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
+
 // Mailbox for received data
 static msg_t mb_buf[32];
 MAILBOX_DECL(mb, mb_buf, 32);
@@ -25,48 +26,69 @@ static SerialConfig uartCfg =
     0
 };
 
+enum state {WAIT_FEATURE, WRITE_FEATURE, WAIT_FUNCTION, WRITE_FUNCTION, END_FEATURE};
+
 static msg_t usartRead_thd(void * args) {
     (void)args;
-    int cnt_rgb = 0;
-    int i = 0;
+    int parse_feature = 0;
+    int parse_function = 0;
+    char feature[20];
+    char function[50];
+    enum state state = WAIT_FEATURE;
     while(1) {
-        if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
-	  //writeSerial("%c", c);
-	  /*
-	   * Send byte to the codec, the SD card...
-	   */
-	  if(cnt_rgb == 4){
-	    if(c == ';') {
-	      cnt_rgb = 0;
-	      i = 0;
-	      char * ptr;
-	      int r = strtol(led_rgb , &ptr , 10);
-	      int g = strtol(ptr , &ptr , 10);
-	      int b = strtol(ptr , &ptr , 10);;
-	      ledSetColorRGB(0,r,g,b);
-	      writeSerial("done with : %d,%d,%d \r\n", r,g,b);
-	    }	
-	    else{
-	      led_rgb[i] = c;
-	      i++;
-	    }
-	  }
-	  else{
-	    if (c == 'r') 
-	      cnt_rgb = 1;
-	    if (c == 'g') 
-	      cnt_rgb = (cnt_rgb == 1) ? cnt_rgb + 1 : 0;
-	    if (c == 'b') 
-	      cnt_rgb = (cnt_rgb == 2) ? cnt_rgb + 1 : 0;
-	    if (c == '=') 
-	      cnt_rgb = (cnt_rgb == 3) ? cnt_rgb + 1 : 0;
-
+      if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
+	//writeSerial("%c", c);
+	/*
+	 * Send byte to the codec, the SD card...
+	 */
+	if (state == WAIT_FEATURE){
+	  if (c == '<') {
+	    parse_feature = 0;
+	    state = WRITE_FEATURE;
+	    continue;
 	  }
 	}
-    }
+	
+	if (state == WRITE_FEATURE){
+	  if (c == '>'){
+	    state = WAIT_FUNCTION;
+	    feature[parse_feature] = '\0';
+	    writeSerial(feature);
+	    continue;
+	  }
+	    feature[parse_feature] = c;
+	    parse_feature++;
+	}
+	
+	if (state == WAIT_FUNCTION){
+	  if (c == '<'){
+	    state = WRITE_FUNCTION;
+	    parse_function = 0;
+	    continue;
+	  } 
+	}
+
+	if (state == WRITE_FUNCTION){
+	  if (c == '>'){
+	    state = END_FEATURE;
+	    function[parse_function-1] = '\0';
+	    writeSerial(function);
+	    continue;
+	  }
+	    function[parse_function]=c;
+	    parse_function++;
+	}
+	
+	if (state == END_FEATURE){
+	  if (c == '>'){
+	    state = WAIT_FEATURE;
+	    continue;
+	  }
+	}
+      }
+    } 
     return 0;
 }
-
 static msg_t usartReadInMB_thd(void * args) {
     (void)args;
 
