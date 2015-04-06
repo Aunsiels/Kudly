@@ -74,7 +74,7 @@
 #define GPIOA_15                15
 
 #define GPIOB_LED2_G            0
-#define GPIOB_LED2_B            1
+#define GPIOB_LED2_R            1
 #define GPIOB_2                 2
 #define GPIOB_3                 3
 #define GPIOB_4                 4
@@ -132,7 +132,7 @@
 #define GPIOE_5                 5
 #define GPIOE_6                 6
 #define GPIOE_7                 7
-#define GPIOE_LED2_R            8
+#define GPIOE_LED2_B            8
 #define GPIOE_SPI4_XDCS         9
 #define GPIOE_CODEC_DREQ        10
 #define GPIOE_SPI4_XCS          11
