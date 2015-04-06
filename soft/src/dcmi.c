@@ -43,8 +43,8 @@ void dcmiStartConversion(uint32_t * buf, int nbrData){
     /* dma configuration */
     dmaStreamSetPeripheral(STM32_DMA2_STREAM1,
                            (uint32_t) (DCMI_BASE + 0x28));
-    dmaStreamSetMemory0(STM32_DMA2_STREAM1, buf);
-    dmaStreaSetTransactionSize(STM32_DMA2_STREAM1, nbrData);
+    dmaStreamSetMemory0(STM32_DMA2_STREAM1,(uint32_t) buf);
+    dmaStreamSetTransactionSize(STM32_DMA2_STREAM1, nbrData);
     dmaStreamSetMode(STM32_DMA2_STREAM1,
                      STM32_DMA_CR_CHSEL(1)      |
                      STM32_DMA_CR_DIR_P2M       |
