@@ -147,25 +147,3 @@ void codecLowPower(){
   writeRegister(SCI_VOL,0xffff);
 
 }
-
-void codecLoadPlugin(){
-  int i = 0;
-  /* Send the plugin array to the code */
-  while (i<sizeof(plugin)/sizeof(plugin[0])) {
-    unsigned short addr, n, val;
-    addr = plugin[i++];
-    n = plugin[i++];
-    if (n & 0x8000U) { /* RLE run, replicate n samples */
-      n &= 0x7FFF;
-      val = plugin[i++];
-      while (n--) {
-        writeRegister(addr, val);
-      }
-    } else {           /* Copy run, copy n samples */
-      while (n--) {
-        val = plugin[i++];
-        writeRegister(addr, val);
-      }
-    }
-  }
-}
