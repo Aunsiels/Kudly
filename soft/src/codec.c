@@ -52,8 +52,7 @@ static uint16_t readRegister(uint8_t adress){
 }
 
 
-void sendData(const uint8_t * data){
-  int size = 8;
+void sendData(const uint8_t * data, int size){
   int i;
   int j = 0;
 
@@ -73,7 +72,7 @@ void sendData(const uint8_t * data){
   RESET_MODE;
 }
 
-static uint8_t sineTest[] = {0x53,0xef,0x6e,0xff,0,0,0,0};
+static uint8_t sineTest[] = {0x53,0xef,0x6e,126,0,0,0,0};
 static uint8_t sineTestEnd[] = {0x45,0x78,0x69,0x74,0,0,0,0};
 
 
@@ -116,13 +115,15 @@ void codecInit(){
 
   codecReset();
 
+  /* Go to test mode */
   writeRegister(SCI_MODE,readRegister(SCI_MODE)|0x20);
 
+  /* Loop to test the output */
   while(1){
-    sendData(sineTest);
+    sendData(sineTest,8);
     palTogglePad(GPIOA,0);
     chThdSleepMilliseconds(500);
-    sendData(sineTestEnd);
+    sendData(sineTestEnd,8);
     chThdSleepMilliseconds(500);
   }
 }
