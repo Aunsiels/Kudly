@@ -3,7 +3,9 @@
 #include "wifi.h"
 #include "string.h"
 #include "usb_serial.h"
-
+#include "led.h"
+#include <stdio.h>
+#include <stdlib.h>
 // Mailbox for received data
 static msg_t mb_buf[32];
 MAILBOX_DECL(mb, mb_buf, 32);
@@ -13,6 +15,7 @@ static char space[] =" ";
 
 char wifi_buffer[1];
 char c;
+char led_rgb[50];
 
 static SerialConfig uartCfg =
 {
@@ -24,16 +27,38 @@ static SerialConfig uartCfg =
 
 static msg_t usartRead_thd(void * args) {
     (void)args;
-
+    int cnt_rgb = 0;
+    int i = 0;
     while(1) {
         if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
-            writeSerial("%c", c);
-            /*
-             * Send byte to the codec, the SD card...
-             */
-        }
+	  writeSerial("%c", c);
+	  /*
+	   * Send byte to the codec, the SD card...
+	   */
+	  if(cnt_rgb == 4){
+	    if(c == ';') {
+	      cnt_rgb = 0;
+	      i = 0;
+	      char * ptr;
+	      int r = strtol(led_rgb , &ptr , 10);
+	      int g = strtol(ptr , &ptr , 10);
+	      int b = strtol(ptr , &ptr , 10);;
+	      ledSetColorRGB(0,r,g,b);
+	      //writeSerial("done with : %d,%d,%d \r\n", r,g,b);
+	    }	
+	    else{
+	      led_rgb[i] = c;
+	      i++;
+	    }
+	  }
+	  else{
+	    cnt_rgb =( (c == 'r') ? 1 : cnt_rgb);
+	    cnt_rgb =( (c == 'g' && cnt_rgb == 1) ? 2 : cnt_rgb);
+	    cnt_rgb =( (c == 'b' && cnt_rgb == 2) ? 3 : cnt_rgb);
+	    cnt_rgb =( (c == '=' && cnt_rgb == 3) ? 4 : cnt_rgb);
+	  }
+	}
     }
-
     return 0;
 }
 
