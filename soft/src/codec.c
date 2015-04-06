@@ -9,7 +9,7 @@ static const SPIConfig hs_spicfg = {
   NULL,
   GPIOE,
   11,
-  0
+  (1 << 9) | 3
 };
 
 /* Buffer used for construcion of read and write command instructions */
@@ -109,8 +109,11 @@ void codecReset(void){
 
   while(1){
     palTogglePad(GPIOE,8);chThdSleepMilliseconds(500);
-    for(i = 0 ; i < 16 ; i++ )
+    for(i = 0 ; i < 16 ; i++ ){
       writeSerial("Registre %u : %x\r\n",i,readRegister(i));
+      if(readRegister(i)!= 0)
+	palSetPad(GPIOA,0); 
+    }
   }
   
 }
@@ -118,12 +121,12 @@ void codecReset(void){
 void codecInit(){
   /* Change the mode of the pins used for the codec and his SPI bus */
 
-  palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL);
-  palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL);
-  palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP);
-  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5));
-  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5));
-  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5));
+  palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+  palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+  palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP | PAL_STM32_OSPEED_HIGHEST);
+  palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+  palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+  palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   
   /* Start of SPI bus */
   spiAcquireBus(&SPID4);
