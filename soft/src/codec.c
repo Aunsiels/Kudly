@@ -53,7 +53,7 @@ static uint16_t readRegister(uint8_t adress){
 
 
 void sendData(const uint8_t * data){
-  int size = sizeof(data);
+  int size = 8;
   int i;
   int j = 0;
 
@@ -72,6 +72,10 @@ void sendData(const uint8_t * data){
 
   RESET_MODE;
 }
+
+static uint8_t sineTest[] = {0x53,0xef,0x6e,0xff,0,0,0,0};
+static uint8_t sineTestEnd[] = {0x45,0x78,0x69,0x74,0,0,0,0};
+
 
 void codecReset(void){
 
@@ -93,18 +97,6 @@ void codecReset(void){
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
 
-  int i;
-
-  while(1){
-    palTogglePad(GPIOA,0);chThdSleepMilliseconds(500);
-    //readRegister(SCI_CLOCKF);
-    for(i = 0 ; i < 16 ; i++ ){
-      //writeSerial("Registre %u : %x\r\n",i,readRegister(i));
-      if(readRegister(i) != 0)
-	palSetPad(GPIOA,0); 
-    }
-  }
-
 }
 
 void codecInit(){
@@ -124,7 +116,15 @@ void codecInit(){
 
   codecReset();
 
+  writeRegister(SCI_MODE,readRegister(SCI_MODE)|0x20);
 
+  while(1){
+    sendData(sineTest);
+    palTogglePad(GPIOA,0);
+    chThdSleepMilliseconds(500);
+    sendData(sineTestEnd);
+    chThdSleepMilliseconds(500);
+  }
 }
 
 void codecLowPower(){
