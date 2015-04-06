@@ -12317,7 +12317,7 @@
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-sbt#apply-macro;0.13.5!apply-macro.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang#jline;2.10.4!jline.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar[0m
-[0m[[0mdebug[0m] [0m:: resolution report :: resolve 3546ms :: artifacts dl 59ms[0m
+[0m[[0mdebug[0m] [0m:: resolution report :: resolve 3522ms :: artifacts dl 69ms[0m
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT compile produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-compile.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT runtime produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-runtime.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT test produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-test.xml[0m
@@ -12331,5 +12331,5 @@
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT docs produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-docs.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT pom produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-pom.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#server-build;0.1-SNAPSHOT scala-tool produced in /home/julien/Documents/telecom/ROSE/Kudly/soft/server/project/target/resolution-cache/reports/default-server-build-scala-tool.xml[0m
-[0m[[0mdebug[0m] [0m	resolve done (3546ms resolve - 59ms download)[0m
+[0m[[0mdebug[0m] [0m	resolve done (3522ms resolve - 69ms download)[0m
 [0m[[0minfo[0m] [0mDone updating.[0m

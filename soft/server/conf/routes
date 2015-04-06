@@ -11,4 +11,7 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Test of connexion
 GET    /connexion                   controllers.Application.connexion(pseudo : String, password : String)
 
+GET    /sound                       controllers.Application.stream
+
 GET    /pwm                         controllers.Application.pwm
+
