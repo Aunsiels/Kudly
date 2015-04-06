@@ -699,3 +699,32 @@ void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
 ERROR :
     chprintf(chp, "The SD test FAILED\r\n");
 }
+
+FRESULT writeFile(char * filename, char * buf, UINT length){
+    if (!fs_ready) {
+        return 1;
+    }
+
+    /* File object */
+    FIL fil;
+    FRESULT res;
+
+    res = f_open(&fil, filename, FA_WRITE | FA_CREATE_NEW);
+    if(res) {
+        return res;
+    }
+
+    UINT written = 0;
+    f_write(&fil, buf, length, &written);
+    if (written != length) {
+        f_unlink(filename);
+        return 1;
+    }
+
+    res = f_close(&fil);
+    if (res) {
+        f_unlink(filename);
+        return res;
+    }
+    return res;
+}

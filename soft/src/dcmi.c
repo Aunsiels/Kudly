@@ -1,6 +1,8 @@
 #include "hal.h"
 #include "ch.h"
 #include "dcmi.h"
+#include "chprintf.h"
+#include "sd_perso.h"
 
 /*
  * Initializes the dcmi
@@ -64,4 +66,20 @@ void dcmiStartConversion(uint32_t * buf, int nbrData){
     /* Wait end conversion */
     dmaWaitCompletion(STM32_DMA2_STREAM1);
 
+}
+
+/* Picture buffer for test */
+static uint32_t photo[1600 * 1200 / 4];
+
+void cmdDcmi(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void) argv;
+    if (argc > 0){
+        chprintf(chp, "Usage : dcmi\r\n");
+        return;
+    }
+    dcmiStartConversion(photo, sizeof(photo));
+    chprintf(chp, "End of the photo\r\n");
+    int error = writeFile("test.jpg", (char *) photo, sizeof(photo)*4);
+    if (error)
+       chprintf(chp, "A problem occured while writting in the file");
 }
