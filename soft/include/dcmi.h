@@ -12,4 +12,12 @@
 
 void dcmiInit(void);
 
+/**
+ * \brief Start a conversion
+ * \param buf Where the data will be store
+ * \param nbrData The number of data to transfert
+ */
+
+void dcmiStartConversion(uint32_t * buf, int nbrData);
+
 #endif

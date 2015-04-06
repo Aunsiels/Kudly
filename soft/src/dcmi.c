@@ -6,7 +6,8 @@
  * Initializes the dcmi
  */
 
-void dcmiUninit() {
+void dcmiInit() {
+    chSysLock();
     /* Activate the RCC clock for DCMI */
     rccEnableAPB2(RCC_AHB2ENR_DCMIEN, false);
     rccResetAPB2(RCC_AHB2RSTR_DCMIRST);
@@ -35,4 +36,32 @@ void dcmiUninit() {
 
     /* Enable DCMI */
     DCMI->CR |= DCMI_CR_ENABLE;
+    chSysUnlock();
+}
+
+void dcmiStartConversion(uint32_t * buf, int nbrData){
+    /* dma configuration */
+    dmaStreamSetPeripheral(STM32_DMA2_STREAM1,
+                           (uint32_t) (DCMI_BASE + 0x28));
+    dmaStreamSetMemory0(STM32_DMA2_STREAM1, buf);
+    dmaStreaSetTransactionSize(STM32_DMA2_STREAM1, nbrData);
+    dmaStreamSetMode(STM32_DMA2_STREAM1,
+                     STM32_DMA_CR_CHSEL(1)      |
+                     STM32_DMA_CR_DIR_P2M       |
+                     STM32_DMA_CR_MINC          |
+                     STM32_DMA_CR_MSIZE_WORD    |
+                     STM32_DMA_CR_PSIZE_WORD    |
+                     STM32_DMA_CR_CIRC          |
+                     STM32_DMA_CR_MBURST_SINGLE |
+                     STM32_DMA_CR_PBURST_SINGLE);
+    dmaStreamSetFIFO(STM32_DMA2_STREAM1,
+                     STM32_DMA_FCR_FTH_FULL);
+    dmaStreamEnable(STM32_DMA2_STREAM1);
+
+    /* dcmi start conversion */
+    DCMI->CR |= DCMI_CR_CAPTURE;
+
+    /* Wait end conversion */
+    dmaWaitCompletion(STM32_DMA2_STREAM1);
+
 }
