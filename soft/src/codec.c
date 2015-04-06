@@ -9,7 +9,7 @@ static const SPIConfig hs_spicfg = {
   NULL,
   GPIOE,
   11,
-  (1 << 9) | 3
+  (1 << 5)
 };
 
 /* Buffer used for construcion of read and write command instructions */
@@ -46,8 +46,8 @@ static uint16_t readRegister(uint8_t adress){
   
   /* Wait until it's possible to read from SCI */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  writeSerial("Read Command : 0x%x\r\n",readCommand); 
-  writeSerial("Adress : 0x%x\r\n",adress); 
+  //writeSerial("Read Command : 0x%x\r\n",readCommand); 
+  //writeSerial("Adress : 0x%x\r\n",adress); 
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
@@ -110,8 +110,8 @@ void codecReset(void){
   while(1){
     palTogglePad(GPIOE,8);chThdSleepMilliseconds(500);
     for(i = 0 ; i < 16 ; i++ ){
-      writeSerial("Registre %u : %x\r\n",i,readRegister(i));
-      if(readRegister(i)!= 0)
+      //writeSerial("Registre %u : %x\r\n",i,readRegister(i));
+      if(readRegister(i) != 0)
 	palSetPad(GPIOA,0); 
     }
   }
