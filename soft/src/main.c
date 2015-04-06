@@ -14,13 +14,15 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    //Initialize shell
+    /* Initialize shell */
     shellPersoInit();
 
-    //Initialize SD card
+    /* Initialize SD card */
     sdPersoInit();
 
+    /* Led initialization */
     ledInit();
+    /* Test thread of the led */
     ledTest();
 
     /* Camera pin */
