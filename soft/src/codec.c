@@ -13,31 +13,31 @@ static const SPIConfig hs_spicfg = {
 };
 
 /* Buffer used for construcion of read and write command instructions */
-static const uint8_t writeCommand = 2;
 static uint8_t instruction[4];
 static uint8_t registerContent[4];
 
 static void writeRegister(uint8_t adress, uint16_t command){
-
-  uint8_t command1 = (command << 8);
-  uint8_t command2 = (command & 0xff);
-
-  /* Wait until the writing operation is done */
-  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-
   COMMAND_MODE;
 
   /* Construction of instruction (Write opcode, adress, command) */
-  spiSend(&SPID4,1,&writeCommand);
-  spiSend(&SPID4,1,&adress);
-  spiSend(&SPID4,1,&command1);
-  spiSend(&SPID4,1,&command2);
+  instruction[0] = 0x02;
+  instruction[1] = adress;
+  instruction[2] = (command >> 8);
+  instruction[3] = command;
+  spiSend(&SPID4,sizeof(instruction),instruction);
 
   RESET_MODE;
-
+  
+  /* Wait until the writing operation is done */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 }
 
+
 static uint16_t readRegister(uint8_t adress){
+  
+  /* Wait until it's possible to read from SCI */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+  
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
