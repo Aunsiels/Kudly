@@ -24,6 +24,10 @@ int main(void) {
     ledInit();
     ledTest();
 
+    /* Camera pins PWDN */
+    palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPad(GPIOC, 14);
+
     /* Camera pin */
     palSetPadMode(GPIOA, 4, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOA, 6, PAL_MODE_ALTERNATE(13));
@@ -36,11 +40,9 @@ int main(void) {
     palSetPadMode(GPIOB, 9, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOE, 0, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOE, 1, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(0));
+    /* XCLK */
+    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(0) | PAL_STM32_OSPEED_HIGHEST);
 
-    /* Camera pins PWDN */
-    palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPad(GPIOC, 14);
     chThdSleepMilliseconds(100);
     palClearPad(GPIOC, 14);
 
