@@ -14,9 +14,8 @@ static const SPIConfig hs_spicfg = {
 
 /* Buffer used for construcion of read and write command instructions */
 static const uint8_t writeCommand = 2;
-static const uint8_t readCommand = 3;
-static uint8_t readData1 = 1;
-static uint8_t readData2 = 1;
+static uint8_t instruction[4];
+static uint8_t registerContent[4];
 
 static void writeRegister(uint8_t adress, uint16_t command){
 
@@ -39,28 +38,19 @@ static void writeRegister(uint8_t adress, uint16_t command){
 }
 
 static uint16_t readRegister(uint8_t adress){
-
-  uint16_t data;
-
-  /* Wait until it's possible to read from SCI */
-  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  //writeSerial("Read Command : 0x%x\r\n",readCommand); 
-  //writeSerial("Adress : 0x%x\r\n",adress); 
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
-  spiSend(&SPID4,1,&readCommand);
-  spiSend(&SPID4,1,&adress);
-  spiReceive(&SPID4,1,&readData1);
-  spiReceive(&SPID4,1,&readData2);
-  
+  instruction[0] = 0x03;
+  instruction[1] = adress;
+  spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
+
   RESET_MODE;
 
-  data = ((readData1) << 8);
-  data |= readData2;
-  /* Return data from the register */
-  return (data);
+  /* Return only the 2 last bytes (data from the register) */
+  return ((registerContent[2]<<8) + registerContent[3]);
 }
+
 
 void sendData(const uint8_t * data){
   int size = sizeof(data);
