@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "sd_perso.h"
 #include "sccb.h"
+#include "dcmi.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
@@ -26,6 +27,7 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
+  {"dcmi"      , cmdDcmi    },
   {"sccbWrite" , cmdWrite   },
   {"sccbRead"  , cmdRead    },
   {"testSD"    , testSd     },

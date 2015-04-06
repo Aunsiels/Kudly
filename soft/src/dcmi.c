@@ -69,7 +69,7 @@ void dcmiStartConversion(uint32_t * buf, int nbrData){
 }
 
 /* Picture buffer for test */
-static uint32_t photo[1600 * 1200 / 4];
+static uint32_t photo[1000];
 
 void cmdDcmi(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;

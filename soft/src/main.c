@@ -5,6 +5,7 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 #include "sccb.h"
+#include "dcmi.h"
 
 int main(void) {
 
@@ -14,10 +15,10 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    //Initialize shell
+    /* Initialize shell */
     shellPersoInit();
 
-    //Initialize SD card
+    /* Initialize SD card */
     sdPersoInit();
 
     ledInit();
@@ -45,6 +46,9 @@ int main(void) {
 
     /* Init sccb */
     sccbInit();
+
+    /* DCMI init */
+    dcmiInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
