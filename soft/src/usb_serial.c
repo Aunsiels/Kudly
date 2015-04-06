@@ -302,9 +302,9 @@ static const USBConfig usbcfg = {
 void initUsbSerial (){
 
     /* Pin mode configuration */
-    palSetPadMode(GPIOA, 9, PAL_MODE_INPUT_PULLUP );
-    palSetPadMode(GPIOA, 11, PAL_MODE_ALTERNATE(10));
-    palSetPadMode(GPIOA, 12, PAL_MODE_ALTERNATE(10));
+    palSetPadMode(GPIOA, GPIOA_USB_VBUS, PAL_MODE_INPUT_PULLUP );
+    palSetPadMode(GPIOA, GPIOA_USB_DM, PAL_MODE_ALTERNATE(10));
+    palSetPadMode(GPIOA, GPIOA_USB_DP, PAL_MODE_ALTERNATE(10));
 
     /* Serial over usb initialization */
     sduObjectInit(&SDU1);
