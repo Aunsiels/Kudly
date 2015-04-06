@@ -30,6 +30,7 @@ int main(void) {
   
     wifiReadByUsart();
 
+    wifiCommands();
     wifiWriteByUsart(http_get, sizeof(http_get));
     wifiWriteByUsart(stream_read, sizeof(stream_read));
 

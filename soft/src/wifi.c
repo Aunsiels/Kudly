@@ -14,9 +14,13 @@ MAILBOX_DECL(mb, mb_buf, 32);
 static char crlf[] ="\r\n";
 static char space[] =" ";
 
-char wifi_buffer[1];
-char c;
-char led_rgb[50];
+static char wifi_buffer[1];
+static char c;
+
+static char feature[20];
+static char function[50];
+
+static EVENTSOURCE_DECL(eventWifiSrc);
 
 static SerialConfig uartCfg =
 {
@@ -32,8 +36,6 @@ static msg_t usartRead_thd(void * args) {
     (void)args;
     int parse_feature = 0;
     int parse_function = 0;
-    char feature[20];
-    char function[50];
     enum state state = WAIT_FEATURE;
     while(1) {
       if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
@@ -53,7 +55,6 @@ static msg_t usartRead_thd(void * args) {
 	  if (c == '>'){
 	    state = WAIT_FUNCTION;
 	    feature[parse_feature] = '\0';
-	    writeSerial(feature);
 	    continue;
 	  }
 	    feature[parse_feature] = c;
@@ -72,7 +73,15 @@ static msg_t usartRead_thd(void * args) {
 	  if (c == '>'){
 	    state = END_FEATURE;
 	    function[parse_function-1] = '\0';
+	    writeSerial(feature);
+	    writeSerial("\r\n");
 	    writeSerial(function);
+	    writeSerial("\r\n");
+
+	    chSysLockFromIsr();
+	    chEvtBroadcastI(&eventWifiSrc);
+	    chSysUnlockFromIsr();
+
 	    continue;
 	  }
 	    function[parse_function]=c;
@@ -89,6 +98,7 @@ static msg_t usartRead_thd(void * args) {
     } 
     return 0;
 }
+
 static msg_t usartReadInMB_thd(void * args) {
     (void)args;
 
@@ -136,3 +146,43 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
   wifiWriteByUsart(crlf, sizeof(crlf));
 }
 
+
+static msg_t wifiCommands_thd(void * args) {
+  (void)args;
+  
+  EventListener eventWifiLst;
+  chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
+  
+  while(1) {
+    chEvtWaitOne(1);
+    if( NULL != strstr(feature,"led")){
+      char* ptr;
+      int r = strtol(strstr(feature,"r=\"") + 3,&ptr,10);
+      int g = strtol(strstr(feature,"g=\"") + 3,&ptr,10);
+      int b = strtol(strstr(feature,"b=\"") + 3,&ptr,10);
+      
+      if( NULL != strstr(feature,"led0")){
+	writeSerial("led1 set with %d %d %d",r,g,b);
+	ledSetColorRGB(0, r, g, b);
+      }
+      
+      if( NULL != strstr(feature,"led1")){
+	writeSerial("led1 set with %d %d %d",r,g,b);
+	ledSetColorRGB(1, r, g, b);
+      }
+      
+      if( NULL != strstr(feature,"led2")){
+	writeSerial("led1 set with %d %d %d",r,g,b);
+	ledSetColorRGB(2, r, g, b);
+      }
+    }
+  }
+  return 0;
+}
+
+void wifiCommands(void) {
+  static WORKING_AREA(wifiCommands_wa, 128);
+  chThdCreateStatic(
+		    wifiCommands_wa, sizeof(wifiCommands_wa),
+		    NORMALPRIO, wifiCommands_thd, NULL);
+}
