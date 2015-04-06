@@ -31,7 +31,7 @@ static msg_t usartRead_thd(void * args) {
     int i = 0;
     while(1) {
         if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
-	  writeSerial("%c", c);
+	  //writeSerial("%c", c);
 	  /*
 	   * Send byte to the codec, the SD card...
 	   */
@@ -44,7 +44,7 @@ static msg_t usartRead_thd(void * args) {
 	      int g = strtol(ptr , &ptr , 10);
 	      int b = strtol(ptr , &ptr , 10);;
 	      ledSetColorRGB(0,r,g,b);
-	      //writeSerial("done with : %d,%d,%d \r\n", r,g,b);
+	      writeSerial("done with : %d,%d,%d \r\n", r,g,b);
 	    }	
 	    else{
 	      led_rgb[i] = c;
@@ -52,10 +52,15 @@ static msg_t usartRead_thd(void * args) {
 	    }
 	  }
 	  else{
-	    cnt_rgb =( (c == 'r') ? 1 : cnt_rgb);
-	    cnt_rgb =( (c == 'g' && cnt_rgb == 1) ? 2 : cnt_rgb);
-	    cnt_rgb =( (c == 'b' && cnt_rgb == 2) ? 3 : cnt_rgb);
-	    cnt_rgb =( (c == '=' && cnt_rgb == 3) ? 4 : cnt_rgb);
+	    if (c == 'r') 
+	      cnt_rgb = 1;
+	    if (c == 'g') 
+	      cnt_rgb = (cnt_rgb == 1) ? cnt_rgb + 1 : 0;
+	    if (c == 'b') 
+	      cnt_rgb = (cnt_rgb == 2) ? cnt_rgb + 1 : 0;
+	    if (c == '=') 
+	      cnt_rgb = (cnt_rgb == 3) ? cnt_rgb + 1 : 0;
+
 	  }
 	}
     }
