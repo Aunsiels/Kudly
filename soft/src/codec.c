@@ -18,8 +18,6 @@ static const uint8_t readCommand = 3;
 static uint8_t readData1 = 1;
 static uint8_t readData2 = 1;
 
-
-
 static void writeRegister(uint8_t adress, uint16_t command){
 
   uint8_t command1 = (command << 8);
@@ -55,7 +53,7 @@ static uint16_t readRegister(uint8_t adress){
   spiSend(&SPID4,1,&adress);
   spiReceive(&SPID4,1,&readData1);
   spiReceive(&SPID4,1,&readData2);
-
+  
   RESET_MODE;
 
   data = ((readData1) << 8);
@@ -108,7 +106,8 @@ void codecReset(void){
   int i;
 
   while(1){
-    palTogglePad(GPIOE,8);chThdSleepMilliseconds(500);
+    palTogglePad(GPIOA,0);chThdSleepMilliseconds(500);
+    //readRegister(SCI_CLOCKF);
     for(i = 0 ; i < 16 ; i++ ){
       //writeSerial("Registre %u : %x\r\n",i,readRegister(i));
       if(readRegister(i) != 0)
@@ -148,24 +147,3 @@ void codecLowPower(){
 
 }
 
-void codecLoadPlugin(){
-  int i = 0;
-  /* Send the plugin array to the code */
-  while (i<sizeof(plugin)/sizeof(plugin[0])) {
-    unsigned short addr, n, val;
-    addr = plugin[i++];
-    n = plugin[i++];
-    if (n & 0x8000U) { /* RLE run, replicate n samples */
-      n &= 0x7FFF;
-      val = plugin[i++];
-      while (n--) {
-        writeRegister(addr, val);
-      }
-    } else {           /* Copy run, copy n samples */
-      while (n--) {
-        val = plugin[i++];
-        writeRegister(addr, val);
-      }
-    }
-  }
-}
