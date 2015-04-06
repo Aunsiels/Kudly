@@ -21,15 +21,15 @@ static uint8_t readData2 = 1;
 
 
 static void writeRegister(uint8_t adress, uint16_t command){
-  
+
   uint8_t command1 = (command << 8);
   uint8_t command2 = (command & 0xff);
-  
+
   /* Wait until the writing operation is done */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  
+
   COMMAND_MODE;
-  
+
   /* Construction of instruction (Write opcode, adress, command) */
   spiSend(&SPID4,1,&writeCommand);
   spiSend(&SPID4,1,&adress);
@@ -43,11 +43,11 @@ static void writeRegister(uint8_t adress, uint16_t command){
 static uint16_t readRegister(uint8_t adress){
 
   uint16_t data;
-  
+
   /* Wait until it's possible to read from SCI */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  writeSerial("Read Command : 0x%x\r\n",readCommand); 
-  writeSerial("Adress : 0x%x\r\n",adress); 
+  writeSerial("Read Command : 0x%x\r\n",readCommand);
+  writeSerial("Adress : 0x%x\r\n",adress);
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
@@ -55,7 +55,7 @@ static uint16_t readRegister(uint8_t adress){
   spiSend(&SPID4,1,&adress);
   spiReceive(&SPID4,1,&readData1);
   spiReceive(&SPID4,1,&readData2);
-  
+
   RESET_MODE;
 
   data = ((readData1) << 8);
@@ -86,7 +86,7 @@ void sendData(const uint8_t * data){
 }
 
 void codecReset(void){
-  
+
   RESET_MODE;
 
   /* Software reset of the codec */
@@ -104,7 +104,7 @@ void codecReset(void){
   writeRegister(SCI_AUDATA,0x3E80);
   /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
   writeRegister(SCI_VOL,0x2424);
-  
+
   int i;
 
   while(1){
@@ -112,10 +112,10 @@ void codecReset(void){
     for(i = 0 ; i < 16 ; i++ ){
       writeSerial("Registre %u : %x\r\n",i,readRegister(i));
       if(readRegister(i)!= 0)
-	palSetPad(GPIOA,0); 
+	palSetPad(GPIOA,0);
     }
   }
-  
+
 }
 
 void codecInit(){
@@ -127,7 +127,7 @@ void codecInit(){
   palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-  
+
   /* Start of SPI bus */
   spiAcquireBus(&SPID4);
   spiStart(&SPID4, &hs_spicfg);
@@ -146,4 +146,26 @@ void codecLowPower(){
   /* Set the attenuation to his maximum */
   writeRegister(SCI_VOL,0xffff);
 
+}
+
+void codecLoadPlugin(){
+  int i = 0;
+  /* Send the plugin array to the code */
+  while (i<sizeof(plugin)/sizeof(plugin[0])) {
+    unsigned short addr, n, val;
+    addr = plugin[i++];
+    n = plugin[i++];
+    if (n & 0x8000U) { /* RLE run, replicate n samples */
+      n &= 0x7FFF;
+      val = plugin[i++];
+      while (n--) {
+        writeRegister(addr, val);
+      }
+    } else {           /* Copy run, copy n samples */
+      while (n--) {
+        val = plugin[i++];
+        writeRegister(addr, val);
+      }
+    }
+  }
 }
