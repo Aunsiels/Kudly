@@ -9,6 +9,7 @@
 #include "sd_perso.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define SHELL_MAX_ARGUMENTS 5
 
 /* Thread of the shell */
 static Thread *shelltp = NULL;
