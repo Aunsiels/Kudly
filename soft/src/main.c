@@ -17,6 +17,8 @@ int main(void) {
     /* Initialize the shell */
     shellPersoInit();
 
+    sdPersoInit();
+
     palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
@@ -24,8 +26,12 @@ int main(void) {
     palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
 
     codecInit();
-    //codecPlayMusic("testa");
 
+    codecPlayMusic("testa");
+
+    palSetPad(GPIOA,2);
+    chThdSleepMilliseconds(2000);
+    codecEncodeSound(2000);
 
     while(TRUE){
       chThdSleepMilliseconds(500);

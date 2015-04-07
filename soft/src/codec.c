@@ -100,9 +100,6 @@ void sendData(const uint8_t * data, int size){
   RESET_MODE;
 }
 
-static uint8_t sineTest[] = {0x53,0xef,0x6e,126,0,0,0,0};
-static uint8_t sineTestEnd[] = {0x45,0x78,0x69,0x74,0,0,0,0};
-
 static void loadPatch(void) {
   int i;
   for (i=0;i<CODE_SIZE;i++) {
@@ -111,6 +108,11 @@ static void loadPatch(void) {
 }
 
 void codecReset(void){
+
+  /* Start of SPI bus */
+  spiAcquireBus(&SPID4);
+  spiStart(&SPID4, &hs_spicfg);
+  spiSelect(&SPID4);
 
   RESET_MODE;
 
@@ -134,8 +136,8 @@ void codecReset(void){
 }
 
 void codecInit(){
-  /* Change the mode of the pins used for the codec and his SPI bus */
 
+  /* Change the mode of the pins used for the codec and his SPI bus */
   palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
   palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
   palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP | PAL_STM32_OSPEED_HIGHEST);
@@ -143,24 +145,7 @@ void codecInit(){
   palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
 
-  /* Start of SPI bus */
-  spiAcquireBus(&SPID4);
-  spiStart(&SPID4, &hs_spicfg);
-  spiSelect(&SPID4);
-
   codecReset();
-
-  /* Go to test mode */
-  writeRegister(SCI_MODE,readRegister(SCI_MODE)|0x20);
-
-  /* Loop to test the output */
-  while(1){
-    sendData(sineTest,8);
-    palTogglePad(GPIOA,0);
-    chThdSleepMilliseconds(500);
-    sendData(sineTestEnd,8);
-    chThdSleepMilliseconds(500);
-  }
 }
 
 void codecLowPower(){
@@ -170,8 +155,10 @@ void codecLowPower(){
   writeRegister(SCI_AUDATA,0x0010);
   /* Set the attenuation to his maximum */
   writeRegister(SCI_VOL,0xffff);
-
+  /* Stop the SPI bus */
+  spiStop(&SPID4);
 }
+
 
 static uint8_t musicBuffer[32];
 
@@ -205,4 +192,79 @@ void codecPlayMusic(char * name){
       break;
     }
   }
+}
+static uint16_t test[32000];
+
+void writeSoundFile(char * name){
+
+  //uint16_t data;
+  static FIL fil;
+  //UINT bw;
+  uint16_t endFillByte;
+
+  f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
+
+  /*
+  while(1){
+    data = readRegister(SCI_HDAT0);
+    f_write(&fil,&data,2,&bw);
+    if(readRegister(SCI_HDAT1) == 0)
+      break;
+      }*/
+
+  int i;
+
+  for(i = 0 ; i < 32000 ; i++){
+    test[i] = readRegister(SCI_HDAT0);
+    if(readRegister(SCI_HDAT1) == 0)
+      break;
+  }
+
+  endFillByte = readRam(PAR_END_FILL_BYTE);
+
+  /* If it's odd lenght, endFillByte should be added */
+  if(endFillByte & (1 << 15))
+    //f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
+    test[31999] = (uint8_t)endFillByte;
+
+  f_close(&fil);
+  writeRam(PAR_END_FILL_BYTE,0);
+
+  for(i = 0;i<32000;i++)
+    writeSerial("%u",test[i]);
+
+}
+
+
+void codecEncodeSound(int duration){
+  /* Set the samplerate at 16kHz */
+  writeRegister(SCI_AICTRL0,16000);
+  /* Automatic gain control */
+  writeRegister(SCI_AICTRL1,0);
+  /* Maximum gain amplification at x4 */
+  writeRegister(SCI_AICTRL2,4096);
+  /* Set in mono mode, and in format OGG Vorbis */
+  writeRegister(SCI_AICTRL3,4|(1 << 4));
+  /* Set quality mode to 5 */
+  writeRegister(SCI_WRAMADDR,0x5);
+
+  /* Start encoding procedure */
+  writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+  writeRegister(SCI_AIADDR,0x50);
+
+  writeSoundFile("test1");
+
+  /* Collect the data in HDAT0/1 */
+  chThdSleepMilliseconds(duration);
+
+
+
+  /* Stop the acquisition */
+  writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+  /* Wait until the codec exit the encoding mode */
+  //while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+
+  codecReset();
+
+
 }

@@ -332,5 +332,5 @@ void writeSerial(const char * fmt,...){
   va_start(ap, fmt);
   chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
   va_end(ap);
-        
+         
 }
