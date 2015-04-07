@@ -17,6 +17,13 @@ static char space[] =" ";
 static char wifi_buffer[1];
 static char c;
 
+static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
+static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
+static char save[] = "save\r\n";
+
+static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
+static char stream_read[] = "stream_read 0 50\r\n";
+
 static char feature[20];
 static char function[1048];
 
@@ -109,6 +116,12 @@ void wifiInitByUsart(void){
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
     sdStart(&SD3, &uartCfg);
+    wifiWriteByUsart(ssid, sizeof(ssid));
+    chThdSleepMilliseconds(1000);
+    wifiWriteByUsart(passkey, sizeof(passkey));
+    chThdSleepMilliseconds(1000);
+    wifiWriteByUsart(save, sizeof(save));
+    chThdSleepMilliseconds(1000);
 }
 
 void wifiWriteByUsart(char * message, int length){
@@ -140,8 +153,7 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 
 
 static msg_t wifiCommands_thd(void * args) {
-  (void)args;
-  
+  (void)args;  
   EventListener eventWifiLst;
   chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
   char* ptr;  
@@ -149,7 +161,6 @@ static msg_t wifiCommands_thd(void * args) {
     chEvtWaitOne(1);
     if( NULL != strstr(feature,"led")){
       if ( NULL != strstr(function,"rgb_set")){
-
 	int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
 	int r = strtol(strstr(function,"r=\"") +3,&ptr,10);
 	int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
@@ -176,4 +187,13 @@ void wifiCommands(void) {
   chThdCreateStatic(
 		    wifiCommands_wa, sizeof(wifiCommands_wa),
 		    NORMALPRIO, wifiCommands_thd, NULL);
+}
+
+void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
+  (void)chp;
+  (void)argc;
+  (void)argv;
+  wifiWriteByUsart(http_get, sizeof(http_get));
+  wifiWriteByUsart(stream_read, sizeof(stream_read));
+
 }

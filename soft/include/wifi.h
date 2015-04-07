@@ -12,4 +12,6 @@ void wifiWriteByUsart(char * message, int length);
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
 
 void wifiCommands(void);
+
+void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]);
 #endif

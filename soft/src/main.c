@@ -6,9 +6,6 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 
-static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
-static char stream_read[] = "stream_read 0 50\r\n";
-
 int main(void) {
 
     halInit();
@@ -31,8 +28,6 @@ int main(void) {
     wifiReadByUsart();
 
     wifiCommands();
-    wifiWriteByUsart(http_get, sizeof(http_get));
-    wifiWriteByUsart(stream_read, sizeof(stream_read));
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

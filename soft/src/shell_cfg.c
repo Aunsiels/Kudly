@@ -26,19 +26,20 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-  {"testSD" , testSd     },
-  {"mv"     , cmdMv      },
-  {"rm"     , cmdRm      },
-  {"touch"  , cmdTouch   },
-  {"mkdir"  , cmdMkdir   },
-  {"cat"    , cmdCat     },
-  {"pwd"    , cmdPwd     },
-  {"cd"     , cmdCd      },
-  {"ls"     , cmdLs      },
-  {"test"   , cmdTest    },
-  {"tree"   , cmdTree    },
-  {"wifi"   , cmdWifi    },
-  {NULL   , NULL         }
+  {"testSD"  , testSd     },
+  {"mv"      , cmdMv      },
+  {"rm"      , cmdRm      },
+  {"touch"   , cmdTouch   },
+  {"mkdir"   , cmdMkdir   },
+  {"cat"     , cmdCat     },
+  {"pwd"     , cmdPwd     },
+  {"cd"      , cmdCd      },
+  {"ls"      , cmdLs      },
+  {"test"    , cmdTest    },
+  {"tree"    , cmdTree    },
+  {"wifi"    , cmdWifi    },
+  {"wifiTest", cmdWifiTest},
+  {NULL      , NULL       }
 };
 
 /* Config of the shell */
