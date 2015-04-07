@@ -27,17 +27,17 @@ static void writeRegister(uint8_t adress, uint16_t command){
   spiSend(&SPID4,sizeof(instruction),instruction);
 
   RESET_MODE;
-  
+
   /* Wait until the writing operation is done */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 }
 
 
 static uint16_t readRegister(uint8_t adress){
-  
+
   /* Wait until it's possible to read from SCI */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-  
+
   COMMAND_MODE;
 
   /* Construction of instruction (Read opcode, adress) */
@@ -61,13 +61,13 @@ void sendData(const uint8_t * data, int size){
   while(j < size){
     /* Wait until it's possible to send data (must be checked every 32 bytes) */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-      for(i = 0 ; i < 32 ; i++){
+    for(i = 0 ; i < 32 ; i++){
 	spiSend(&SPID4,1,data++);
 	j++;
 	if(j == size)
 	  break;
-      }
     }
+  }
 
   RESET_MODE;
 }
@@ -145,4 +145,19 @@ void codecLowPower(){
 
 }
 
+static char ch;
+static FILE *fp;
 
+void codecPlayMusic(FILE *music){
+  fp=fopen(music, "r");
+  if(fp==NULL)
+    {
+      writeSerial("Problem with the music file");
+    }
+  else
+    {
+      while((ch=fgetc(fp))!=EOF)
+        writeSerial("%c", ch);
+    }
+  fclose(fp);
+}
