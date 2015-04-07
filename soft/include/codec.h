@@ -3,6 +3,7 @@
 
 void codecInit(void);
 void codecLowPower(void);
+void codecEncodeSound(int);
 
 void writeRam(uint16_t,uint16_t);
 void writeRam32(uint16_t,uint32_t);
