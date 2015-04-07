@@ -21,7 +21,7 @@ void initUsbSerial (void);
 
 /**
  *
- * \brief Writes datas over the usb.
+ * \brief Writes data over the usb.
  * \param fmt Formatting string
  *
  * \details This function implements a minimal @p printf() like functionality
@@ -48,17 +48,17 @@ void writeSerial(const char * fmt,...);
 
 /**
  *
- * \brief Reads datas over the usb.
- * \param buffer A buffer where the received datas will be written.
+ * \brief Reads data over the usb.
+ * \param buffer A buffer where the received data will be written.
  * \param length The length of the buffer.
  *
- * This is a blocking function that reads datas reveived on the usb.
+ * This is a blocking function that reads data reveived on the usb.
  *
  */
 
 void readRerial(uint8_t * buffer, int size);
 
-/*
+/**
  * \def SerialUSBDriver SDU1
  * \brief The driver for the serial over usb
  */
