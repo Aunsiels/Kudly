@@ -25,12 +25,12 @@ int main(void) {
     ledTest();
 
     /* Camera pins PWDN */
-    palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPad(GPIOC, 14);
+    palSetPadMode(GPIOC, GPIOC_CAMERA_ENABLE, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPad(GPIOC, GPIOC_CAMERA_ENABLE);
 
     /* Camera pin */
     palSetPadMode(GPIOA, GPIOA_CAMERA_HSYNC, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13));
+    //palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOC, GPIOC_CAMERA_D0, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOC, GPIOC_CAMERA_D1, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOC, GPIOC_CAMERA_D4, PAL_MODE_ALTERNATE(13));
@@ -41,10 +41,10 @@ int main(void) {
     palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13));
     palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13));
     /* XCLK */
-    palSetPadMode(GPIOA, GPIOA_CAMERA_XCLK, PAL_MODE_ALTERNATE(0) | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOA, GPIOA_CAMERA_XCLK, PAL_MODE_ALTERNATE(0));
 
     chThdSleepMilliseconds(100);
-    palClearPad(GPIOC, 14);
+    palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
 
     /* Init sccb */
     sccbInit();
