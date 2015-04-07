@@ -225,6 +225,8 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
         chThdSleepMilliseconds(20);	
     }
 
+    ledSetColorRGB(0, 0, 0, 0);
+
     for(i = 1; i<360; i++){
         ledSetColorHSV(0, i, i * 100 / 360, 100);
         chThdSleepMilliseconds(20);	
