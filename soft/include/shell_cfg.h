@@ -12,8 +12,6 @@
 #ifndef SHELL_CFG
 #define SHELL_CFG
 
-#define SHELL_MAX_ARGUMENTS 5
-
 /**
  * \brief Initialiazes the shell
  */
