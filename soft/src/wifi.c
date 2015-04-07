@@ -24,7 +24,7 @@ static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
 static char nup[] = "nup\r\n";
-static char gpio0[] = "gdi 0 out\r\n";
+static char gpio0[] = "gdi 0 none\r\ngdi 0 in\r\n";
 
 /* http request on Kudly website */
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
