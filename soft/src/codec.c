@@ -16,6 +16,7 @@ static const SPIConfig hs_spicfg = {
 static uint8_t instruction[4];
 static uint8_t registerContent[4];
 
+/* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
   COMMAND_MODE;
 
@@ -32,6 +33,22 @@ static void writeRegister(uint8_t adress, uint16_t command){
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 }
 
+/* Write a 16 bit data in the ram of the codec */
+void writeRam(uint16_t adress, uint16_t data){
+
+  writeRegister(SCI_WRAMADDR,adress);
+  writeRegister(SCI_WRAM,data);
+
+}
+
+/* Write a 32 bit data in the ram of the codec */
+void writeRam32(uint16_t adress, uint32_t data){
+
+  writeRegister(SCI_WRAMADDR,adress);
+  writeRegister(SCI_WRAM,(uint16_t) data);
+  writeRegister(SCI_WRAM,(uint16_t) (data >> 16));
+
+}
 
 static uint16_t readRegister(uint8_t adress){
 
@@ -51,23 +68,33 @@ static uint16_t readRegister(uint8_t adress){
   return ((registerContent[2]<<8) + registerContent[3]);
 }
 
+/* Read a 16 bit data from the ram of the codec */
+uint16_t readRam(uint16_t adress){
+  writeRegister(SCI_WRAMADDR,adress);
+  return readRegister(SCI_WRAM);
+}
 
+/* Read a 32 bit data from the ram of the codec */
+uint32_t readRam32(uint16_t adress){
+  uint16_t lsb,msb;
+  writeRegister(SCI_WRAMADDR,adress+1);
+  msb = readRegister(SCI_WRAM);
+  writeRegister(SCI_WRAMADDR,adress);
+  lsb = readRegister(SCI_WRAM);
+  return (lsb |((uint32_t)msb << 16));
+}
+
+/* Function to send data (SDI), maximum of 32 bytes */
 void sendData(const uint8_t * data, int size){
   int i;
-  int j = 0;
+
+  /* Wait until it's possible to send data */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
   DATA_MODE;
 
-  while(j < size){
-    /* Wait until it's possible to send data (must be checked every 32 bytes) */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-    for(i = 0 ; i < 32 ; i++){
-	spiSend(&SPID4,1,data++);
-	j++;
-	if(j == size)
-	  break;
-    }
-  }
+  for(i = 0 ; i < size ; i++)
+    spiSend(&SPID4,1,data++);
 
   RESET_MODE;
 }
