@@ -84,23 +84,18 @@ uint32_t readRam32(uint16_t adress){
   return (lsb |((uint32_t)msb << 16));  
 }
 
+/* Function to send data (SDI), maximum of 32 bytes */
 void sendData(const uint8_t * data, int size){
   int i;
-  int j = 0;
-
+  
+  /* Wait until it's possible to send data */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+  
   DATA_MODE;
 
-  while(j < size){
-    /* Wait until it's possible to send data (must be checked every 32 bytes) */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-      for(i = 0 ; i < 32 ; i++){
-	spiSend(&SPID4,1,data++);
-	j++;
-	if(j == size)
-	  break;
-      }
-    }
-
+  for(i = 0 ; i < size ; i++)
+    spiSend(&SPID4,1,data++);
+  
   RESET_MODE;
 }
 
