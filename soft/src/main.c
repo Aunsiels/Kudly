@@ -23,11 +23,6 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-    wifiInitByUsart();
-  
-    wifiReadByUsart();
-
-    wifiCommands();
 
     /* Camera pin */
     palSetPadMode(GPIOA, 4, PAL_MODE_ALTERNATE(13));
@@ -51,6 +46,11 @@ int main(void) {
 
     /* Init sccb */
     sccbInit();
+
+    /* Wifi */
+    wifiInitByUsart();
+    wifiReadByUsart();
+    wifiCommands();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

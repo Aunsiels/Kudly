@@ -27,6 +27,7 @@ static char save[] = "save\r\n";
 /* http request on Kudly website */
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
+static char stream_close[] = "stream_close all\r\n";
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[20];
@@ -53,13 +54,13 @@ static msg_t usartRead_thd(void * args) {
     /* Index to fill feature and fucntion tabs */ 
     int parse_feature = 0;
     int parse_function = 0;
-    
+
     /* Default state */
     enum state state = WAIT_FEATURE;
 
     while(1) {
       if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
-	//writeSerial("%c", c);
+	writeSerial("%c", c);
 	
 	/* Wait for feature frame beginning */
 	if (state == WAIT_FEATURE){
@@ -221,4 +222,6 @@ void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)argv;
   wifiWriteByUsart(http_get, sizeof(http_get));
   wifiWriteByUsart(stream_read, sizeof(stream_read));
+  wifiWriteByUsart(stream_close, sizeof(stream_close));
+  
 }
