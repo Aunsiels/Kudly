@@ -12,6 +12,11 @@ int main(void) {
     halInit();
     chSysInit();
 
+    /* Wifi */
+    wifiInitByUsart();
+    wifiReadByUsart();
+    wifiCommands();
+
     /* Initialize the serial over usb */
     initUsbSerial();
 
@@ -46,11 +51,6 @@ int main(void) {
 
     /* Init sccb */
     sccbInit();
-
-    /* Wifi */
-    wifiInitByUsart();
-    wifiReadByUsart();
-    wifiCommands();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
