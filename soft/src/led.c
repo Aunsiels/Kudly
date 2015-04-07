@@ -167,6 +167,62 @@ void ledTest(void) {
             NORMALPRIO, ledTest_thd, NULL);
 }
 
+void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
+
+    chprintf(chp, "Starting test leds...\n\r");
+    (void)argv;
+    (void)argc;
+
+    ledSetColorRGB(0, 255, 255, 255);
+    chThdSleepMilliseconds(500);
+    ledSetColorRGB(0, 0, 0, 0);
+    chThdSleepMilliseconds(500);
+
+    ledSetColorRGB(1, 255, 0, 0);
+    chThdSleepMilliseconds(300);
+    ledSetColorRGB(1, 0, 255, 0);
+    chThdSleepMilliseconds(300);
+    ledSetColorRGB(1, 0, 0, 255);
+    chThdSleepMilliseconds(300);
+
+    ledSetColorRGB(2, 255, 0, 0);
+    chThdSleepMilliseconds(300);
+    ledSetColorRGB(2, 0, 255, 0);
+    chThdSleepMilliseconds(300);
+    ledSetColorRGB(2, 0, 0, 255);
+    chThdSleepMilliseconds(300);
+    ledSetColorRGB(2, 0, 0, 0);
+    chThdSleepMilliseconds(300);
+
+    ledSetColorHSV(1, 0, 10, 100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(1, 120, 100, 100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(1, 240, 100, 100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(1, 0, 0, 0);
+    chThdSleepMilliseconds(300);
+
+    ledSetColorHSV(2, 0, 100,100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(2, 120, 100, 100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(2, 240, 100, 100);
+    chThdSleepMilliseconds(300);
+    ledSetColorHSV(2, 0, 0, 0);
+
+    int i;
+    for(i = 1; i<255; i=i*2){
+        ledSetColorRGB(0, i, i, i);
+        chThdSleepMilliseconds(300);	
+    }
+
+    for(i = 1; i<360; i++){
+        ledSetColorHSV(0, i, i * 100 / 360, 100);
+        chThdSleepMilliseconds(20);	
+    }
+}
+
 void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
     static int r, g, b, h, s, v;
 
