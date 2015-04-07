@@ -26,12 +26,13 @@ int main(void) {
     palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
  
     codecInit();
-
-    codecEncodeSound(1000);
+    palSetPad(GPIOA,2);
+    chThdSleepMilliseconds(2000);
+    codecEncodeSound(2000);
     
     while(TRUE){
       chThdSleepMilliseconds(500);
-      //palTogglePad(GPIOA,0);
+      palTogglePad(GPIOA,0);
     }
     
     return 0;
