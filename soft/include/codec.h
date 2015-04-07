@@ -9,4 +9,6 @@ void writeRam32(uint16_t,uint32_t);
 uint16_t readRam(uint16_t);
 uint32_t readRam32(uint16_t);
 
+void codecPlayMusic(char *);
+
 #endif /* CODEC_H */

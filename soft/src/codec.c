@@ -3,6 +3,7 @@
 #include "codecDefinitions.h"
 #include "codec.h"
 #include "usb_serial.h"
+#include "ff.h"
 
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
@@ -172,19 +173,36 @@ void codecLowPower(){
 
 }
 
-static char ch;
-static FILE *fp;
+static uint8_t musicBuffer[32];
 
-void codecPlayMusic(FILE *music){
-  fp=fopen(music, "r");
-  if(fp==NULL)
-    {
-      writeSerial("Problem with the music file");
+void codecPlayMusic(char * name){
+  FIL fil;
+  UINT *bytesNumber=0;
+  int cptEndFill=0;
+  int cptReset=0;
+  uint8_t endFillByte;
+  /* Open a file in reading mode */
+  f_open(&fil,name,FA_READ);
+  /* Get the file contain and keep it in a buffer */
+  while(f_read(&fil,musicBuffer,32,bytesNumber))
+    /* Send the whole file to VS1063 */
+    sendData(musicBuffer,32);
+  f_close(&fil);
+  /* Read the extra parameters in order to obtain the endFillByte */
+  endFillByte=(uint8_t)readRam(0x1e06);
+  /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
+  for(cptEndFill=0; cptEndFill<2052; cptEndFill++)
+    sendData(&endFillByte,1);
+  /* Set SCI_MODE bit SM_CANCEL */
+  writeRegister(SCI_MODE, readRegister(SCI_MODE) | SM_CANCEL);
+  while(readRegister(SCI_MODE)&SM_CANCEL){
+    for(cptEndFill=0; cptEndFill<32; cptEndFill++)
+      sendData(&endFillByte,1);
+    cptReset++;
+    /* Test if SM_CANCEL hasn't cleared after sending 2048 bytes */
+    if(cptReset==63) {
+      codecReset();
+      break;
     }
-  else
-    {
-      while((ch=fgetc(fp))!=EOF)
-        writeSerial("%c", ch);
-    }
-  fclose(fp);
+  }
 }

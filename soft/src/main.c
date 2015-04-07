@@ -12,25 +12,25 @@ int main(void) {
     chSysInit();
 
     /* Initialize the serial over usb */
-    //initUsbSerial();
-    
+    initUsbSerial();
+
     /* Initialize the shell */
-    //shellPersoInit();
-    
+    shellPersoInit();
+
     palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
 
     palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
- 
-    codecInit();
 
-    
-    
+    codecInit();
+    //codecPlayMusic("testa");
+
+
     while(TRUE){
       chThdSleepMilliseconds(500);
       palTogglePad(GPIOA,0);
     }
-    
+
     return 0;
 }
