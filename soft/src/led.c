@@ -1,4 +1,6 @@
 #include "led.h"
+#include "string.h"
+#include "chprintf.h"
 
 #include <ch.h>
 #include <hal.h>
@@ -103,66 +105,55 @@ static msg_t ledTest_thd(void * args) {
     (void)args;
     
     while(TRUE){
-      pwmEnableChannel(&PWMD5, 0, 255);
-      pwmEnableChannel(&PWMD5, 1, 255);
-      pwmEnableChannel(&PWMD5, 2, 255);
-      
-      pwmEnableChannel(&PWMD1, 0, 255);
-      pwmEnableChannel(&PWMD1, 1, 255);
-      pwmEnableChannel(&PWMD1, 2, 255);
-      
-      chThdSleepMilliseconds(1000);
-      
-      ledSetColorRGB(0, 0, 0, 0);
-      
-      chThdSleepMilliseconds(1000);
-      
-      ledSetColorRGB(1, 255, 0, 0);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(1, 0, 255, 0);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(1, 0, 0, 255);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(1, 0, 0, 0);
-      chThdSleepMilliseconds(1000);
-      
-      ledSetColorRGB(2, 255, 0, 0);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(2, 0, 255, 0);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(2, 0, 0, 255);
-      chThdSleepMilliseconds(1000);
-      ledSetColorRGB(2, 0, 0, 0);
-      chThdSleepMilliseconds(1000);
-      
-      ledSetColorHSV(1, 0, 100, 100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(1, 120, 100, 100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(1, 240, 100, 100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(1, 0, 0, 0);
-      chThdSleepMilliseconds(1000);
-      
-      ledSetColorHSV(2, 0, 100,100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(2, 120, 100, 100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(2, 240, 100, 100);
-      chThdSleepMilliseconds(1000);
-      ledSetColorHSV(2, 0, 0, 0);
+        ledSetColorRGB(0, 255, 255, 255);
+        chThdSleepMilliseconds(500);
+        ledSetColorRGB(0, 0, 0, 0);
+        chThdSleepMilliseconds(500);
 
-      int i;
-      for(i = 1; i<255; i=i*2){
-	ledSetColorRGB(0, i, i, i);
-	chThdSleepMilliseconds(1000);	
-      }
-      
-      for(i = 1; i<360; i++){
-	ledSetColorHSV(0, i, 100, 100);
-	chThdSleepMilliseconds(20);	
-      }
-      chThdSleepMilliseconds(1000);	
+        ledSetColorRGB(1, 255, 0, 0);
+        chThdSleepMilliseconds(300);
+        ledSetColorRGB(1, 0, 255, 0);
+        chThdSleepMilliseconds(300);
+        ledSetColorRGB(1, 0, 0, 255);
+        chThdSleepMilliseconds(300);
+
+        ledSetColorRGB(2, 255, 0, 0);
+        chThdSleepMilliseconds(300);
+        ledSetColorRGB(2, 0, 255, 0);
+        chThdSleepMilliseconds(300);
+        ledSetColorRGB(2, 0, 0, 255);
+        chThdSleepMilliseconds(300);
+        ledSetColorRGB(2, 0, 0, 0);
+        chThdSleepMilliseconds(300);
+
+        ledSetColorHSV(1, 0, 10, 100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(1, 120, 100, 100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(1, 240, 100, 100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(1, 0, 0, 0);
+        chThdSleepMilliseconds(300);
+
+        ledSetColorHSV(2, 0, 100,100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(2, 120, 100, 100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(2, 240, 100, 100);
+        chThdSleepMilliseconds(300);
+        ledSetColorHSV(2, 0, 0, 0);
+
+        int i;
+        for(i = 1; i<255; i=i*2){
+            ledSetColorRGB(0, i, i, i);
+            chThdSleepMilliseconds(300);	
+        }
+
+        for(i = 1; i<360; i++){
+            ledSetColorHSV(0, i, i * 100 / 360, 100);
+            chThdSleepMilliseconds(20);	
+        }
+        chThdSleepMilliseconds(1000);	
 
     }
     return 0;
@@ -174,4 +165,48 @@ void ledTest(void) {
 
     chThdCreateStatic(ledTest_wa, sizeof(ledTest_wa),
             NORMALPRIO, ledTest_thd, NULL);
+}
+
+void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
+    static int r, g, b, h, s, v;
+
+    if(argc != 5 || !strcmp(argv[0], "--help")) {
+        chprintf(chp, "Usage :\r\n");
+        chprintf(chp, "\tled rgb {0|1|2} r_val g_val b_val\r\n");
+        chprintf(chp, "\tled hsv {0|1|2} h_val s_val v_val\r\n");
+        chprintf(chp, "\t1 or 2 selects only one led, 0 changes both leds\r\ǹ");
+        return;
+    }
+    
+    if(strcmp(argv[0], "rgb")) {
+        r = atoi(argv[2]);
+        g = atoi(argv[3]);
+        b = atoi(argv[4]);
+
+        if(r < 0 || g < 0 || b < 0 ||
+                r > 255 || g > 255 || b > 255) {
+            chprintf(chp, "Wrong parameters\n\r"); 
+            return;
+        }
+
+        chprintf(chp, "Setting led value to (r,g,b) = (%d,%d,%d)", r, g, b);
+        ledSetColorRGB(atoi(argv[1]), r, g, b);
+        return;
+    }
+
+    if(strcmp(argv[0], "hsv")) {
+        h = atoi(argv[2]);
+        s = atoi(argv[3]);
+        v = atoi(argv[4]);
+
+        if(h < 0 || s < 0 || v < 0 ||
+                h > 359 || s > 100 || v > 100) {
+            chprintf(chp, "Wrong parameters\n\r"); 
+            return;
+        }
+        
+        chprintf(chp, "Setting led value to (h,s,v) = (%d,%d,%d)", h, s, v);
+        ledSetColorHSV(atoi(argv[1]), h, s, v);
+        return;
+    }
 }

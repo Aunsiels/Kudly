@@ -40,4 +40,7 @@ void ledSetColorHSV(int led, int h, int s, int v);
  */
 void ledTest(void);
 
+void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]);
+
+
 #endif

@@ -36,6 +36,7 @@ static const ShellCommand commands[] = {
   {"ls"     , cmdLs      },
   {"test"   , cmdTest    },
   {"tree"   , cmdTree    },
+  {"led"    , cmdLed     },
   {NULL     , NULL       }
 };
 
