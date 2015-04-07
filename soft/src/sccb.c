@@ -83,7 +83,7 @@ static void sccbNA(void){
 
     /* Shows that data have been received */
     palSetPad(GPIOC, SIO_D);
-    chThdSleepMicroseconds(DELAY);
+    chThdSleepMicroseconds(DELAY/2);
 
     /* TIC */
     palSetPad(GPIOC, SIO_C);
@@ -166,6 +166,7 @@ static uint8_t sccbReadByte(void){
     int i;
     /* We read all the bits, beginning the MSB*/
     for(i = 0; i < 8; ++i){
+        chThdSleepMicroseconds(DELAY/2);
         /* TIC */
         palSetPad(GPIOC, SIO_C);
         chThdSleepMicroseconds(DELAY/2);
@@ -176,6 +177,8 @@ static uint8_t sccbReadByte(void){
         /* Read the value */
         if (palReadPad(GPIOC, SIO_D))
             data++;
+
+        chThdSleepMicroseconds(DELAY/2);
 
         /* TAC */
         palClearPad(GPIOC, SIO_C);

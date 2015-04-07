@@ -1,6 +1,7 @@
 /**
  * \file sccb.h
  * \brief A sccb driver for the camera.
+ * \author KudlyProject
  */
 
 #ifndef SCCB_H
