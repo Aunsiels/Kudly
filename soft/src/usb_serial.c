@@ -323,14 +323,14 @@ void initUsbSerial (){
 }
 
 void readSerial(uint8_t * buffer, int size){
-    (SDU1.vmt)->write(&SDU1, buffer, size);
+    (SDU1.vmt)->read(&SDU1, buffer, size);
 }
 
 void writeSerial(const char * fmt,...){
-    va_list ap;
-
-    va_start(ap, fmt);
-    chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
-    va_end(ap);
-        
+  va_list ap;
+  
+  va_start(ap, fmt);
+  chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
+  va_end(ap);
+  
 }

@@ -1,5 +1,6 @@
 #include "ch.h"
 #include "hal.h"
+#include "wifi.h"
 #include "led.h"
 #include "usb_serial.h"
 #include "shell_cfg.h"
@@ -22,8 +23,15 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
+
     /* Test thread of the led */
-    ledTest();
+    //ledTest();
+    
+    wifiInitByUsart();
+  
+    wifiReadByUsart();
+
+    wifiCommands();
 
     /* Camera pin */
     palSetPadMode(GPIOA, 4, PAL_MODE_ALTERNATE(13));
@@ -49,5 +57,6 @@ int main(void) {
     sccbInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
+
     return 0;
 }
