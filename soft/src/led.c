@@ -1,7 +1,7 @@
 #include "led.h"
 #include "string.h"
 #include "chprintf.h"
-
+#include <stdlib.h>
 #include <ch.h>
 #include <hal.h>
 
@@ -225,6 +225,8 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
         chThdSleepMilliseconds(20);	
     }
 
+    ledSetColorRGB(0, 0, 0, 0);
+
     for(i = 1; i<360; i++){
         ledSetColorHSV(0, i, i * 100 / 360, 100);
         chThdSleepMilliseconds(20);	
@@ -234,7 +236,47 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
 }
 
 void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
-    (void)chp;
-    (void)argc;
-    (void)argv;
+    static int r, g, b, h, s, v, led;
+
+    if(argc != 5 || !strcmp(argv[0], "--help")) {
+        chprintf(chp, "Usage :\r\n");
+        chprintf(chp, "\tled rgb {0|1|2} r_val g_val b_val\r\n");
+        chprintf(chp, "\tled hsv {0|1|2} h_val s_val v_val\r\n");
+        chprintf(chp, "\t1 or 2 selects only one led, 0 changes both leds\r\n");
+        return;
+    }
+    
+    if(!strcmp(argv[0], "rgb")) {
+        r = strtol(argv[2], (char **)NULL, 10);
+        g = strtol(argv[3], (char **)NULL, 10);
+        b = strtol(argv[4], (char **)NULL, 10);
+        led = strtol(argv[1], (char **)NULL, 10);
+
+        if(r < 0 || g < 0 || b < 0 ||
+                r > 255 || g > 255 || b > 255) {
+            chprintf(chp, "Wrong parameters\n\r"); 
+            return;
+        }
+
+        chprintf(chp, "Setting led value to (r,g,b) = (%d,%d,%d)\n\r", r, g, b);
+        ledSetColorRGB(led, r, g, b);
+        return;
+    }
+
+    if(!strcmp(argv[0], "hsv")) {
+        h = strtol(argv[2], (char **)NULL, 10);
+        s = strtol(argv[3], (char **)NULL, 10);
+        v = strtol(argv[4], (char **)NULL, 10);
+        led = strtol(argv[1], (char **)NULL, 10);
+
+        if(h < 0 || s < 0 || v < 0 ||
+                h > 359 || s > 100 || v > 100) {
+            chprintf(chp, "Wrong parameters\n\r"); 
+            return;
+        }
+        
+        chprintf(chp, "Setting led value to (h,s,v) = (%d,%d,%d)\n\r", h, s, v);
+        ledSetColorHSV(led, h, s, v);
+        return;
+    }
 }
