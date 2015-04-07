@@ -23,6 +23,8 @@ static char c;
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
+static char nup[] = "nup\r\n";
+static char gpio0[] = "gdi 0 out\r\n";
 
 /* http request on Kudly website */
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
@@ -141,8 +143,11 @@ void wifiInitByUsart(void){
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(passkey, sizeof(passkey));
     chThdSleepMilliseconds(1000);
+    wifiWriteByUsart(gpio0, sizeof(gpio0));
+    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(save, sizeof(save));
     chThdSleepMilliseconds(1000);
+    wifiWriteByUsart(nup, sizeof(nup));
 }
 
 /* Sends data by wifi */
