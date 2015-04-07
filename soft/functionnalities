@@ -6,4 +6,4 @@ use tree to print information and all the files, cat, ls, pwd, cd, rm mv, mkdir,
 touch.
 SCCB  : in the terminal, you can do sccbread and sccbwrite to read and write in
 the registers of the camera
-
+WIFI : function wifiTest reads Kudly website and ligths LEDs with written values
