@@ -78,16 +78,16 @@ static msg_t usartRead_thd(void * args) {
                     rcvType = c;
                     break;
                 case RECEIVE_HEADER:
-                    if(h < 6) {
 
-                        if(h == 0) { //error code
-                            errCode = (int)(c - 48);
-                        } else {
-                            header[h - 1] == c;
-                        }
+                    if(h == 0) { // error code
+                        errCode = (int)(c - 48);
+                    } else { // header size
+                        header[h - 1] == c;
+                    }
 
-                        h++;
-                    } else {
+                    h++;
+
+                    if(h == 5) { // End of header
                         headerSize = strtol(header, (char **)NULL, 10);
                         dataCpt = 0;
 
@@ -99,17 +99,15 @@ static msg_t usartRead_thd(void * args) {
                     }
                     break;
                 case RECEIVE_RESPONSE:
-                    if(dataCpt < h
-                    
+                    parseXML(c);
 
-
-
-
-
-
-
-
-
+                    dataCpt++;
+                    if(dataCpt == h) {
+                        chSysLock();
+                        chEvtBroadcastI(&eventWifiReceptionEnd);
+                        chSysUnlock();
+                        wifiReadState = IDLE;
+                    }
 
             if (state == WAIT_FEATURE){
                 if (c == '<') {
