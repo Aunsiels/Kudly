@@ -4,6 +4,7 @@
 #include "chprintf.h"
 #include "usb_serial.h"
 #include "shell.h"
+#include "led.h"
 #include <stdlib.h>
 #include "sd_perso.h"
 #include "sccb.h"
@@ -27,20 +28,22 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-  {"testSD"  , testSd     },
-  {"mv"      , cmdMv      },
-  {"rm"      , cmdRm      },
-  {"touch"   , cmdTouch   },
-  {"mkdir"   , cmdMkdir   },
-  {"cat"     , cmdCat     },
-  {"pwd"     , cmdPwd     },
-  {"cd"      , cmdCd      },
-  {"ls"      , cmdLs      },
-  {"test"    , cmdTest    },
-  {"tree"    , cmdTree    },
-  {"wifi"    , cmdWifi    },
-  {"wifiTest", cmdWifiTest},
-  {NULL      , NULL       }
+    {"testSD"  , testSd     },
+    {"mv"      , cmdMv      },
+    {"rm"      , cmdRm      },
+    {"touch"   , cmdTouch   },
+    {"mkdir"   , cmdMkdir   },
+    {"cat"     , cmdCat     },
+    {"pwd"     , cmdPwd     },
+    {"cd"      , cmdCd      },
+    {"ls"      , cmdLs      },
+    {"test"    , cmdTest    },
+    {"tree"    , cmdTree    },
+    {"wifi"    , cmdWifi    },
+    {"wifiTest", cmdWifiTest},
+    {"led"    , cmdLed     },
+    {"ledtest", cmdLedtest },
+    {NULL      , NULL       }
 };
 
 /* Config of the shell */

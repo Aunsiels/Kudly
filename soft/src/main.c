@@ -23,10 +23,6 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-
-    /* Test thread of the led */
-    //ledTest();
-    
     wifiInitByUsart();
   
     wifiReadByUsart();
