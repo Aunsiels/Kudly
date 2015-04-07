@@ -18,7 +18,7 @@ static char wifi_buffer[1];
 static char c;
 
 static char feature[20];
-static char function[50];
+static char function[1048];
 
 static EVENTSOURCE_DECL(eventWifiSrc);
 
@@ -40,9 +40,7 @@ static msg_t usartRead_thd(void * args) {
     while(1) {
       if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
 	//writeSerial("%c", c);
-	/*
-	 * Send byte to the codec, the SD card...
-	 */
+	
 	if (state == WAIT_FEATURE){
 	  if (c == '<') {
 	    parse_feature = 0;
@@ -73,15 +71,9 @@ static msg_t usartRead_thd(void * args) {
 	  if (c == '>'){
 	    state = END_FEATURE;
 	    function[parse_function-1] = '\0';
-	    writeSerial(feature);
-	    writeSerial("\r\n");
-	    writeSerial(function);
-	    writeSerial("\r\n");
-
-	    chSysLockFromIsr();
+	    chSysLock();
 	    chEvtBroadcastI(&eventWifiSrc);
-	    chSysUnlockFromIsr();
-
+	    chSysUnlock();
 	    continue;
 	  }
 	    function[parse_function]=c;
@@ -157,24 +149,12 @@ static msg_t wifiCommands_thd(void * args) {
     chEvtWaitOne(1);
     if( NULL != strstr(feature,"led")){
       char* ptr;
-      int r = strtol(strstr(feature,"r=\"") + 3,&ptr,10);
-      int g = strtol(strstr(feature,"g=\"") + 3,&ptr,10);
-      int b = strtol(strstr(feature,"b=\"") + 3,&ptr,10);
-      
-      if( NULL != strstr(feature,"led0")){
-	writeSerial("led1 set with %d %d %d",r,g,b);
-	ledSetColorRGB(0, r, g, b);
-      }
-      
-      if( NULL != strstr(feature,"led1")){
-	writeSerial("led1 set with %d %d %d",r,g,b);
-	ledSetColorRGB(1, r, g, b);
-      }
-      
-      if( NULL != strstr(feature,"led2")){
-	writeSerial("led1 set with %d %d %d",r,g,b);
-	ledSetColorRGB(2, r, g, b);
-      }
+      int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
+      int r = strtol(strstr(function,"r=\"") +3 ,&ptr,10);
+      int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
+      int b = strtol(strstr(function,"b=\"") +3,&ptr,10);
+      ledSetColorRGB(n, r, g, b);
+      continue;
     }
   }
   return 0;
