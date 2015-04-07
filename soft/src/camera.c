@@ -1,6 +1,6 @@
 #include "hal.h"
 #include "ch.h"
-#include "dcmi.h"
+#include "camera.h"
 #include "chprintf.h"
 #include "sd_perso.h"
 #include "sccb.h"
