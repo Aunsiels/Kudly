@@ -7,47 +7,61 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Mailbox for received data
+/* Mailbox for received data */
 static msg_t mb_buf[32];
 MAILBOX_DECL(mb, mb_buf, 32);
 
+/* Special strings to print */
 static char crlf[] ="\r\n";
 static char space[] =" ";
 
+/* Char and buffer used by wifi receive */
 static char wifi_buffer[1];
 static char c;
 
+/* Some string used by initialization to configure network */
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
 
+/* http request on Kudly website */
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
 
+/* Feature and function buffer used to launch functionnality by wifi */
 static char feature[20];
 static char function[1048];
 
+/* Event source to signal a that wifi receive a function and feature */
 static EVENTSOURCE_DECL(eventWifiSrc);
 
+/* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
-    115200,// bit rate
+    115200,
     0,
     0,
     0
 };
 
+/* States for parsing state machine */
 enum state {WAIT_FEATURE, WRITE_FEATURE, WAIT_FUNCTION, WRITE_FUNCTION, END_FEATURE};
 
+/* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * args) {
     (void)args;
+    /* Index to fill feature and fucntion tabs */ 
     int parse_feature = 0;
     int parse_function = 0;
+    
+    /* Default state */
     enum state state = WAIT_FEATURE;
+
     while(1) {
       if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
 	//writeSerial("%c", c);
 	
+	/* Wait for feature frame beginning */
 	if (state == WAIT_FEATURE){
 	  if (c == '<') {
 	    parse_feature = 0;
@@ -56,6 +70,7 @@ static msg_t usartRead_thd(void * args) {
 	  }
 	}
 	
+	/* Write feature frame in feture buffer */
 	if (state == WRITE_FEATURE){
 	  if (c == '>'){
 	    state = WAIT_FUNCTION;
@@ -66,6 +81,7 @@ static msg_t usartRead_thd(void * args) {
 	    parse_feature++;
 	}
 	
+	/* Wait for function frame beginning */
 	if (state == WAIT_FUNCTION){
 	  if (c == '<'){
 	    state = WRITE_FUNCTION;
@@ -74,10 +90,12 @@ static msg_t usartRead_thd(void * args) {
 	  } 
 	}
 
+	/* Write function in frame buffer */
 	if (state == WRITE_FUNCTION){
 	  if (c == '>'){
 	    state = END_FEATURE;
 	    function[parse_function-1] = '\0';
+	    /* Function and feature are ready : send event broadcast */
 	    chSysLock();
 	    chEvtBroadcastI(&eventWifiSrc);
 	    chSysUnlock();
@@ -87,6 +105,7 @@ static msg_t usartRead_thd(void * args) {
 	    parse_function++;
 	}
 	
+	/* Wait for feature frame end */
 	if (state == END_FEATURE){
 	  if (c == '>'){
 	    state = WAIT_FEATURE;
@@ -98,6 +117,7 @@ static msg_t usartRead_thd(void * args) {
     return 0;
 }
 
+/* Thread that reads wifi data and puts it on Mailbox */
 static msg_t usartReadInMB_thd(void * args) {
     (void)args;
 
@@ -109,7 +129,7 @@ static msg_t usartReadInMB_thd(void * args) {
     return 0;
 }
 
-
+/* Initialization of wifi network */
 void wifiInitByUsart(void){  
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
@@ -124,10 +144,12 @@ void wifiInitByUsart(void){
     chThdSleepMilliseconds(1000);
 }
 
+/* Sends data by wifi */
 void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length); 
 }
 
+/*  Launches the wifi reading */
 void wifiReadByUsart(void) {
     static WORKING_AREA(usartRead_wa, 128);
     static WORKING_AREA(usartReadInMB_wa, 128);
@@ -141,6 +163,7 @@ void wifiReadByUsart(void) {
             NORMALPRIO, usartRead_thd, NULL);
 }
 
+/* Command shell to speak with wifi module in command mode */
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
   (void)chp;
   int i;
@@ -151,7 +174,7 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
   wifiWriteByUsart(crlf, sizeof(crlf));
 }
 
-
+/* Thread waits an wifi event and parse feature and function to launch the rigth function */
 static msg_t wifiCommands_thd(void * args) {
   (void)args;  
   EventListener eventWifiLst;
@@ -182,6 +205,8 @@ static msg_t wifiCommands_thd(void * args) {
   return 0;
 }
 
+
+/* Launches thread that wait wifi event */
 void wifiCommands(void) {
   static WORKING_AREA(wifiCommands_wa, 128);
   chThdCreateStatic(
@@ -189,11 +214,11 @@ void wifiCommands(void) {
 		    NORMALPRIO, wifiCommands_thd, NULL);
 }
 
+/* Command shell to send http request and read the stream */
 void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)chp;
   (void)argc;
   (void)argv;
   wifiWriteByUsart(http_get, sizeof(http_get));
   wifiWriteByUsart(stream_read, sizeof(stream_read));
-
 }
