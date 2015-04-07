@@ -144,17 +144,28 @@ static msg_t wifiCommands_thd(void * args) {
   
   EventListener eventWifiLst;
   chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
-  
+  char* ptr;  
   while(1) {
     chEvtWaitOne(1);
     if( NULL != strstr(feature,"led")){
-      char* ptr;
-      int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
-      int r = strtol(strstr(function,"r=\"") +3 ,&ptr,10);
-      int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
-      int b = strtol(strstr(function,"b=\"") +3,&ptr,10);
-      ledSetColorRGB(n, r, g, b);
+      if ( NULL != strstr(function,"rgb_set")){
+
+	int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
+	int r = strtol(strstr(function,"r=\"") +3,&ptr,10);
+	int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
+	int b = strtol(strstr(function,"b=\"") +3,&ptr,10);
+	ledSetColorRGB(n, r, g, b);
       continue;
+      }
+      
+      if ( NULL != strstr(function,"hsv_set")){	
+	int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
+	int h = strtol(strstr(function,"h=\"") +3,&ptr,10);
+	int s = strtol(strstr(function,"s=\"") +3,&ptr,10);
+	int v = strtol(strstr(function,"v=\"") +3,&ptr,10);
+	ledSetColorHSV(n, h, s, v);
+      continue;
+      }
     }
   }
   return 0;
