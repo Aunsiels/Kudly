@@ -20,7 +20,6 @@ int main(void) {
     sdPersoInit();
 
     ledInit();
-    ledTest();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

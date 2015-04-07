@@ -4,6 +4,7 @@
 #include "chprintf.h"
 #include "usb_serial.h"
 #include "shell.h"
+#include "led.h"
 #include <stdlib.h>
 #include "sd_perso.h"
 

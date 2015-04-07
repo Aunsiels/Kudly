@@ -184,6 +184,7 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
     chThdSleepMilliseconds(300);
     ledSetColorRGB(1, 0, 0, 255);
     chThdSleepMilliseconds(300);
+    ledSetColorRGB(1, 0, 0, 0);
 
     ledSetColorRGB(2, 255, 0, 0);
     chThdSleepMilliseconds(300);
@@ -192,7 +193,6 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
     ledSetColorRGB(2, 0, 0, 255);
     chThdSleepMilliseconds(300);
     ledSetColorRGB(2, 0, 0, 0);
-    chThdSleepMilliseconds(300);
 
     ledSetColorHSV(1, 0, 10, 100);
     chThdSleepMilliseconds(300);
@@ -201,7 +201,6 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
     ledSetColorHSV(1, 240, 100, 100);
     chThdSleepMilliseconds(300);
     ledSetColorHSV(1, 0, 0, 0);
-    chThdSleepMilliseconds(300);
 
     ledSetColorHSV(2, 0, 100,100);
     chThdSleepMilliseconds(300);
@@ -212,57 +211,21 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
     ledSetColorHSV(2, 0, 0, 0);
 
     int i;
-    for(i = 1; i<255; i=i*2){
+    for(i = 1; i<255; i += 5){
         ledSetColorRGB(0, i, i, i);
-        chThdSleepMilliseconds(300);	
+        chThdSleepMilliseconds(20);	
     }
 
     for(i = 1; i<360; i++){
         ledSetColorHSV(0, i, i * 100 / 360, 100);
         chThdSleepMilliseconds(20);	
     }
+
+    ledSetColorRGB(0, 0, 0, 0);
 }
 
 void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
-    static int r, g, b, h, s, v;
-
-    if(argc != 5 || !strcmp(argv[0], "--help")) {
-        chprintf(chp, "Usage :\r\n");
-        chprintf(chp, "\tled rgb {0|1|2} r_val g_val b_val\r\n");
-        chprintf(chp, "\tled hsv {0|1|2} h_val s_val v_val\r\n");
-        chprintf(chp, "\t1 or 2 selects only one led, 0 changes both leds\r\ǹ");
-        return;
-    }
-    
-    if(strcmp(argv[0], "rgb")) {
-        r = atoi(argv[2]);
-        g = atoi(argv[3]);
-        b = atoi(argv[4]);
-
-        if(r < 0 || g < 0 || b < 0 ||
-                r > 255 || g > 255 || b > 255) {
-            chprintf(chp, "Wrong parameters\n\r"); 
-            return;
-        }
-
-        chprintf(chp, "Setting led value to (r,g,b) = (%d,%d,%d)", r, g, b);
-        ledSetColorRGB(atoi(argv[1]), r, g, b);
-        return;
-    }
-
-    if(strcmp(argv[0], "hsv")) {
-        h = atoi(argv[2]);
-        s = atoi(argv[3]);
-        v = atoi(argv[4]);
-
-        if(h < 0 || s < 0 || v < 0 ||
-                h > 359 || s > 100 || v > 100) {
-            chprintf(chp, "Wrong parameters\n\r"); 
-            return;
-        }
-        
-        chprintf(chp, "Setting led value to (h,s,v) = (%d,%d,%d)", h, s, v);
-        ledSetColorHSV(atoi(argv[1]), h, s, v);
-        return;
-    }
+    (void)chp;
+    (void)argc;
+    (void)argv;
 }
