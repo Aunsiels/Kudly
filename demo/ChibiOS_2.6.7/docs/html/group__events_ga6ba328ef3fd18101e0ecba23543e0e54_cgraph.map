@@ -1,6 +1,0 @@
-<map id="chEvtBroadcastFlagsI" name="chEvtBroadcastFlagsI">
-<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="476,31,603,55"/>
-<area shape="rect" id="node4" href="$group__events.html#ga6c219038c3e618e2142c6e1601997907" title="Adds a set of event flags directly to specified Thread. " alt="" coords="196,31,287,55"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="651,31,737,55"/>
-<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="335,80,428,104"/>
-</map>

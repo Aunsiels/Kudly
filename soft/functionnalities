@@ -1,0 +1,10 @@
+SHELL : just write shell in the shell to test it.
+LEDS  : the function ledTest launch a thread that tries a sequence.
+        the "ledTest" command in the shell launch the test sequence.
+        leds color can be changed using the "led" command
+SD    : in the shell, write testSD to check if the sd card works. You can also
+use tree to print information and all the files, cat, ls, pwd, cd, rm mv, mkdir,
+touch.
+SCCB  : in the terminal, you can do sccbread and sccbwrite to read and write in
+the registers of the camera
+WIFI : function wifiTest reads Kudly website and ligths LEDs with written values

@@ -1,8 +1,0 @@
-<map id="sduDataTransmitted" name="sduDataTransmitted">
-<area shape="rect" id="node2" href="$group___u_s_b.html#gafd8abbcf3b0ce4722060f95d1fd7e4ea" title="Prepares for a transmit transaction on an IN endpoint. " alt="" coords="189,5,371,29"/>
-<area shape="rect" id="node4" href="$group___u_s_b.html#ga140ad34c1adcc16f0736652217d7493f" title="Starts a transmit transaction on an IN endpoint. " alt="" coords="219,53,341,77"/>
-<area shape="rect" id="node3" href="$group___u_s_b.html#ga723e6fe4813722cdd9f4b39c16794e81" title="Prepares for a transmit operation. " alt="" coords="419,5,585,29"/>
-<area shape="rect" id="node5" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="439,53,565,77"/>
-<area shape="rect" id="node7" href="$group___u_s_b.html#gab03273c7bdd1779638ef66bd3b20b2b9" title="Starts a transmit operation on an IN endpoint. " alt="" coords="447,101,557,125"/>
-<area shape="rect" id="node6" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="633,53,720,77"/>
-</map>

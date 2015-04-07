@@ -1,5 +1,0 @@
-<map id="chibios_rt::Core::allocI" name="chibios_rt::Core::allocI">
-<area shape="rect" id="node2" href="$group__memcore.html#ga30a45ff539c9ed5f2f4b1e87e72eb767" title="Allocates a memory block. " alt="" coords="203,5,293,29"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="341,5,468,29"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="516,5,603,29"/>
-</map>

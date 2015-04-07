@@ -1,6 +1,0 @@
-<map id="i2cInit" name="i2cInit">
-<area shape="rect" id="node2" href="$group___i2_c.html#gaae1796056a2fa05caa11a243183b19c2" title="Low level I2C driver initialization. " alt="" coords="108,29,188,53"/>
-<area shape="rect" id="node3" href="$group___i2_c.html#ga2dd7be686d8e136b1deebfeb20e868f9" title="Initializes the standard part of a I2CDriver structure. " alt="" coords="236,29,327,53"/>
-<area shape="rect" id="node4" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="379,5,449,29"/>
-<area shape="rect" id="node5" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="375,53,453,77"/>
-</map>

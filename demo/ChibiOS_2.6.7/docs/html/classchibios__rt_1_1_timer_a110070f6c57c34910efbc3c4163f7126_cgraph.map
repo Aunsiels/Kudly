@@ -1,5 +1,0 @@
-<map id="chibios_rt::Timer::resetI" name="chibios_rt::Timer::resetI">
-<area shape="rect" id="node2" href="$group__time.html#ga680d851a74e594cc965101e79891840f" title="Disables a Virtual Timer. " alt="" coords="180,11,264,35"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="312,11,439,35"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="487,11,573,35"/>
-</map>

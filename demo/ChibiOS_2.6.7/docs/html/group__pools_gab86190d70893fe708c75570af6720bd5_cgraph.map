@@ -1,5 +1,0 @@
-<map id="chPoolAlloc" name="chPoolAlloc">
-<area shape="rect" id="node2" href="$group__pools.html#ga152fb3460d6b7426f0b6803bb38a0070" title="Allocates an object from a memory pool. " alt="" coords="139,5,227,29"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="275,5,401,29"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="449,5,536,29"/>
-</map>

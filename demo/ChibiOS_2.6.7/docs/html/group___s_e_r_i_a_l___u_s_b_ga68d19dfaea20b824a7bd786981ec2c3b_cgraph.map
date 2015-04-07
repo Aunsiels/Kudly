@@ -1,8 +1,0 @@
-<map id="sduDataReceived" name="sduDataReceived">
-<area shape="rect" id="node2" href="$group___u_s_b.html#ga081bb719a339d5ce0e396629c1b4c2d6" title="Prepares for a receive transaction on an OUT endpoint. " alt="" coords="172,5,347,29"/>
-<area shape="rect" id="node4" href="$group___u_s_b.html#ga2b3b984513a296ddf74ff4bab4e4b1f4" title="Starts a receive transaction on an OUT endpoint. " alt="" coords="201,53,318,77"/>
-<area shape="rect" id="node3" href="$group___u_s_b.html#gae9d647c758b6557f59511366b372d0eb" title="Prepares for a receive operation. " alt="" coords="395,5,555,29"/>
-<area shape="rect" id="node5" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="411,53,538,77"/>
-<area shape="rect" id="node7" href="$group___u_s_b.html#ga9ef9040f705088dab583a31b544abb0f" title="Starts a receive operation on an OUT endpoint. " alt="" coords="415,101,534,125"/>
-<area shape="rect" id="node6" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="603,53,689,77"/>
-</map>

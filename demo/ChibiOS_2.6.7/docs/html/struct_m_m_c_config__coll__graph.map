@@ -1,7 +1,0 @@
-<map id="MMCConfig" name="MMCConfig">
-<area shape="rect" id="node2" href="$struct_s_p_i_driver.html" title="Structure representing an SPI driver. " alt="" coords="18,396,93,465"/>
-<area shape="rect" id="node3" href="$struct_s_p_i_config.html" title="Driver configuration structure. " alt="" coords="73,525,149,595"/>
-<area shape="rect" id="node4" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="137,5,192,75"/>
-<area shape="rect" id="node5" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="128,135,228,324"/>
-<area shape="rect" id="node6" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="197,396,303,465"/>
-</map>

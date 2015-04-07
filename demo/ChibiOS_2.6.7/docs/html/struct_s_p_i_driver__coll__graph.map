@@ -1,9 +1,0 @@
-<map id="SPIDriver" name="SPIDriver">
-<area shape="rect" id="node2" href="$struct_s_p_i_config.html" title="Driver configuration structure. " alt="" coords="508,513,584,583"/>
-<area shape="rect" id="node3" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="376,5,431,75"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="136,135,236,324"/>
-<area shape="rect" id="node5" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="89,513,195,583"/>
-<area shape="rect" id="node6" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="253,384,343,453"/>
-<area shape="rect" id="node7" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="156,5,219,75"/>
-<area shape="rect" id="node8" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="51,5,127,75"/>
-</map>

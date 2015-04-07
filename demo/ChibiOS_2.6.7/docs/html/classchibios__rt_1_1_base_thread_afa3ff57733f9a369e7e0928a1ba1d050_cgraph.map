@@ -1,9 +1,0 @@
-<map id="chibios_rt::BaseThread::exitS" name="chibios_rt::BaseThread::exitS">
-<area shape="rect" id="node2" href="$group__threads.html#ga0275693521c0965a5aa3881d7f331f1a" title="Terminates the current thread. " alt="" coords="208,101,292,125"/>
-<area shape="rect" id="node3" href="$group__scheduler.html#ga97c1c514b755a1e71caf2f19c1ccf986" title="Puts the current thread to sleep into the specified state. " alt="" coords="340,53,452,77"/>
-<area shape="rect" id="node6" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="349,101,443,125"/>
-<area shape="rect" id="node8" href="$group__internals.html#gad9aa523aebdaeefa3cc4a311bc210e8a" title="Pops a Thread from the top of a stack list and returns it. " alt="" coords="352,149,440,173"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="500,5,631,29"/>
-<area shape="rect" id="node5" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="521,53,610,77"/>
-<area shape="rect" id="node7" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="502,101,629,125"/>
-</map>

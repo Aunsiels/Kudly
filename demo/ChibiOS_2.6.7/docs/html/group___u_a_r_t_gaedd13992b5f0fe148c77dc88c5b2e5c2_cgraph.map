@@ -1,5 +1,0 @@
-<map id="uartStopSendI" name="uartStopSendI">
-<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="157,5,284,29"/>
-<area shape="rect" id="node4" href="$group___u_a_r_t.html#gaec269894b7a38cc224a92469728dac28" title="Stops any ongoing transmission. " alt="" coords="156,53,285,77"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="333,5,420,29"/>
-</map>

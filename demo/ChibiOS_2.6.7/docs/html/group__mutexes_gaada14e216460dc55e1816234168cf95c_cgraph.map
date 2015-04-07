@@ -1,5 +1,0 @@
-<map id="chMtxTryLock" name="chMtxTryLock">
-<area shape="rect" id="node2" href="$group__mutexes.html#gadbf0bd4a36b1f7e33ee41939df32ab78" title="Tries to lock a mutex. " alt="" coords="148,5,251,29"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="299,5,429,29"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="477,5,564,29"/>
-</map>

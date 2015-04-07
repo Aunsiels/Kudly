@@ -1,5 +1,0 @@
-<map id="chibios_rt::Core::alloc" name="chibios_rt::Core::alloc">
-<area shape="rect" id="node2" href="$group__memcore.html#ga5394bda5b809ecf6b80b041b6b9ebaf4" title="Allocates a memory block. " alt="" coords="200,5,288,29"/>
-<area shape="rect" id="node3" href="$group__memcore.html#ga30a45ff539c9ed5f2f4b1e87e72eb767" title="Allocates a memory block. " alt="" coords="336,5,427,29"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="475,5,601,29"/>
-</map>

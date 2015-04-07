@@ -1,7 +1,0 @@
-<map id="sdRequestDataI" name="sdRequestDataI">
-<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="429,29,556,53"/>
-<area shape="rect" id="node4" href="$group__io__queues.html#ga34a5a71f39e94fcfdd88935da92a8ce9" title="Output queue read. " alt="" coords="164,55,240,79"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="604,29,691,53"/>
-<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="288,79,381,103"/>
-<area shape="rect" id="node6" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="290,127,379,151"/>
-</map>

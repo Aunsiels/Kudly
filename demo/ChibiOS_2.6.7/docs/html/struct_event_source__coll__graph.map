@@ -1,9 +1,0 @@
-<map id="EventSource" name="EventSource">
-<area shape="rect" id="node2" href="$struct_event_listener.html" title="Event Listener structure. " alt="" coords="5,384,104,465"/>
-<area shape="rect" id="node3" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="347,135,447,324"/>
-<area shape="rect" id="node4" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="383,525,489,595"/>
-<area shape="rect" id="node5" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="391,390,481,459"/>
-<area shape="rect" id="node7" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="590,655,645,724"/>
-<area shape="rect" id="node6" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="319,5,382,75"/>
-<area shape="rect" id="node8" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="406,5,482,75"/>
-</map>

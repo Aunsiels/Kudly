@@ -1,8 +1,0 @@
-<map id="adcReleaseBus" name="adcReleaseBus">
-<area shape="rect" id="node2" href="$group__mutexes.html#gae9ae07165126c9f6c0ce0b17bdb53669" title="Unlocks the next owned mutex in reverse lock order. " alt="" coords="165,29,256,53"/>
-<area shape="rect" id="node7" href="$group__semaphores.html#ga7ec0cbda23e49e2370e0b91f20baf05e" title="Performs a signal operation on a semaphore. " alt="" coords="163,77,259,101"/>
-<area shape="rect" id="node3" href="$group__scheduler.html#gae47a8819a21ef2d521124e76bfb37c95" title="Wakes up a thread. " alt="" coords="307,29,413,53"/>
-<area shape="rect" id="node6" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="315,77,405,101"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="461,5,592,29"/>
-<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="480,53,573,77"/>
-</map>

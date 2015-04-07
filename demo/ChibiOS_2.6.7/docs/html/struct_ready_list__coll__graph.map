@@ -1,6 +1,0 @@
-<map id="ReadyList" name="ReadyList">
-<area shape="rect" id="node2" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="127,5,234,75"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="81,147,181,336"/>
-<area shape="rect" id="node3" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="5,420,95,489"/>
-<area shape="rect" id="node5" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="416,5,479,75"/>
-</map>

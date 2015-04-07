@@ -1,8 +1,0 @@
-<map id="Various" name="Various">
-<area shape="rect" id="node1" href="$group___s_h_e_l_l.html" title="Small extendible command line shell. " alt="" coords="139,5,251,29"/>
-<area shape="rect" id="node2" href="$group__chprintf.html" title="System formatted print service. " alt="" coords="117,53,272,77"/>
-<area shape="rect" id="node3" href="$group__event__timer.html" title="Periodic Event Timer. " alt="" coords="121,101,268,125"/>
-<area shape="rect" id="node4" href="$group__cpp__library.html" title="C++ wrapper module. " alt="" coords="145,149,244,173"/>
-<area shape="rect" id="node5" href="$group__chrtclib.html" title="RTC time conversion utilities. " alt="" coords="126,198,263,234"/>
-<area shape="rect" id="node6" href="$group__memory__streams.html" title="Memory Streams. " alt="" coords="135,259,255,283"/>
-</map>

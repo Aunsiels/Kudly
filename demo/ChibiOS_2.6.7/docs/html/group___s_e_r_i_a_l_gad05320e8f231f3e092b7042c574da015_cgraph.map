@@ -1,5 +1,0 @@
-<map id="sd_lld_init" name="sd_lld_init">
-<area shape="rect" id="node2" href="$group___s_e_r_i_a_l.html#gacb9838adcf51106f4e481f41a851cc34" title="Initializes a generic full duplex driver object. " alt="" coords="132,29,221,53"/>
-<area shape="rect" id="node3" href="$group__io__queues.html#gaec09b1418fcd7ccd8295c433e51bb2de" title="Initializes an input queue. " alt="" coords="273,5,337,29"/>
-<area shape="rect" id="node4" href="$group__io__queues.html#ga804d2c02eecae1ca8354eaf0ad4a06c8" title="Initializes an output queue. " alt="" coords="269,53,340,77"/>
-</map>

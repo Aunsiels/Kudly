@@ -1,6 +1,0 @@
-<map id="chIQResetI" name="chIQResetI">
-<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="277,5,404,29"/>
-<area shape="rect" id="node4" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="136,29,229,53"/>
-<area shape="rect" id="node5" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="138,77,227,101"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="452,5,539,29"/>
-</map>

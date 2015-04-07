@@ -1,7 +1,0 @@
-<map id="ADCConversionGroup" name="ADCConversionGroup">
-<area shape="rect" id="node2" href="$struct_a_d_c_driver.html" title="Structure representing an ADC driver. " alt="" coords="171,396,255,489"/>
-<area shape="rect" id="node3" href="$struct_mutex.html" title="Mutex structure. " alt="" coords="419,5,474,75"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="397,135,497,324"/>
-<area shape="rect" id="node5" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="456,408,563,477"/>
-<area shape="rect" id="node6" href="$struct_a_d_c_config.html" title="Driver configuration structure. " alt="" coords="287,195,369,264"/>
-</map>

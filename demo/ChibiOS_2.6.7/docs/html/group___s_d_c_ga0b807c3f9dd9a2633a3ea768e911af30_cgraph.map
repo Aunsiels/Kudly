@@ -1,4 +1,0 @@
-<map id="sdcErase" name="sdcErase">
-<area shape="rect" id="node2" href="$group___s_d_c.html#gad12afd737b2a919ef18ec5d5589debb0" title="Wait for the card to complete pending operations. " alt="" coords="128,5,279,41"/>
-<area shape="rect" id="node3" href="$group___s_d_c.html#ga2be32ac4321f8b28185be4a80cbe1270" title="Sends an SDIO command with a short response expected and CRC. " alt="" coords="327,39,511,63"/>
-</map>

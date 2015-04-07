@@ -1,5 +1,0 @@
-<map id="sdcDisconnect" name="sdcDisconnect">
-<area shape="rect" id="node2" href="$group___s_d_c.html#gad12afd737b2a919ef18ec5d5589debb0" title="Wait for the card to complete pending operations. " alt="" coords="157,5,308,41"/>
-<area shape="rect" id="node4" href="$group___s_d_c.html#ga2d18c16ca9a669c73d7355b4fb3acc6b" title="Stops the SDIO clock. " alt="" coords="176,66,289,90"/>
-<area shape="rect" id="node3" href="$group___s_d_c.html#ga2be32ac4321f8b28185be4a80cbe1270" title="Sends an SDIO command with a short response expected and CRC. " alt="" coords="356,11,540,35"/>
-</map>

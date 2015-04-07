@@ -1,5 +1,0 @@
-<map id="ThreadsQueue" name="ThreadsQueue">
-<area shape="rect" id="node3" href="$struct_ready_list.html" title="Ready list header. " alt="" coords="5,282,92,411"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="117,252,223,441"/>
-<area shape="rect" id="node2" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="64,5,153,75"/>
-</map>

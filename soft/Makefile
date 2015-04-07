@@ -74,11 +74,11 @@ include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
-include $(CHIBIOS)/os/various/lwip_bindings/lwip.mk
 include $(CHIBIOS)/test/test.mk
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 
 # Define linker script file here
-LDSCRIPT= $(PORTLD)/STM32F407xG.ld
+LDSCRIPT= $(PORTLD)/STM32F429xI.ld
 #LDSCRIPT= $(PORTLD)/STM32F407xG_CCM.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
@@ -92,8 +92,17 @@ CSRC = $(PORTSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(LWSRC) \
+       $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
+       $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/led.c \
+       $(KUDLYSRC)/usb_serial.c \
+       $(KUDLYSRC)/shell_cfg.c \
+       $(KUDLYSRC)/sd_perso.c \
+       $(CHIBIOS)/os/various/shell.c \
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(KUDLYSRC)/sccb.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -124,6 +133,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(LWINC) \
+         $(FATFSINC) \
          $(CHIBIOS)/os/various include
 
 #
@@ -159,7 +169,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wstrict-prototypes
+CWARN = -Wall -Wextra -Wstrict-prototypes -Werror
 
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra
@@ -216,3 +226,10 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
 include $(RULESPATH)/rules.mk
+
+jlink:
+	JLinkGDBServer -if swd -device "STM32F427VI" -LocalhostOnly
+
+gdb:
+	arm-none-eabi-gdb build/Kudly.elf
+

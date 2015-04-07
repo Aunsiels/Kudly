@@ -1,6 +1,0 @@
-<map id="MSP430" name="MSP430">
-<area shape="rect" id="node1" href="$group___m_s_p430___c_o_r_e.html" title="Core Port Implementation" alt="" coords="249,5,417,29"/>
-<area shape="rect" id="node2" href="$group___m_s_p430___s_t_a_r_t_u_p.html" title="Startup Support" alt="" coords="277,53,390,77"/>
-<area shape="rect" id="node3" href="$group__gcc.html" title="GCC Ports" alt="" coords="5,53,87,77"/>
-<area shape="rect" id="node4" href="$group___m_s_p430___c_o_n_f.html" title="Configuration Options" alt="" coords="260,101,407,125"/>
-</map>

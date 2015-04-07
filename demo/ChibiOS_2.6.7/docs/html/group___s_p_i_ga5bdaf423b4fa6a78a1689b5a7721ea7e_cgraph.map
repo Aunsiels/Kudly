@@ -1,5 +1,0 @@
-<map id="spi_lld_init" name="spi_lld_init">
-<area shape="rect" id="node2" href="$group___s_p_i.html#ga87a7bdc554b8e8fdfc77064e67689fcf" title="Initializes the standard part of a SPIDriver structure. " alt="" coords="135,29,227,53"/>
-<area shape="rect" id="node3" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="279,5,349,29"/>
-<area shape="rect" id="node4" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="275,53,353,77"/>
-</map>

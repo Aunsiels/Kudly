@@ -1,8 +1,0 @@
-<map id="CANDriver" name="CANDriver">
-<area shape="rect" id="node2" href="$struct_event_source.html" title="Event Source structure. " alt="" coords="21,408,115,477"/>
-<area shape="rect" id="node3" href="$struct_event_listener.html" title="Event Listener structure. " alt="" coords="5,267,104,348"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="165,5,265,195"/>
-<area shape="rect" id="node5" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="205,273,312,342"/>
-<area shape="rect" id="node6" href="$struct_semaphore.html" title="Semaphore structure. " alt="" coords="207,408,295,477"/>
-<area shape="rect" id="node7" href="$struct_c_a_n_config.html" title="Driver configuration structure. " alt="" coords="319,408,401,477"/>
-</map>

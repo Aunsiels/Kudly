@@ -26,7 +26,7 @@
 /*
  * Board identifier.
  */
-#define BOARD_KUDLY_STM32_P407_F427
+#define BOARD_KUDLY_STM32_F427
 #define BOARD_NAME              "Kudly STM32-F427"
 
 /*
@@ -51,7 +51,7 @@
 /*
  * MCU type as defined in the ST header.
  */
-#define STM32F40_41xxx
+#define STM32F427_437xx
 
 /*
  * IO pins assignments.
@@ -74,7 +74,7 @@
 #define GPIOA_15                15
 
 #define GPIOB_LED2_G            0
-#define GPIOB_LED2_B            1
+#define GPIOB_LED2_R            1
 #define GPIOB_2                 2
 #define GPIOB_3                 3
 #define GPIOB_4                 4
@@ -132,7 +132,7 @@
 #define GPIOE_5                 5
 #define GPIOE_6                 6
 #define GPIOE_7                 7
-#define GPIOE_LED2_R            8
+#define GPIOE_LED2_B            8
 #define GPIOE_SPI4_XDCS         9
 #define GPIOE_CODEC_DREQ        10
 #define GPIOE_SPI4_XCS          11
@@ -181,41 +181,13 @@
  * PA14 - GPIOA_SWCLK             (alternate 0, pull-down).
  * PA15 - GPIOA_15                (input pull-up).
  */
-#define VAL_GPIOA_MODER     (PIN_MODE_ALTERNATE(GPIOA_LED1_R) |             \
-                             PIN_MODE_ALTERNATE(GPIOA_LED1_G) |             \
-                             PIN_MODE_ALTERNATE(GPIOA_LED1_B) |             \
-                             PIN_MODE_INPUT(GPIOA_3) |                      \
-                             PIN_MODE_ALTERNATE(GPIOA_CAMERA_HSYNC) |       \
-                             PIN_MODE_OUTPUT(GPIOA_HAND_SENSOR_OUT) |       \
-                             PIN_MODE_ALTERNATE(GPIOA_CAMERA_PIXCLK) |      \
-                             PIN_MODE_INPUT(GPIOA_7) |                      \
-                             PIN_MODE_ALTERNATE(GPIOA_CAMERA_XCLK) |        \
-                             PIN_MODE_ALTERNATE(GPIOA_USB_VBUS) |           \
-                             PIN_MODE_INPUT(GPIOA_10) |                     \
-                             PIN_MODE_ALTERNATE(GPIOA_USB_DM) |             \
-                             PIN_MODE_ALTERNATE(GPIOA_USB_DP) |             \
-                             PIN_MODE_ALTERNATE(GPIOA_SWDIO) |              \
-                             PIN_MODE_ALTERNATE(GPIOA_SWCLK) |              \
-                             PIN_MODE_INPUT(GPIOA_15))
+#define VAL_GPIOA_MODER     0xA8000000
 #define VAL_GPIOA_OTYPER    0x00000000
-#define VAL_GPIOA_OSPEEDR   0xFFFFFFFF
-#define VAL_GPIOA_PUPDR     (PIN_PUDR_PULLUP(GPIOA_3) |                     \
-                             PIN_PUDR_PULLUP(GPIOA_7) |                     \
-                             PIN_PUDR_PULLUP(GPIOA_10) |                    \
-                             PIN_PUDR_PULLUP(GPIOA_10) |                    \
-                             PIN_PUDR_PULLDOWN(GPIOA_SWCLK))
-#define VAL_GPIOA_ODR       0xFFFFFFDF
-#define VAL_GPIOA_AFRL      (PIN_AFIO_AF(GPIOA_LED1_R, 2) |                 \
-			     PIN_AFIO_AF(GPIOA_LED1_G, 2) |		    \
-                             PIN_AFIO_AF(GPIOA_LED1_B, 2) |                 \
-                             PIN_AFIO_AF(GPIOA_CAMERA_HSYNC, 13) |          \
-                             PIN_AFIO_AF(GPIOA_CAMERA_PIXCLK, 13))
-#define VAL_GPIOA_AFRH      (PIN_AFIO_AF(GPIOA_CAMERA_XCLK, 0) |            \
-                             PIN_AFIO_AF(GPIOA_USB_VBUS, 10) |		    \
-			     PIN_AFIO_AF(GPIOA_USB_DM, 10) |		    \
-                             PIN_AFIO_AF(GPIOA_USB_DP, 10) |                \
-                             PIN_AFIO_AF(GPIOA_SWDIO, 0) |                  \
-                             PIN_AFIO_AF(GPIOA_SWCLK, 0))
+#define VAL_GPIOA_OSPEEDR   0x00000000
+#define VAL_GPIOA_PUPDR     0x64000000
+#define VAL_GPIOA_ODR       0x00000000
+#define VAL_GPIOA_AFRL      0x00000000
+#define VAL_GPIOA_AFRH      0x00000000
 
 /*
  * Port B setup.
@@ -237,41 +209,13 @@
  * PB14 - GPIOB_SPI2_MISO       (alternate 5).
  * PB15 - GPIOB_SPI2_MOSI       (alternate 5).
  */
-#define VAL_GPIOB_MODER     (PIN_MODE_ALTERNATE(GPIOB_LED2_G) |             \
-                             PIN_MODE_ALTERNATE(GPIOB_LED2_B) |             \
-                             PIN_MODE_INPUT(GPIOB_2) |                      \
-                             PIN_MODE_INPUT(GPIOB_3) |                      \
-                             PIN_MODE_INPUT(GPIOB_4) |                      \
-                             PIN_MODE_INPUT(GPIOB_5) |                      \
-                             PIN_MODE_ALTERNATE(GPIOB_CAMERA_D5) |          \
-                             PIN_MODE_ALTERNATE(GPIOB_CAMERA_VSYNC) |       \
-                             PIN_MODE_ALTERNATE(GPIOB_CAMERA_D6) |          \
-                             PIN_MODE_ALTERNATE(GPIOB_CAMERA_D7) |          \
-                             PIN_MODE_ALTERNATE(GPIOB_I2C_SCL) |            \
-                             PIN_MODE_ALTERNATE(GPIOB_I2C_SDA) |            \
-                             PIN_MODE_OUTPUT(GPIOB_SPI2_CS_WIFI) |          \
-                             PIN_MODE_ALTERNATE(GPIOB_SPI2_SCK) |           \
-                             PIN_MODE_ALTERNATE(GPIOB_SPI2_MISO) |          \
-                             PIN_MODE_ALTERNATE(GPIOB_SPI2_MOSI))
+#define VAL_GPIOB_MODER     0x00000280
 #define VAL_GPIOB_OTYPER    0x00000000
-#define VAL_GPIOB_OSPEEDR   0xFFFFFFFF
-#define VAL_GPIOB_PUPDR     (PIN_PUDR_PULLUP(GPIOB_2) |                     \
-			     PIN_PUDR_PULLUP(GPIOB_3) |			    \
-			     PIN_PUDR_PULLUP(GPIOB_4) |	                    \
-			     PIN_PUDR_PULLUP(GPIOB_5))
-
-#define VAL_GPIOB_ODR       0xFFFFEFFF
-#define VAL_GPIOB_AFRL      (PIN_AFIO_AF(GPIOB_LED2_G, 1) |	            \
-			     PIN_AFIO_AF(GPIOB_LED2_B, 1) |	            \
-			     PIN_AFIO_AF(GPIOB_CAMERA_D5, 13) |	            \
-                             PIN_AFIO_AF(GPIOB_CAMERA_VSYNC, 13))
-#define VAL_GPIOB_AFRH      (PIN_AFIO_AF(GPIOB_CAMERA_D6, 13) |             \
-                             PIN_AFIO_AF(GPIOB_CAMERA_D7, 13) |             \
-                             PIN_AFIO_AF(GPIOB_I2C_SCL, 4) |                \
-			     PIN_AFIO_AF(GPIOB_I2C_SDA, 4) |		    \
-                             PIN_AFIO_AF(GPIOB_SPI2_SCK, 5) |               \
-                             PIN_AFIO_AF(GPIOB_SPI2_MISO, 5) |              \
-                             PIN_AFIO_AF(GPIOB_SPI2_MOSI, 5))
+#define VAL_GPIOB_OSPEEDR   0x000000C0
+#define VAL_GPIOB_PUPDR     0x00000100
+#define VAL_GPIOB_ODR       0x00000000
+#define VAL_GPIOB_AFRL      0x00000000
+#define VAL_GPIOB_AFRH      0x00000000
 
 /*
  * Port C setup.
@@ -293,35 +237,13 @@
  * PC14 - GPIOC_CAMERA_ENABLE   (output push-pull).
  * PC15 - GPIOC_15              (input pull-up).
  */
-#define VAL_GPIOC_MODER     (PIN_MODE_OUTPUT(GPIOC_HUG_SENS_OUT) |          \
-                             PIN_MODE_ANALOG(GPIOC_HUG_SENS1_IN) |          \
-                             PIN_MODE_ANALOG(GPIOC_HUG_SENS2_IN) |          \
-                             PIN_MODE_INPUT(GPIOC_3) |                      \
-                             PIN_MODE_ANALOG(GPIOC_HAND_SENSOR1_IN) |       \
-                             PIN_MODE_ANALOG(GPIOC_HAND_SENSOR2_IN) |       \
-                             PIN_MODE_ALTERNATE(GPIOC_CAMERA_D0) |          \
-                             PIN_MODE_ALTERNATE(GPIOC_CAMERA_D1) |          \
-                             PIN_MODE_OUTPUT(GPIOC_CAMERA_SDA) |            \
-                             PIN_MODE_OUTPUT(GPIOC_CAMERA_SCL) |            \
-                             PIN_MODE_INPUT(GPIOC_10) |                     \
-                             PIN_MODE_ALTERNATE(GPIOC_CAMERA_D4) |          \
-                             PIN_MODE_INPUT(GPIOC_12) |                     \
-                             PIN_MODE_INPUT(GPIOC_13) |                     \
-                             PIN_MODE_OUTPUT(GPIOC_CAMERA_ENABLE) |         \
-                             PIN_MODE_INPUT(GPIOC_15))
-#define VAL_GPIOC_OTYPER    (PIN_OTYPE_OPENDRAIN(GPIOC_CAMERA_SDA)|	    \
-			     PIN_OTYPE_OPENDRAIN(GPIOC_CAMERA_SCL))
-#define VAL_GPIOC_OSPEEDR   0xFFFFFFFF
-#define VAL_GPIOC_PUPDR     (PIN_PUDR_PULLUP(GPIOC_3) |			    \
-			     PIN_PUDR_PULLUP(GPIOC_10) |		    \
-			     PIN_PUDR_PULLUP(GPIOC_12) |		    \
-			     PIN_PUDR_PULLUP(GPIOC_13) |		    \
-			     PIN_PUDR_PULLUP(GPIOC_15))
-#define VAL_GPIOC_ODR       0xFFFFBFFE
-#define VAL_GPIOC_AFRL      (PIN_AFIO_AF(GPIOC_CAMERA_D0, 13) |              \
-                             PIN_AFIO_AF(GPIOC_CAMERA_D1, 13))
-#define VAL_GPIOC_AFRH      (PIN_AFIO_AF(GPIOC_10, 6) |                     \
-                             PIN_AFIO_AF(GPIOC_CAMERA_D4, 13))
+#define VAL_GPIOC_MODER     0x00000000
+#define VAL_GPIOC_OTYPER    0x00000000
+#define VAL_GPIOC_OSPEEDR   0x00000000
+#define VAL_GPIOC_PUPDR     0x00000000
+#define VAL_GPIOC_ODR       0x00000000
+#define VAL_GPIOC_AFRL      0x00000000
+#define VAL_GPIOC_AFRH      0x00000000
 
 /*
  * Port D setup.
@@ -343,40 +265,13 @@
  * PD14 - GPIOD_PIR             (input pull-up).
  * PD15 - GPIOD_15              (input pull-up).
  */
-#define VAL_GPIOD_MODER     (PIN_MODE_INPUT(GPIOD_0) |                      \
-                             PIN_MODE_INPUT(GPIOD_1) |                      \
-                             PIN_MODE_INPUT(GPIOD_2) |                      \
-                             PIN_MODE_INPUT(GPIOD_3) |                      \
-                             PIN_MODE_INPUT(GPIOD_4) |                      \
-                             PIN_MODE_INPUT(GPIOD_5) |                      \
-                             PIN_MODE_INPUT(GPIOD_6) |                      \
-                             PIN_MODE_INPUT(GPIOD_7) |                      \
-                             PIN_MODE_ALTERNATE(GPIOD_WIFI_UART_TX) |       \
-                             PIN_MODE_ALTERNATE(GPIOD_WIFI_UART_RX) |       \
-                             PIN_MODE_OUTPUT(GPIOD_SPI2_CS_SD) |            \
-                             PIN_MODE_ALTERNATE(GPIOD_WIFI_UART_CTS) |      \
-                             PIN_MODE_ALTERNATE(GPIOD_WIFI_UART_RTS) |      \
-                             PIN_MODE_OUTPUT(GPIOD_WIFI_WAKEUP) |           \
-                             PIN_MODE_INPUT(GPIOD_PIR) |                    \
-                             PIN_MODE_INPUT(GPIOD_15))
+#define VAL_GPIOD_MODER     0x00000000
 #define VAL_GPIOD_OTYPER    0x00000000
-#define VAL_GPIOD_OSPEEDR   0xFFFFFFFF
-#define VAL_GPIOD_PUPDR     (PIN_PUDR_PULLUP(GPIOD_0) |                     \
-                             PIN_PUDR_PULLUP(GPIOD_1) |                     \
-			     PIN_PUDR_PULLUP(GPIOD_2) |			    \
-			     PIN_PUDR_PULLUP(GPIOD_3) |			    \
-                             PIN_PUDR_PULLUP(GPIOD_4) |                     \
-                             PIN_PUDR_PULLUP(GPIOD_5) |                     \
-                             PIN_PUDR_PULLUP(GPIOD_6) |			    \
-                             PIN_PUDR_PULLUP(GPIOD_7) |                     \
-			     PIN_PUDR_PULLUP(GPIOD_PIR) |		    \
-                             PIN_PUDR_PULLUP(GPIOD_15))
-#define VAL_GPIOD_ODR       0xFFFFDBFF
+#define VAL_GPIOD_OSPEEDR   0x00000000
+#define VAL_GPIOD_PUPDR     0x00000000
+#define VAL_GPIOD_ODR       0x00000000
 #define VAL_GPIOD_AFRL      0x00000000
-#define VAL_GPIOD_AFRH      (PIN_AFIO_AF(GPIOD_WIFI_UART_TX, 7) |           \
-                             PIN_AFIO_AF(GPIOD_WIFI_UART_RX, 7) |           \
-                             PIN_AFIO_AF(GPIOD_WIFI_UART_CTS, 7) |          \
-                             PIN_AFIO_AF(GPIOD_WIFI_UART_RTS, 7))
+#define VAL_GPIOD_AFRH      0x00000000
 
 /*
  * Port E setup.
@@ -398,46 +293,13 @@
  * PE14 - GPIOE_SPI4_MOSI       (alternate 5).
  * PE15 - GPIOE_IMU_INT         (input pull-up).
  */
-#define VAL_GPIOE_MODER     (PIN_MODE_ALTERNATE(GPIOE_CAMERA_D2) |	    \
-                             PIN_MODE_ALTERNATE(GPIOE_CAMERA_D3) |	    \
-                             PIN_MODE_INPUT(GPIOE_2) |			    \
-                             PIN_MODE_INPUT(GPIOE_3) |			    \
-                             PIN_MODE_INPUT(GPIOE_4) |			    \
-                             PIN_MODE_INPUT(GPIOE_5) |			    \
-                             PIN_MODE_INPUT(GPIOE_6) |			    \
-                             PIN_MODE_INPUT(GPIOE_7) |			    \
-                             PIN_MODE_ALTERNATE(GPIOE_LED2_R) |		    \
-                             PIN_MODE_OUTPUT(GPIOE_SPI4_XDCS) |		    \
-                             PIN_MODE_INPUT(GPIOE_CODEC_DREQ) |		    \
-                             PIN_MODE_OUTPUT(GPIOE_SPI4_XCS) |		    \
-                             PIN_MODE_ALTERNATE(GPIOE_SPI4_SCK) |	    \
-                             PIN_MODE_ALTERNATE(GPIOE_SPI4_MISO) |	    \
-                             PIN_MODE_ALTERNATE(GPIOE_SPI4_MOSI) |	    \
-                             PIN_MODE_INPUT(GPIOE_IMU_INT))
+#define VAL_GPIOE_MODER     0x00000000
 #define VAL_GPIOE_OTYPER    0x00000000
-#define VAL_GPIOE_OSPEEDR   0xFFFFFFFF
-#define VAL_GPIOE_PUPDR     (PIN_PUDR_PULLUP(GPIOE_CAMERA_D2) |             \
-                             PIN_PUDR_PULLUP(GPIOE_CAMERA_D3) |             \
-                             PIN_PUDR_PULLUP(GPIOE_4) |                     \
-                             PIN_PUDR_PULLUP(GPIOE_5) |                     \
-                             PIN_PUDR_PULLUP(GPIOE_6) |                     \
-                             PIN_PUDR_PULLUP(GPIOE_7) |                     \
-                             PIN_PUDR_PULLUP(GPIOE_LED2_R) |                \
-                             PIN_PUDR_PULLUP(GPIOE_SPI4_XDCS) |             \
-                             PIN_PUDR_PULLUP(GPIOE_CODEC_DREQ) |            \
-                             PIN_PUDR_PULLUP(GPIOE_SPI4_XCS) |              \
-                             PIN_PUDR_PULLUP(GPIOE_SPI4_SCK) |              \
-                             PIN_PUDR_PULLUP(GPIOE_SPI4_MISO) |             \
-                             PIN_PUDR_PULLUP(GPIOE_SPI4_MOSI) |             \
-                             PIN_PUDR_PULLUP(GPIOE_IMU_INT))
-#define VAL_GPIOE_ODR       0xFFFFFDFF
-#define VAL_GPIOE_AFRL      (PIN_AFIO_AF(GPIOE_CAMERA_D2, 13) |             \
-			     PIN_AFIO_AF(GPIOE_CAMERA_D3, 13))
-#define VAL_GPIOE_AFRH      (PIN_AFIO_AF(GPIOE_LED2_R, 1) |                 \
-                             PIN_AFIO_AF(GPIOE_SPI4_SCK, 5) |		    \
-                             PIN_AFIO_AF(GPIOE_SPI4_MISO, 5) |              \
-                             PIN_AFIO_AF(GPIOE_SPI4_MOSI, 5))
-
+#define VAL_GPIOE_OSPEEDR   0x00000000
+#define VAL_GPIOE_PUPDR     0x00000000
+#define VAL_GPIOE_ODR       0x00000000
+#define VAL_GPIOE_AFRL      0x00000000
+#define VAL_GPIOE_AFRH      0x00000000
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

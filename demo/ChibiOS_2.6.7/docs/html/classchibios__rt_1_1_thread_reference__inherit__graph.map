@@ -1,4 +1,0 @@
-<map id="chibios_rt::ThreadReference" name="chibios_rt::ThreadReference">
-<area shape="rect" id="node2" href="$classchibios__rt_1_1_base_thread.html" title="Abstract base class for a ChibiOS/RT thread. " alt="" coords="38,279,193,504"/>
-<area shape="rect" id="node3" href="$classchibios__rt_1_1_base_static_thread.html" title="Static threads template class. " alt="" coords="5,552,225,645"/>
-</map>

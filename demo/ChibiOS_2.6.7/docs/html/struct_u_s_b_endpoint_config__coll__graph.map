@@ -1,9 +1,0 @@
-<map id="USBEndpointConfig" name="USBEndpointConfig">
-<area shape="rect" id="node5" href="$struct_u_s_b_driver.html" title="Structure representing an USB driver. " alt="" coords="222,703,331,904"/>
-<area shape="rect" id="node2" href="$struct_u_s_b_out_endpoint_state.html" title="Type of an OUT endpoint state structure. " alt="" coords="115,324,260,465"/>
-<area shape="rect" id="node3" href="$struct_generic_queue.html" title="Generic I/O queue structure. " alt="" coords="200,135,303,264"/>
-<area shape="rect" id="node8" href="$struct_u_s_b_in_endpoint_state.html" title="Type of an IN endpoint state structure. " alt="" coords="284,324,419,465"/>
-<area shape="rect" id="node4" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="198,5,305,75"/>
-<area shape="rect" id="node6" href="$struct_u_s_b_config.html" title="Type of an USB driver configuration structure. " alt="" coords="162,988,245,1057"/>
-<area shape="rect" id="node7" href="$struct_u_s_b_descriptor.html" title="Type of an USB descriptor. " alt="" coords="5,763,111,844"/>
-</map>

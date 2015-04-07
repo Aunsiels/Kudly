@@ -1,7 +1,0 @@
-<map id="Memory Management" name="Memory Management">
-<area shape="rect" id="node1" href="$group__pools.html" title="Memory Pools" alt="" coords="327,5,429,29"/>
-<area shape="rect" id="node2" href="$group__kernel.html" title="Kernel" alt="" coords="5,77,63,101"/>
-<area shape="rect" id="node3" href="$group__heaps.html" title="Heaps" alt="" coords="349,53,407,77"/>
-<area shape="rect" id="node4" href="$group__memcore.html" title="Core Memory Manager" alt="" coords="303,101,453,125"/>
-<area shape="rect" id="node5" href="$group__dynamic__threads.html" title="Dynamic Threads" alt="" coords="317,149,439,173"/>
-</map>

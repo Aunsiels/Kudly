@@ -1,6 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="5,29,95,53"/>
-<area shape="rect" id="node2" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="143,29,249,53"/>
-<area shape="rect" id="node3" href="$struct_ready_list.html" title="Ready list header. " alt="" coords="297,5,373,29"/>
-<area shape="rect" id="node4" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="304,53,367,77"/>
-</map>

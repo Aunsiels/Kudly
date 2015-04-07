@@ -1,4 +1,0 @@
-<map id="mmcStopSequentialRead" name="mmcStopSequentialRead">
-<area shape="rect" id="node2" href="$group___s_p_i.html#ga382cfbdffd2df57cf3843d45164e8bfc" title="Sends data over the SPI bus. " alt="" coords="227,5,295,29"/>
-<area shape="rect" id="node3" href="$group___s_p_i.html#gae291c012872da9c89dec23581f701b5f" title="Deasserts the slave select signal. " alt="" coords="217,53,305,77"/>
-</map>

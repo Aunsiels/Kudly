@@ -1,7 +1,0 @@
-<map id="ARM7/9" name="ARM7/9">
-<area shape="rect" id="node1" href="$group___a_r_m___c_o_n_f.html" title="Configuration Options" alt="" coords="256,5,403,29"/>
-<area shape="rect" id="node2" href="$group__gcc.html" title="GCC Ports" alt="" coords="5,77,87,101"/>
-<area shape="rect" id="node3" href="$group___a_r_m___s_p_e_c_i_f_i_c.html" title="Specific Implementations" alt="" coords="247,53,412,77"/>
-<area shape="rect" id="node5" href="$group___a_r_m___s_t_a_r_t_u_p.html" title="Startup Support" alt="" coords="273,101,386,125"/>
-<area shape="rect" id="node6" href="$group___a_r_m___c_o_r_e.html" title="Core Port Implementation" alt="" coords="245,149,413,173"/>
-</map>

@@ -1,5 +1,0 @@
-<map id="dbg_check_leave_isr" name="dbg_check_leave_isr">
-<area shape="rect" id="node2" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="219,5,306,29"/>
-<area shape="rect" id="node3" href="$group__core.html#gad28405e9f7f53722447e674ff80c3ac9" title="Kernel&#45;lock action from an interrupt handler. " alt="" coords="199,53,326,77"/>
-<area shape="rect" id="node4" href="$group__core.html#ga34dcbe2bba4aec9d2cfdc5cb5bebd4fe" title="Kernel&#45;unlock action from an interrupt handler. " alt="" coords="192,101,333,125"/>
-</map>

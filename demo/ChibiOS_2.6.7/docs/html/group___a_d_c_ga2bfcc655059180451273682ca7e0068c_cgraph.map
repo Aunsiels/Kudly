@@ -1,5 +1,0 @@
-<map id="adc_lld_init" name="adc_lld_init">
-<area shape="rect" id="node2" href="$group___a_d_c.html#gac7f619e304c79c17f19221d05138d405" title="Initializes the standard part of a ADCDriver structure. " alt="" coords="137,29,232,53"/>
-<area shape="rect" id="node3" href="$group__mutexes.html#gac55fe4d05aa6bbeb31594193d2e4d2b6" title="Initializes s Mutex structure. " alt="" coords="284,5,355,29"/>
-<area shape="rect" id="node4" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="280,53,359,77"/>
-</map>

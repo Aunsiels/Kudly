@@ -1,6 +1,0 @@
-<map id="Ports" name="Ports">
-<area shape="rect" id="node2" href="$group__iar.html" title="IAR Ports" alt="" coords="122,5,195,29"/>
-<area shape="rect" id="node3" href="$group__rvct.html" title="RVCT Ports" alt="" coords="117,53,201,77"/>
-<area shape="rect" id="node4" href="$group__port__common.html" title="Common Code" alt="" coords="105,101,212,125"/>
-<area shape="rect" id="node5" href="$group__gcc.html" title="GCC Ports" alt="" coords="118,149,199,173"/>
-</map>

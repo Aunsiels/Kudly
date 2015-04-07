@@ -1,5 +1,0 @@
-<map id="macInit" name="macInit">
-<area shape="rect" id="node2" href="$group___m_a_c.html#ga37e276cbed823fb80fdce3df3f9f7ddf" title="Low level MAC initialization. " alt="" coords="116,5,204,29"/>
-<area shape="rect" id="node3" href="$group___m_a_c.html#ga34d60b00ad9794d52da6833e18c9ec70" title="Initialize the standard part of a MACDriver structure. " alt="" coords="252,5,351,29"/>
-<area shape="rect" id="node4" href="$group__semaphores.html#gafe8fc6155a871074e8017efd908b2c58" title="Initializes a semaphore with the specified counter value. " alt="" coords="399,5,477,29"/>
-</map>

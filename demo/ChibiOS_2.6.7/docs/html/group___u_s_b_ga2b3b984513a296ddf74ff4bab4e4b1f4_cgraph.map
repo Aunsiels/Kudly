@@ -1,5 +1,0 @@
-<map id="usbStartReceiveI" name="usbStartReceiveI">
-<area shape="rect" id="node2" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="171,5,297,29"/>
-<area shape="rect" id="node4" href="$group___u_s_b.html#ga9ef9040f705088dab583a31b544abb0f" title="Starts a receive operation on an OUT endpoint. " alt="" coords="175,53,293,77"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="345,5,432,29"/>
-</map>

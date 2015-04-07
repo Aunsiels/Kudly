@@ -1,8 +1,0 @@
-<map id="chCondSignal" name="chCondSignal">
-<area shape="rect" id="node2" href="$group__scheduler.html#gae47a8819a21ef2d521124e76bfb37c95" title="Wakes up a thread. " alt="" coords="152,28,259,52"/>
-<area shape="rect" id="node7" href="$group__internals.html#ga042479f09357fc59befebf4dfe0e9f4a" title="Removes the first&#45;out Thread from a queue and returns it. " alt="" coords="161,76,250,100"/>
-<area shape="rect" id="node3" href="$group__debug.html#ga14fe880e1dbd127d46077a1d300b1167" title="S&#45;class functions context check. " alt="" coords="448,5,579,29"/>
-<area shape="rect" id="node5" href="$group__scheduler.html#ga535d58cfb3436c8d4e4586c31c062298" title="Inserts a thread in the Ready List. " alt="" coords="307,53,400,77"/>
-<area shape="rect" id="node4" href="$group__debug.html#ga897718bcb144b5523b914633b0d824e1" title="Prints a panic message on the console and then halts the system. " alt="" coords="627,29,713,53"/>
-<area shape="rect" id="node6" href="$group__debug.html#ga3e4782dccbb385051e1eb01ac5b05470" title="I&#45;class functions context check. " alt="" coords="450,53,577,77"/>
-</map>

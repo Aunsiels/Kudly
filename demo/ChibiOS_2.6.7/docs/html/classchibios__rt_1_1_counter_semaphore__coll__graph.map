@@ -1,6 +1,0 @@
-<map id="chibios_rt::CounterSemaphore" name="chibios_rt::CounterSemaphore">
-<area shape="rect" id="node2" href="$struct_semaphore.html" title="Semaphore structure. " alt="" coords="59,207,147,276"/>
-<area shape="rect" id="node3" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="175,5,282,75"/>
-<area shape="rect" id="node5" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="188,147,288,336"/>
-<area shape="rect" id="node4" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="275,462,364,531"/>
-</map>

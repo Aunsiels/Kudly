@@ -1,8 +1,0 @@
-<map id="Mutex" name="Mutex">
-<area shape="rect" id="node2" href="$struct_thread.html" title="Structure representing a thread. " alt="" coords="199,396,299,585"/>
-<area shape="rect" id="node3" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="208,764,314,833"/>
-<area shape="rect" id="node4" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="132,645,222,715"/>
-<area shape="rect" id="node5" href="$structcontext.html" title="Platform dependent part of the Thread structure. " alt="" coords="207,267,270,336"/>
-<area shape="rect" id="node6" href="$structintctx.html" title="System saved context. " alt="" coords="185,5,292,195"/>
-<area shape="rect" id="node7" href="$structstkalign__t.html" title="Base type for stack and memory alignment. " alt="" coords="294,267,370,336"/>
-</map>

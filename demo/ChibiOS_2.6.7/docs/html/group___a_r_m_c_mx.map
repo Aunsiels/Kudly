@@ -1,7 +1,0 @@
-<map id="ARM Cortex&#45;Mx" name="ARM Cortex&#45;Mx">
-<area shape="rect" id="node1" href="$group___a_r_m_c_mx___c_o_n_f.html" title="Configuration Options" alt="" coords="299,5,445,29"/>
-<area shape="rect" id="node2" href="$group___a_r_m_c_mx___s_p_e_c_i_f_i_c.html" title="Specific Implementations" alt="" coords="289,53,455,77"/>
-<area shape="rect" id="node5" href="$group___a_r_m_c_mx___c_o_r_e.html" title="Core Port Implementation" alt="" coords="288,101,456,125"/>
-<area shape="rect" id="node6" href="$group___a_r_m_c_mx___s_t_a_r_t_u_p.html" title="Startup Support" alt="" coords="315,149,429,173"/>
-<area shape="rect" id="node4" href="$group__gcc.html" title="GCC Ports" alt="" coords="5,77,87,101"/>
-</map>

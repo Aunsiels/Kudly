@@ -1,8 +1,0 @@
-<map id="GCC Ports" name="GCC Ports">
-<area shape="rect" id="node1" href="$group__ports.html" title="Ports" alt="" coords="5,101,57,125"/>
-<area shape="rect" id="node2" href="$group___a_r_m_c_mx.html" title="ARM Cortex&#45;Mx" alt="" coords="247,5,352,29"/>
-<area shape="rect" id="node3" href="$group___p_p_c.html" title="Power Architecture" alt="" coords="235,53,364,77"/>
-<area shape="rect" id="node5" href="$group___a_r_m.html" title="ARM7/9" alt="" coords="268,101,331,125"/>
-<area shape="rect" id="node6" href="$group___a_v_r.html" title="MegaAVR" alt="" coords="263,149,335,173"/>
-<area shape="rect" id="node7" href="$group___m_s_p430.html" title="MSP430" alt="" coords="266,197,333,221"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="Thread" name="Thread">
-<area shape="rect" id="node2" href="$struct_threads_queue.html" title="Generic threads bidirectional linked list header and element. " alt="" coords="5,123,112,204"/>
-<area shape="rect" id="node3" href="$struct_threads_list.html" title="Generic threads single link list, it works like a stack. " alt="" coords="14,5,103,75"/>
-</map>

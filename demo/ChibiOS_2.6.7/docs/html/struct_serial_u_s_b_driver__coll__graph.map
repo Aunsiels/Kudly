@@ -1,8 +1,0 @@
-<map id="SerialUSBDriver" name="SerialUSBDriver">
-<area shape="rect" id="node2" href="$struct_base_asynchronous_channel.html" title="Base asynchronous channel class. " alt="" coords="5,264,183,333"/>
-<area shape="rect" id="node3" href="$struct_base_channel.html" title="Base channel class. " alt="" coords="45,135,143,204"/>
-<area shape="rect" id="node4" href="$struct_base_sequential_stream.html" title="Base stream class. " alt="" coords="17,5,171,75"/>
-<area shape="rect" id="node5" href="$struct_base_channel_v_m_t.html" title="BaseChannel virtual methods table. " alt="" coords="198,5,318,75"/>
-<area shape="rect" id="node6" href="$struct_base_asynchronous_channel_v_m_t.html" title="BaseAsynchronousChannel virtual methods table. " alt="" coords="167,135,367,204"/>
-<area shape="rect" id="node7" href="$struct_serial_u_s_b_driver_v_m_t.html" title="SerialDriver virtual methods table. " alt="" coords="207,264,343,333"/>
-</map>

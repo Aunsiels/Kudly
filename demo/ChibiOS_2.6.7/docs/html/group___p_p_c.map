@@ -1,7 +1,0 @@
-<map id="Power Architecture" name="Power Architecture">
-<area shape="rect" id="node1" href="$group___p_p_c___c_o_n_f.html" title="Configuration Options" alt="" coords="323,5,469,29"/>
-<area shape="rect" id="node3" href="$group___p_p_c___s_t_a_r_t_u_p.html" title="Startup Support" alt="" coords="339,53,453,77"/>
-<area shape="rect" id="node5" href="$group___p_p_c___c_o_r_e.html" title="PowerPC specific port code, structures and macros. " alt="" coords="312,101,480,125"/>
-<area shape="rect" id="node6" href="$group___p_p_c___s_p_e_c_i_f_i_c.html" title="Specific Implementations" alt="" coords="313,149,479,173"/>
-<area shape="rect" id="node4" href="$group__gcc.html" title="GCC Ports" alt="" coords="5,77,87,101"/>
-</map>

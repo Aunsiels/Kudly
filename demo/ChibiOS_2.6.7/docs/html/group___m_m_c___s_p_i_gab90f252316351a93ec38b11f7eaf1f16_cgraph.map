@@ -1,7 +1,0 @@
-<map id="mmcDisconnect" name="mmcDisconnect">
-<area shape="rect" id="node2" href="$group___s_p_i.html#ga6752c9f736f8de774a5bef6dfe2aae2e" title="Configures and activates the SPI peripheral. " alt="" coords="165,5,232,29"/>
-<area shape="rect" id="node4" href="$group___s_p_i.html#gad3a359eea03e68e95899886ae93a06e4" title="Deactivates the SPI peripheral. " alt="" coords="166,53,231,77"/>
-<area shape="rect" id="node3" href="$group___s_p_i.html#gaf35495bd4459608ae22a3f728fd4697b" title="Configures and activates the SPI peripheral. " alt="" coords="291,5,381,29"/>
-<area shape="rect" id="node5" href="$group___s_p_i.html#gafa343fd905298991aa4005015263bcd2" title="Deasserts the slave select signal. " alt="" coords="280,53,392,77"/>
-<area shape="rect" id="node6" href="$group___s_p_i.html#ga8d6b2e0764d39b892b51e6abe4923f80" title="Deactivates the SPI peripheral. " alt="" coords="291,101,381,125"/>
-</map>
