@@ -84,6 +84,9 @@ void halInit(void) {
 #if HAL_USE_EXT || defined(__DOXYGEN__)
   extInit();
 #endif
+#if HAL_USE_DCMI || defined(__DOXYGEN__)
+  dcmiInit();
+#endif
 #if HAL_USE_GPT || defined(__DOXYGEN__)
   gptInit();
 #endif

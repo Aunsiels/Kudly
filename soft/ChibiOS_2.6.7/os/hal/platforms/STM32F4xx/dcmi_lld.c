@@ -93,7 +93,6 @@ static void dcmi_lld_serve_dma_rx_interrupt(DCMIDriver *dcmip, uint32_t flags) {
 CH_IRQ_HANDLER(DCMI_IRQHandler) {
   CH_IRQ_PROLOGUE();
 
-  palSetPad(GPIOA, GPIOA_LED2);
   #if STM32_DCMI_USE_DCMI1
     DCMI->ICR |= (1<<4)|(1<<3)|(1<<2)|(1<<1)|(1<<0)|STM32_DCMI_ICR_FRAME_ISC;
     _dcmi_isr_code(&DCMID1);

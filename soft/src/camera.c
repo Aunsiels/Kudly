@@ -6,70 +6,75 @@
 #include "sccb.h"
 #include "ov2640_regs.h"
 
-#define SVGA_HSIZE     (200)
-#define SVGA_VSIZE     (150)
+#define IMG_HEIGHT  160
+#define IMG_WIDTH   120
+#define BPP         2       //bytes per pixel
+#define IMG_SIZE    IMG_HEIGHT*IMG_WIDTH*BPP
 
-/*
- * Initializes the dcmi
- */
 
-void dcmiInit() {
-    chSysLock();
-    /* Activate the RCC clock for DCMI */
-    rccEnableAPB2(RCC_AHB2ENR_DCMIEN, false);
-    rccResetAPB2(RCC_AHB2RSTR_DCMIRST);
+uint8_t imgBuf[IMG_SIZE];
+uint8_t* imgBuf0 = imgBuf;
+uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
-    /* Configure CR */
-    /* Configuration :
-     *     DCMI disable
-     *     8-bit
-     *     All frames captured
-     *     VSYNC active high
-     *     HSYNC active high
-     *     PXCLK folling edge active
-     *     Hardware synchronization
-     *     JPEG format
-     *     Crop : full image
-     *     Snapshot mode
-     *     Capture disable
-     */
-    DCMI->CR = DCMI_CR_VSPOL |
-               DCMI_CR_HSPOL |
-               DCMI_CR_JPEG  |
-               DCMI_CR_CM;
+EventSource es1, es2;
+EventListener el1, el2;
 
-    /* DMA Initialization */
-    dmaStreamAllocate(STM32_DMA2_STREAM1, 0, NULL,  NULL);
-
-    /* Enable DCMI */
-    DCMI->CR |= DCMI_CR_ENABLE;
-    chSysUnlock();
+void frameEndCb(DCMIDriver* dcmip) {
+   (void) dcmip;
+   chSysLockFromIsr();
+   chEvtBroadcastI(&es2);
+   chSysUnlockFromIsr();
 }
 
-void dcmiStartConversion(uint32_t * buf, int nbrData){
-    /* dma configuration */
-    dmaStreamSetPeripheral(STM32_DMA2_STREAM1,
-                           (uint32_t) (DCMI_BASE + 0x28));
-    dmaStreamSetMemory0(STM32_DMA2_STREAM1,(uint32_t) buf);
-    dmaStreamSetTransactionSize(STM32_DMA2_STREAM1, nbrData);
-    dmaStreamSetMode(STM32_DMA2_STREAM1,
-                     STM32_DMA_CR_CHSEL(1)      |
-                     STM32_DMA_CR_DIR_P2M       |
-                     STM32_DMA_CR_MINC          |
-                     STM32_DMA_CR_MSIZE_WORD    |
-                     STM32_DMA_CR_PSIZE_WORD    |
-                     STM32_DMA_CR_CIRC          |
-                     STM32_DMA_CR_MBURST_SINGLE |
-                     STM32_DMA_CR_PBURST_SINGLE);
-    dmaStreamSetFIFO(STM32_DMA2_STREAM1,
-                     STM32_DMA_FCR_FTH_FULL);
-    dmaStreamEnable(STM32_DMA2_STREAM1);
+void dmaTxferEndCb(DCMIDriver* dcmip) {
+   (void) dcmip;
+   chSysLockFromIsr();
+   chEvtBroadcastI(&es1);
+   chSysUnlockFromIsr();
+}
 
-    /* dcmi start conversion */
-    DCMI->CR |= DCMI_CR_CAPTURE;
+static const DCMIConfig dcmicfg = {
+   frameEndCb,
+   dmaTxferEndCb,
+   DCMI_CR_VSPOL |
+   DCMI_CR_HSPOL |
+   DCMI_CR_JPEG 
+};
 
-    /* Wait end conversion */
-    dmaWaitCompletion(STM32_DMA2_STREAM1);
+/*
+ * Initializes the camera
+ */
+
+void cameraInit() {
+    /* XCLK */
+    palSetPadMode(GPIOA, GPIOA_CAMERA_XCLK, PAL_MODE_ALTERNATE(0));
+
+    /* Camera pins PWDN */
+    palSetPadMode(GPIOC, GPIOC_CAMERA_ENABLE, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPad(GPIOC, GPIOC_CAMERA_ENABLE);
+
+    /* Camera pin */
+    palSetPadMode(GPIOA, GPIOA_CAMERA_HSYNC, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D0, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D1, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D4, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D5, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOB, GPIOB_CAMERA_VSYNC, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D6, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D7, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13));
+
+    chThdSleepMilliseconds(100);
+    palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
+
+    chEvtInit(&es1);
+    chEvtInit(&es2);
+
+    dcmiObjectInit(&DCMID1);
+
+    dcmiStart(&DCMID1, &dcmicfg);
 
 }
 
@@ -269,67 +274,7 @@ static const uint8_t jpeg_regs[][2] = {
         {0, 0},
 };
 
-static const uint8_t svga_regs[][2] = {
-        { BANK_SEL, BANK_SEL_SENSOR },
-        /* DSP input image resoultion and window size control */
-        { COM7,    COM7_RES_SVGA},
-        { COM1,    0x0A }, /* UXGA=0x0F, SVGA=0x0A, CIF=0x06 */
-        { REG32,   0x09 }, /* UXGA=0x36, SVGA/CIF=0x09 */
-
-        { HSTART,  0x11 }, /* UXGA=0x11, SVGA/CIF=0x11 */
-        { HSTOP,   0x43 }, /* UXGA=0x75, SVGA/CIF=0x43 */
-
-        { VSTART,  0x00 }, /* UXGA=0x01, SVGA/CIF=0x00 */
-        { VSTOP,   0x4b }, /* UXGA=0x97, SVGA/CIF=0x4b */
-        { 0x3d,    0x38 }, /* UXGA=0x34, SVGA/CIF=0x38 */
-
-        { 0x35,    0xda },
-        { 0x22,    0x1a },
-        { 0x37,    0xc3 },
-        { 0x34,    0xc0 },
-        { 0x06,    0x88 },
-        { 0x0d,    0x87 },
-        { 0x0e,    0x41 },
-        { 0x42,    0x03 },
-
-        /* Set DSP input image size and offset.
-           The sensor output image can be scaled with OUTW/OUTH */
-        { BANK_SEL, BANK_SEL_DSP },
-        { R_BYPASS, R_BYPASS_DSP_BYPAS },
-
-        { RESET,   RESET_DVP },
-        { HSIZE8,  (SVGA_HSIZE>>3)}, /* Image Horizontal Size HSIZE[10:3] */
-        { VSIZE8,  (SVGA_VSIZE>>3)}, /* Image Vertiacl Size VSIZE[10:3] */
-
-        /* {HSIZE[11], HSIZE[2:0], VSIZE[2:0]} */
-        { SIZEL,   ((SVGA_HSIZE>>6)&0x40) | ((SVGA_HSIZE&0x7)<<3) | (SVGA_VSIZE&0x7)},
-
-        { XOFFL,   0x00 }, /* OFFSET_X[7:0] */
-        { YOFFL,   0x00 }, /* OFFSET_Y[7:0] */
-        { HSIZE,   ((SVGA_HSIZE>>2)&0xFF) }, /* H_SIZE[7:0]= HSIZE/4 */
-        { VSIZE,   ((SVGA_VSIZE>>2)&0xFF) }, /* V_SIZE[7:0]= VSIZE/4 */
-
-        /* V_SIZE[8]/OFFSET_Y[10:8]/H_SIZE[8]/OFFSET_X[10:8] */
-        { VHYX,    ((SVGA_VSIZE>>3)&0x80) | ((SVGA_HSIZE>>7)&0x08) },
-        { TEST,    (SVGA_HSIZE>>4)&0x80}, /* H_SIZE[9] */
-
-        { CTRL2,   CTRL2_DCW_EN | CTRL2_SDE_EN |
-          CTRL2_UV_AVG_EN | CTRL2_CMX_EN | CTRL2_UV_ADJ_EN },
-
-        /* H_DIVIDER/V_DIVIDER */
-        { CTRLI,   CTRLI_LP_DP | 0x00},
-        /* DVP prescalar */
-        { R_DVP_SP, R_DVP_SP_AUTO_MODE},
-
-        { R_BYPASS, R_BYPASS_DSP_EN },
-        { RESET,    0x00 },
-        {0, 0},
-};
-
-/* Picture buffer for test */
-static uint32_t photo[SVGA_HSIZE*SVGA_VSIZE/4];
-
-void cmdDcmi(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
     if (argc > 0){
         chprintf(chp, "Usage : dcmi\r\n");
@@ -378,9 +323,21 @@ void cmdDcmi(BaseSequentialStream *chp, int argc, char *argv[]){
 
     chprintf(chp, "Begin photo\r\n");
 
-    dcmiStartConversion(photo, sizeof(photo));
+    chEvtRegisterMask(&es1, &el1, EVENT_MASK(1));
+    chEvtRegisterMask(&es2, &el2, EVENT_MASK(2));
+    chThdSleepMilliseconds(1000);
+    chprintf(chp, "Beginning transfer:\n\r");
+    //using synchronous API for simplicity, single buffer.
+    //limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
+    // i.e. IMG_SIZE cannot be larger than 65535 here.
+    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE/2, imgBuf0, imgBuf1);
+    chprintf(chp, "Wait for event\n\r");
+    chEvtWaitOne(EVENT_MASK(1));
+    chprintf(chp, "Got first DMA interrupt\n\r");
+    chEvtWaitAll(EVENT_MASK(1) | EVENT_MASK(2));
+    chprintf(chp, "Got second DMA interrupt, and DCMI interrupt, dumping BMP:\n\r");
     chprintf(chp, "End of the photo\r\n");
-    int error = writeFile("test.jpg", (char *) photo, sizeof(photo)*4);
+    int error = writeFile("test.jpg", (char *) imgBuf, sizeof(imgBuf));
     if (error)
        chprintf(chp, "A problem occured while writting in the file\r\n");
 }
