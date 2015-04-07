@@ -18,6 +18,9 @@ int main(void) {
     /* Initialize shell */
     shellPersoInit();
 
+    /* Init Wifi */
+    wifiInitByUsart();
+
     /* Initialize SD card */
     sdPersoInit();
 
@@ -50,8 +53,6 @@ int main(void) {
     /* Init sccb */
     sccbInit();
 
-    /* Wifi */
-    wifiInitByUsart();
 
     /* Wifi test function */
     wifiReadByUsart();
