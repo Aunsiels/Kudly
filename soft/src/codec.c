@@ -9,7 +9,7 @@ static const SPIConfig hs_spicfg = {
   NULL,
   GPIOE,
   11,
-  (1 << 5)
+  (1 << 4) | (1 << 3)
 };
 
 /* Buffer used for construcion of read and write command instructions */
@@ -75,6 +75,12 @@ void sendData(const uint8_t * data, int size){
 static uint8_t sineTest[] = {0x53,0xef,0x6e,126,0,0,0,0};
 static uint8_t sineTestEnd[] = {0x45,0x78,0x69,0x74,0,0,0,0};
 
+static void loadPatch(void) {
+  int i;
+  for (i=0;i<CODE_SIZE;i++) {
+    writeRegister(atab[i], dtab[i]);
+  }
+}
 
 void codecReset(void){
 
@@ -85,7 +91,8 @@ void codecReset(void){
   /* Wait until reset is complete */
   while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
-  // XXXXXXXXXXXXXXX LOAD THE PATCH
+  /* Load the patch of the codec */
+  loadPatch();
 
   /* Use native SPI modes and use both XDCS ans XCS for chip select */
   writeRegister(SCI_MODE,0x800);
@@ -137,3 +144,5 @@ void codecLowPower(){
   writeRegister(SCI_VOL,0xffff);
 
 }
+
+
