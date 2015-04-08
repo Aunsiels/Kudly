@@ -6,6 +6,7 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 #include "sccb.h"
+#include "hug_sensors.h"
 
 int main(void) {
 
@@ -56,6 +57,9 @@ int main(void) {
     /* Wifi test function */
     wifiReadByUsart();
     wifiCommands();
+
+    initHugSensors();
+    startHugSensor();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

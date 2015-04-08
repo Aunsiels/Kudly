@@ -100,6 +100,7 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/usb_serial.c \
        $(KUDLYSRC)/shell_cfg.c \
        $(KUDLYSRC)/sd_perso.c \
+       $(KUDLYSRC)/hug_sensors.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(KUDLYSRC)/sccb.c

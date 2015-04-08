@@ -1,25 +1,13 @@
-/**
- * \file hug_sensors.c
- * \brief Programme de tests.
- * \author Kudly project
- * \version 0.1
- * \date 30/03/2015
- *
- * This program controls hugs sensors
- *
- */
-
 #include "ch.h"
 #include "hal.h"
 #include "hug_sensors.h"
+#include "usb_serial.h"
 
-#define ADC_GRP1_NUM_CHANNELS   2
+#define ADC_GRP1_NUM_CHANNELS   1
 #define ADC_GRP1_BUF_DEPTH      4
 
-EVENTSOURCE_DECL(eventHugSensors);
-hugSensorsValues * hugSensors;
-
 static adcsample_t samples1[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
+/*
 static void adccallback(ADCDriver *adcp, adcsample_t *buffer, size_t n){
   (void)adcp;
   (void)buffer;
@@ -30,22 +18,25 @@ static void adccallback(ADCDriver *adcp, adcsample_t *buffer, size_t n){
   chEvtBroadcastI(&eventHugSensors);
   chSysUnlockFromIsr();
 }
+*/
 static const ADCConversionGroup adcgrpcfg1 = {
   FALSE,
   ADC_GRP1_NUM_CHANNELS,
-  adccallback,
   NULL,
-  0,                        /* CR1 */
+  NULL,
+  0,/* CR1 */
   ADC_CR2_SWSTART,          /* CR2 */
-  ADC_SMPR1_SMP_AN11(ADC_SAMPLE_144) | ADC_SMPR1_SMP_AN12(ADC_SAMPLE_144),
+  ADC_SMPR1_SMP_AN11(ADC_SAMPLE_3),
   0,                        /* SMPR2 */
   ADC_SQR1_NUM_CH(ADC_GRP1_NUM_CHANNELS),
   0,                        /* SQR2 */
-  ADC_SQR3_SQ1_N(ADC_CHANNEL_IN11) | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN12)
+  ADC_SQR3_SQ1_N(ADC_CHANNEL_IN11)
 };
 
-void initHugSensors(void) { 
+void initHugSensors(void) {
   adcStart(&ADCD1, NULL);
+  palSetPadMode(GPIOC, GPIOC_HUG_SENS1_IN , PAL_MODE_INPUT_ANALOG);
+  palSetPadMode(GPIOC, GPIOC_HUG_SENS_OUT , PAL_MODE_OUTPUT_PUSHPULL);
   chThdSleepMilliseconds(1000);
 }
 
@@ -53,3 +44,21 @@ void convertHugSensors(void){
   adcConvert(&ADCD1, &adcgrpcfg1, samples1, ADC_GRP1_BUF_DEPTH);
 }
 
+static msg_t hugSensors_thd(void * args) {
+  (void)args;
+  while(TRUE){
+    palSetPad(GPIOC, GPIOC_HUG_SENS_OUT);
+    adcConvert(&ADCD1, &adcgrpcfg1, samples1, ADC_GRP1_BUF_DEPTH);
+    writeSerial("new ADC sample : %d \r\n", (int)samples1[0]);
+    chThdSleepMilliseconds(5000);
+    palClearPad(GPIOC, GPIOC_HUG_SENS_OUT);
+  }
+  return 0;
+}
+
+void startHugSensor(void) {
+  static WORKING_AREA(hugSensors_wa, 128);
+  chThdCreateStatic(
+		    hugSensors_wa, sizeof(hugSensors_wa),
+		    NORMALPRIO, hugSensors_thd, NULL);
+}
