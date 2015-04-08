@@ -121,9 +121,6 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-/* PATCH */
-#define STM32_HAS_DCMI1 1
-
 #if STM32_DCMI_USE_DCMI1 && !STM32_HAS_DCMI1
 #error "DCMI1 not present in the selected device"
 #endif
@@ -147,7 +144,10 @@
 #error "Invalid DMA priority assigned to DCMI1"
 #endif
 
-/* Removed check dma */
+#if STM32_DCMI_USE_DCMI1 &&                                                   \
+    !STM32_DMA_IS_VALID_ID(STM32_DCMI_DCMI1_RX_DMA_STREAM, STM32_DCMI1_RX_DMA_MSK)
+#error "invalid DMA stream associated to DCMI1 RX"
+#endif
 
 #if !defined(STM32_DMA_REQUIRED)
 #define STM32_DMA_REQUIRED
