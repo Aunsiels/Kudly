@@ -22,14 +22,14 @@ static const ADCConversionGroup adcgrpcfg1 = {
   0,                        /* SMPR2 */
   ADC_SQR1_NUM_CH(ADC_GRP2_NUM_CHANNELS),
   0,                        /* SQR2 */
-  ADC_SQR3_SQ3_N(ADC_CHANNEL_IN14) | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN15)
+  ADC_SQR3_SQ1_N(ADC_CHANNEL_IN14) | ADC_SQR3_SQ2_N(ADC_CHANNEL_IN15)
 };
 
 /* Init ADC conversion : analog input pins and ouput pin */
 void initHandSensors(void) {
   adcStart(&ADCD2, NULL);
   palSetPadMode(GPIOC, GPIOC_HAND_SENSOR1_IN , PAL_MODE_INPUT_ANALOG);
-  palSetPadMode(GPIOC, GPIOC_HAND_SENSOR1_IN , PAL_MODE_INPUT_ANALOG);
+  palSetPadMode(GPIOC, GPIOC_HAND_SENSOR2_IN , PAL_MODE_INPUT_ANALOG);
   palSetPadMode(GPIOA, GPIOA_HAND_SENSOR_OUT , PAL_MODE_OUTPUT_PUSHPULL);
   palClearPad(GPIOA, GPIOA_HAND_SENSOR_OUT);
 }
