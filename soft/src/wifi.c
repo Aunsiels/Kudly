@@ -29,8 +29,6 @@ static char save[] = "save\r\n";
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
 
-static int wifiStream; // Shared variable to notify end of stream
-
 static char * wifiMessages[] = {
     ssid,
     passkey,
@@ -120,15 +118,16 @@ enum wifiReadState {
     RECEIVE_LOG
 };
 
+static char header[5];
+static int  headerSize;
+static int  errCode;
+static char rcvType;
+
 static msg_t usartRead_thd(void * args) {
+
     (void)args;
 
     static int  h;
-
-    static char header[5];
-    static int  headerSize;
-    static int  errCode;
-    static char rcvType;
     static int  dataCpt;
 
     while(1) {
@@ -185,7 +184,6 @@ static msg_t usartRead_thd(void * args) {
 
                     dataCpt++;
                     if(dataCpt == headerSize) {
-                        writeSerial("LOG !\n\r");
                         chSysLock();
                         chEvtBroadcastI(&eventWifiReceivedLog);
                         chSysUnlock();
@@ -332,31 +330,21 @@ static msg_t wifiDLFile_thd(void * args) {
     static char dlRequest[] = "http_get kudly.herokuapp.com\n\r";
     static char streamRead[] = "stream_read 0 5\n\r"; 
 
+    EventListener eventWifiReceptionEndLst;
+    chEvtRegisterMask(&eventWifiReceptionEnd, &eventWifiReceptionEndLst, 1);
+
     wifiWriteByUsart(dlRequest, sizeof(dlRequest));
-    wifiStream = 1;
 
     while(true) {
         wifiWriteByUsart(streamRead, sizeof(streamRead));
-        if(!wifiStream) {
-            break;
-        }
-    }
-
-    return 0;
-}
-
-static msg_t receivedLog_thd(void * args) {
-    (void)args;
-
-    EventListener eventWifiReceivedLogLst;
-    chEvtRegisterMask(&eventWifiReceivedLog, &eventWifiReceivedLogLst, 1);
-
-    while(true) {
         if(chEvtWaitOne(1)) {
-            writeSerial("Log treated");
-            wifiStream = 0;
+            if(headerSize < 7) {
+                writeSerial("HEADER SIZE = %d\n\r", headerSize);
+                break;
+            }
         }
     }
+
     return 0;
 }
 
@@ -365,15 +353,10 @@ void cmdWifiDL(BaseSequentialStream * chp, int argc, char * argv[]) {
     (void)argc;
     (void)argv;
 
-    static WORKING_AREA(receivedLog_wa, 128);
     static WORKING_AREA(wifiDLFile_wa, 128);
 
     chThdCreateStatic(
-            receivedLog_wa, sizeof(receivedLog_wa),
-            NORMALPRIO, receivedLog_thd, chp);
-
-    chThdCreateStatic(
             wifiDLFile_wa, sizeof(wifiDLFile_wa),
-            NORMALPRIO, wifiDLFile_thd, NULL);
+            NORMALPRIO, wifiDLFile_thd, chp);
 
 }
