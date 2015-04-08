@@ -5,6 +5,11 @@
 #include "usb_serial.h"
 #include "ff.h"
 
+
+#define FILE_BUFFER_SIZE 512
+#define SDI_MAX_TRANSFER_SIZE 32
+#define min(a,b) (((a)<b))?(a):(b)
+
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
   NULL,
@@ -160,37 +165,47 @@ void codecLowPower(){
 }
 
 
-static uint8_t musicBuffer[32];
+static uint8_t playBuf[FILE_BUFFER_SIZE];
 
-void codecPlayMusic(char * name){
-  FIL fil;
-  UINT *bytesNumber=0;
+void codecPlayMusic(char *name){
+  UINT bytesNumber;
+  FIL readFp;
+  uint8_t endFillByte=0;
   int cptEndFill=0;
   int cptReset=0;
-  uint8_t endFillByte;
+  int t;
   /* Open a file in reading mode */
-  f_open(&fil,name,FA_READ);
+  f_open(&readFp,name,FA_OPEN_EXISTING | FA_READ);
   /* Get the file contain and keep it in a buffer */
-  while(f_read(&fil,musicBuffer,32,bytesNumber)){
-    /* Send the whole file to VS1063 */
-    sendData(musicBuffer,32);
-    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0)
-      palTogglePad(GPIOA, 1);
+  while((f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))>0){
+    uint8_t *bufP = playBuf;
+  /* Send the whole file to VS1063 */
+    t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
+    sendData(bufP,t);
+    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
+      palSetPad(GPIOA, 1);
+      chThdSleepMilliseconds(300);
+      palClearPad(GPIOA, 1);
+      chThdSleepMilliseconds(300);
+    }
   }
-  f_close(&fil);
+  f_close(&readFp);
   /* Read the extra parameters in order to obtain the endFillByte */
-  endFillByte=(uint8_t)readRam(0x1e06);
+  endFillByte=(uint8_t)readRam(PAR_END_FILL_BYTE);
   /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
-  for(cptEndFill=0; cptEndFill<2052; cptEndFill++)
+  for(cptEndFill=0; cptEndFill<2052; cptEndFill++){
     sendData(&endFillByte,1);
+    palTogglePad(GPIOA, 2);
+  }
   /* Set SCI_MODE bit SM_CANCEL */
-  writeRegister(SCI_MODE, readRegister(SCI_MODE) | SM_CANCEL);
+  writeRegister(SCI_MODE, readRegister(SCI_MODE | SM_CANCEL));
   while(readRegister(SCI_MODE)&SM_CANCEL){
     for(cptEndFill=0; cptEndFill<32; cptEndFill++)
       sendData(&endFillByte,1);
     cptReset++;
     /* Test if SM_CANCEL hasn't cleared after sending 2048 bytes */
     if(cptReset==63) {
+      cptReset=0;
       codecReset();
       break;
     }

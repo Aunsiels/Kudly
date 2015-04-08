@@ -30,7 +30,8 @@ int main(void) {
     chThdSleepMilliseconds(2000);
     palClearPad(GPIOA,0);
     chThdSleepMilliseconds(500);
-    codecEncodeSound(1000);
+    codecPlayMusic("testa.ogg");
+    //codecEncodeSound(1000);
 
 
     while(TRUE){
