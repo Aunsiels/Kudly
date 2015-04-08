@@ -218,9 +218,9 @@ static uint16_t test[32000];
 
 static void writeSoundFile(char * name){
 
-  //uint16_t data;
+  uint16_t data;
   static FIL fil;
-  //UINT bw;
+  UINT bw;
   uint16_t endFillByte;
   
   f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
@@ -262,8 +262,8 @@ static void writeSoundFile(char * name){
   f_close(&fil);
   writeRam(PAR_END_FILL_BYTE,0);
 
-  for(i = 0;i<32000;i++)
-    writeSerial("%u",test[i]);
+  /*for(i = 0;i<32000;i++)
+    writeSerial("%u",test[i]);*/
 
 }
 
