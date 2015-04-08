@@ -181,7 +181,7 @@ void codecLowPower(){
 static uint8_t musicBuffer[32];
 
 void codecPlayMusic(char * name){
-  static FIL fil;
+  FIL fil;
   UINT *bytesNumber=0;
   int cptEndFill=0;
   int cptReset=0;
@@ -192,7 +192,8 @@ void codecPlayMusic(char * name){
   while(f_read(&fil,musicBuffer,32,bytesNumber)){
     /* Send the whole file to VS1063 */
     sendData(musicBuffer,32);
-    palTogglePad(GPIOA,1);
+    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0)
+      palTogglePad(GPIOA, 1);
   }
   f_close(&fil);
   /* Read the extra parameters in order to obtain the endFillByte */
@@ -213,19 +214,20 @@ void codecPlayMusic(char * name){
     }
   }
 }
-//static uint16_t test[32000];
+static uint16_t test[32000];
 
 static void writeSoundFile(char * name){
 
-  uint16_t data;
+  //uint16_t data;
   static FIL fil;
-  UINT bw;
+  //UINT bw;
   uint16_t endFillByte;
   
   f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
   
   /* Wait for the beginning of the ogg vorbis file*/
   while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g')); 
+
 
   while(1){
     while(1){
@@ -238,6 +240,7 @@ static void writeSoundFile(char * name){
     chThdSleepMilliseconds(100);
     if(readRegister(SCI_HDAT1) == 0)
       break;
+
   }
   
   /*int i;
@@ -248,18 +251,19 @@ static void writeSoundFile(char * name){
     break;
     }*/
 
+
   endFillByte = readRam(PAR_END_FILL_BYTE);
 
   /* If it's odd lenght, endFillByte should be added */
   if(endFillByte & (1 << 15))
-    f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
-  //test[31999] = (uint8_t)endFillByte;
+    //f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
+    test[31999] = (uint8_t)endFillByte;
 
   f_close(&fil);
   writeRam(PAR_END_FILL_BYTE,0);
 
-  /*for(i = 0;i<32000;i++)
-    writeSerial("%u",test[i]);*/
+  for(i = 0;i<32000;i++)
+    writeSerial("%u",test[i]);
 
 }
 
@@ -279,10 +283,10 @@ void codecEncodeSound(int duration){
   /* Maximum gain amplification at x4 */
   writeRegister(SCI_AICTRL2,4096);
   /* Set in mono mode, and in format OGG Vorbis */
-  writeRegister(SCI_AICTRL3,4|(5 << 4));
+  writeRegister(SCI_AICTRL3,4|(1 << 4));
   /* Set quality mode to 5 */
   writeRegister(SCI_WRAMADDR,0x5);
-  
+
   /* Start encoding procedure */
   writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
   writeRegister(SCI_AIADDR,0x50);
@@ -297,10 +301,7 @@ void codecEncodeSound(int duration){
   /* Stop the acquisition */
   writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
   /* Wait until the codec exit the encoding mode */
-  
-  //palSetPad(GPIOA,0);
-
-  while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+  //while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
   codecReset();
 
