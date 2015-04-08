@@ -26,12 +26,12 @@ int main(void) {
     palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
 
     codecInit();
-
-    codecPlayMusic("testa");
-
-    palSetPad(GPIOA,2);
+    palSetPad(GPIOA,0);
     chThdSleepMilliseconds(2000);
-    codecEncodeSound(2000);
+    palClearPad(GPIOA,0);
+    chThdSleepMilliseconds(500);
+    codecEncodeSound(1000);
+
 
     while(TRUE){
       chThdSleepMilliseconds(500);
