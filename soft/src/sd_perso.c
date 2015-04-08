@@ -709,7 +709,7 @@ FRESULT writeFile(char * filename, char * buf, UINT length){
     FIL fil;
     FRESULT res;
 
-    res = f_open(&fil, filename, FA_WRITE | FA_CREATE_NEW);
+    res = f_open(&fil, filename, FA_WRITE | FA_OPEN_ALWAYS);
     if(res) {
         return res;
     }
