@@ -69,6 +69,24 @@ static uint16_t readRegister(uint8_t adress){
   return ((registerContent[2]<<8) + registerContent[3]);
 }
 
+static uint16_t readRegisterLSB(uint8_t adress){
+
+  /* Wait until it's possible to read from SCI */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+
+  COMMAND_MODE;
+
+  /* Construction of instruction (Read opcode, adress) */
+  instruction[0] = 0x03;
+  instruction[1] = adress;
+  spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
+
+  RESET_MODE;
+
+  /* Return only the 2 last bytes (data from the register) */
+  return ((registerContent[3]<<8) + registerContent[2]);
+}
+
 /* Read a 16 bit data from the ram of the codec */
 uint16_t readRam(uint16_t adress){
   writeRegister(SCI_WRAMADDR,adress);
@@ -197,30 +215,38 @@ void codecPlayMusic(char * name){
 }
 //static uint16_t test[32000];
 
-void writeSoundFile(char * name){
+static void writeSoundFile(char * name){
 
   uint16_t data;
   static FIL fil;
   UINT bw;
   uint16_t endFillByte;
-
-  f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
-
   
+  f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
+  
+  /* Wait for the beginning of the ogg vorbis file*/
+  while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g')); 
+
   while(1){
-    data = readRegister(SCI_HDAT0);
-    f_write(&fil,&data,2,&bw);
+    while(1){
+      data = readRegisterLSB(SCI_HDAT0);
+      f_write(&fil,&data,2,&bw);
+      if(readRegister(SCI_HDAT1) == 0)
+	break;
+    }
+    
+    chThdSleepMilliseconds(100);
     if(readRegister(SCI_HDAT1) == 0)
       break;
-      }
-
+  }
+  
   /*int i;
-
-  for(i = 0 ; i < 32000 ; i++){
+    
+    for(i = 0 ; i < 32000 ; i++){
     test[i] = readRegister(SCI_HDAT0);
     if(readRegister(SCI_HDAT1) == 0)
-      break;
-      }*/
+    break;
+    }*/
 
   endFillByte = readRam(PAR_END_FILL_BYTE);
 
@@ -237,6 +263,13 @@ void writeSoundFile(char * name){
 
 }
 
+static WORKING_AREA(waThread1, 1024);
+static msg_t thread (void *arg){
+  (void) arg;
+  writeSoundFile("wouuu.ogg");
+  chThdSleepMilliseconds(TIME_INFINITE);
+  return 0;
+}
 
 void codecEncodeSound(int duration){
   /* Set the samplerate at 16kHz */
@@ -254,8 +287,8 @@ void codecEncodeSound(int duration){
   writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
   writeRegister(SCI_AIADDR,0x50);
 
-  writeSoundFile("test1");
-
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, thread,NULL);
+ 
   /* Collect the data in HDAT0/1 */
   chThdSleepMilliseconds(duration);
 
