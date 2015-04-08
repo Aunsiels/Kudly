@@ -185,6 +185,7 @@ static msg_t usartRead_thd(void * args) {
 
                     dataCpt++;
                     if(dataCpt == headerSize) {
+                        writeSerial("LOG !\n\r");
                         chSysLock();
                         chEvtBroadcastI(&eventWifiReceivedLog);
                         chSysUnlock();
@@ -344,13 +345,15 @@ static msg_t wifiDLFile_thd(void * args) {
     return 0;
 }
 
-static msg_t receivedLog_thd(void * chp) {
-    EventListener eventWifiLst;
-    chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
+static msg_t receivedLog_thd(void * args) {
+    (void)args;
+
+    EventListener eventWifiReceivedLogLst;
+    chEvtRegisterMask(&eventWifiReceivedLog, &eventWifiReceivedLogLst, 1);
 
     while(true) {
         if(chEvtWaitOne(1)) {
-            chprintf((BaseSequentialStream *)chp, "LOG !");
+            writeSerial("Log treated");
             wifiStream = 0;
         }
     }
