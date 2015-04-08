@@ -169,7 +169,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wstrict-prototypes -Werror
+CWARN = -Wall -Wextra -Wstrict-prototypes -Werror -std=gnu99
 
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra

@@ -2,6 +2,7 @@
 #include "hal.h"
 #include "wifi.h"
 #include "string.h"
+#include "chprintf.h"
 #include "usb_serial.h"
 #include "led.h"
 #include <stdio.h>
@@ -24,18 +25,38 @@ static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
 static char nup[] = "nup\r\n";
-static char gpio0[] = "gdi 0 none\r\ngdi 0 in\r\n";
+static char gpio0[] = "gdi 0 none\r\ngdi 0 ood\r\n";
 
 /* http request on Kudly website */
+static char cfg_echoOff[] = "set system.cmd.echo off\n\r";
+static char cfg_printLevel0[] = "set system.print_level 3\n\r";
+static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\n\r";
+static char cfg_headersOn[] = "set system.cmd.header_enabled 1\n\r";
+
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
 static char stream_close[] = "stream_close all\r\n";
 
 /* Feature and function buffer used to launch functionnality by wifi */
-static char feature[20];
-static char function[1048];
+static char feature[25];
+static char function[2048];
 
 /* Event source to signal a that wifi receive a function and feature */
+static int wifiStream; // Shared variable to notify end of stream
+
+static char * wifiMessages[] = {
+    ssid,
+    passkey,
+    save,
+    http_get,
+    stream_read
+};
+static unsigned int wifiMessagesL = 5;
+
+static enum wifiReadState wifiReadState;
+
+static EVENTSOURCE_DECL(eventWifiReceptionEnd);
+static EVENTSOURCE_DECL(eventWifiReceivedLog);
 static EVENTSOURCE_DECL(eventWifiSrc);
 
 /* Serial driver that uses usart3 */
@@ -47,75 +68,143 @@ static SerialConfig uartCfg =
     0
 };
 
-/* States for parsing state machine */
-enum state {WAIT_FEATURE, WRITE_FEATURE, WAIT_FUNCTION, WRITE_FUNCTION, END_FEATURE};
+enum state {
+    WAIT_FEATURE,
+    WRITE_FEATURE,
+    WAIT_FUNCTION,
+    WRITE_FUNCTION,
+    END_FEATURE
+};
+
+void parseXML(char c) {
+    static int parse_feature = 0;
+    static int parse_function = 0;
+    static enum state state = WAIT_FEATURE;
+
+    switch(state) {
+        case WAIT_FEATURE:
+            if (c == '<') {
+                parse_feature = 0;
+                state = WRITE_FEATURE;
+            }
+
+        case WRITE_FEATURE:
+            if (c == '>'){
+                state = WAIT_FUNCTION;
+                feature[parse_feature] = '\0';
+            }
+            feature[parse_feature] = c;
+            parse_feature++;
+
+        case WAIT_FUNCTION:
+            if (c == '<'){
+                state = WRITE_FUNCTION;
+                parse_function = 0;
+            } 
+
+        case WRITE_FUNCTION:
+            if (c == '>'){
+                state = END_FEATURE;
+                function[parse_function-1] = '\0';
+                chSysLock();
+                chEvtBroadcastI(&eventWifiSrc);
+                chSysUnlock();
+            }
+            function[parse_function]=c;
+            parse_function++;
+
+        case END_FEATURE:
+            if (c == '>'){
+                state = WAIT_FEATURE;
+            }
+    }
+}
+
+void parseLog(char c) {
+    (void)c;
+}
+
+enum wifiReadState {
+    IDLE,
+    RECEIVE_HEADER,
+    RECEIVE_RESPONSE,
+    RECEIVE_LOG
+};
 
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * args) {
     (void)args;
-    /* Index to fill feature and fucntion tabs */ 
-    int parse_feature = 0;
-    int parse_function = 0;
-
-    /* Default state */
-    enum state state = WAIT_FEATURE;
+    static int  h;
+    static char header[5];
+    static int  headerSize;
+    static int  errCode;
+    static char rcvType;
+    static int  dataCpt;
 
     while(1) {
-      if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
-	writeSerial("%c", c);
-	
-	/* Wait for feature frame beginning */
-	if (state == WAIT_FEATURE){
-	  if (c == '<') {
-	    parse_feature = 0;
-	    state = WRITE_FEATURE;
-	    continue;
-	  }
-	}
-	
-	/* Write feature frame in feture buffer */
-	if (state == WRITE_FEATURE){
-	  if (c == '>'){
-	    state = WAIT_FUNCTION;
-	    feature[parse_feature] = '\0';
-	    continue;
-	  }
-	    feature[parse_feature] = c;
-	    parse_feature++;
-	}
-	
-	/* Wait for function frame beginning */
-	if (state == WAIT_FUNCTION){
-	  if (c == '<'){
-	    state = WRITE_FUNCTION;
-	    parse_function = 0;
-	    continue;
-	  } 
-	}
+        if(chMBFetch(&mb, (msg_t *)&c, TIME_INFINITE) == RDY_OK) {
 
-	/* Write function in frame buffer */
-	if (state == WRITE_FUNCTION){
-	  if (c == '>'){
-	    state = END_FEATURE;
-	    function[parse_function-1] = '\0';
-	    /* Function and feature are ready : send event broadcast */
-	    chSysLock();
-	    chEvtBroadcastI(&eventWifiSrc);
-	    chSysUnlock();
-	    continue;
-	  }
-	    function[parse_function]=c;
-	    parse_function++;
-	}
-	
-	/* Wait for feature frame end */
-	if (state == END_FEATURE){
-	  if (c == '>'){
-	    state = WAIT_FEATURE;
-	    continue;
-	  }
-	}
-      }
+            switch(wifiReadState) {
+                case IDLE:
+                    //Message beginning
+                    if(c == 'R' || c == 'L' || c == 'S') {
+                        wifiReadState = RECEIVE_HEADER;
+                        rcvType = c;
+                        h = 0;
+                    }
+                    break;
+                case RECEIVE_HEADER:
+
+                    switch(h) {
+                        case 0: // Error code
+                            errCode = (int)(c - 48);
+                            (void)errCode;
+                            break;
+                        case 1: case 2: case 3: case 4: // Receiving header
+                            header[h-1] = c;
+                            break;
+                        case 5: // Last header character
+                            header[h-1] = c;
+                            headerSize = strtol(header, (char **)NULL, 10);
+                            dataCpt = 0;
+                            break;
+                        case 7: // After receiving \n\r
+                            if(rcvType == 'R') {
+                                wifiReadState = RECEIVE_RESPONSE;
+                            } else {
+                                wifiReadState = RECEIVE_LOG;
+                            }
+                            break;
+                    }
+                    
+                    h++;
+                    break;
+                case RECEIVE_RESPONSE:
+                    writeSerial("%c", c);
+
+                    dataCpt++;
+                    if(dataCpt == headerSize) {
+                        chSysLock();
+                        chEvtBroadcastI(&eventWifiReceptionEnd);
+                        chSysUnlock();
+                        wifiReadState = IDLE;
+                    }
+                    break;
+                case RECEIVE_LOG:
+                    writeSerial("%c", c);
+
+                    dataCpt++;
+                    if(dataCpt == headerSize) {
+                        writeSerial("LOG !\n\r");
+                        chSysLock();
+                        chEvtBroadcastI(&eventWifiReceivedLog);
+                        chSysUnlock();
+                        wifiReadState = IDLE;
+                    }
+                    break;
+            }
+
+        }
     } 
     return 0;
 }
@@ -138,16 +227,28 @@ void wifiInitByUsart(void){
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
+
     sdStart(&SD3, &uartCfg);
+    wifiWriteByUsart(gpio0, sizeof(gpio0));
+    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(ssid, sizeof(ssid));
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(passkey, sizeof(passkey));
     chThdSleepMilliseconds(1000);
-    wifiWriteByUsart(gpio0, sizeof(gpio0));
-    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(save, sizeof(save));
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(nup, sizeof(nup));
+
+    /*
+     * Configuring wifi module in machine friendly command mode
+     * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
+     */
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
+    wifiReadByUsart();
+
 }
 
 /* Sends data by wifi */
@@ -229,4 +330,77 @@ void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
   wifiWriteByUsart(stream_read, sizeof(stream_read));
   wifiWriteByUsart(stream_close, sizeof(stream_close));
   
+}
+
+static msg_t wifiSendMessages_thd(void * args) {
+    (void)args;
+
+    for(unsigned int i = 0 ; i < wifiMessagesL ; i++) {
+        wifiWriteByUsart(wifiMessages[i], sizeof(wifiMessages[i]));
+    }
+
+    chThdSleep(TIME_INFINITE);
+
+    return 0;
+} 
+
+void sendMessages(void) {
+    static WORKING_AREA(wifiSendMessages_wa, 128);
+
+    chThdCreateStatic(
+            wifiSendMessages_wa, sizeof(wifiSendMessages_wa),
+            NORMALPRIO, wifiSendMessages_thd, NULL);
+}
+
+
+static msg_t wifiDLFile_thd(void * args) {
+    (void)args;
+
+    static char dlRequest[] = "http_get kudly.herokuapp.com\n\r";
+    static char streamRead[] = "stream_read 0 5\n\r"; 
+
+    wifiWriteByUsart(dlRequest, sizeof(dlRequest));
+    wifiStream = 1;
+
+    while(true) {
+        wifiWriteByUsart(streamRead, sizeof(streamRead));
+        if(!wifiStream) {
+            break;
+        }
+    }
+
+    return 0;
+}
+
+static msg_t receivedLog_thd(void * args) {
+    (void)args;
+
+    EventListener eventWifiReceivedLogLst;
+    chEvtRegisterMask(&eventWifiReceivedLog, &eventWifiReceivedLogLst, 1);
+
+    while(true) {
+        if(chEvtWaitOne(1)) {
+            writeSerial("Log treated");
+            wifiStream = 0;
+        }
+    }
+    return 0;
+}
+
+void cmdWifiDL(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    static WORKING_AREA(receivedLog_wa, 128);
+    static WORKING_AREA(wifiDLFile_wa, 128);
+
+    chThdCreateStatic(
+            receivedLog_wa, sizeof(receivedLog_wa),
+            NORMALPRIO, receivedLog_thd, chp);
+
+    chThdCreateStatic(
+            wifiDLFile_wa, sizeof(wifiDLFile_wa),
+            NORMALPRIO, wifiDLFile_thd, NULL);
+
 }

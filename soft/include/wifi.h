@@ -60,4 +60,9 @@ void wifiCommands(void);
  *
  */
 void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]);
+
+void sendMessages(void);
+
+void cmdWifiDL(BaseSequentialStream * chp, int argc, char * argv[]);
+
 #endif
