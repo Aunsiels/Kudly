@@ -31,12 +31,12 @@ int main(void) {
     palClearPad(GPIOA,0);
     chThdSleepMilliseconds(500);
     codecPlayMusic("testa.ogg");
-    //codecEncodeSound(1000);
+    //codecEncodeSound(10000,"az.ogg");
 
 
     while(TRUE){
       chThdSleepMilliseconds(500);
-      palTogglePad(GPIOA,0);
+      palTogglePad(GPIOA,1);
     }
 
     return 0;

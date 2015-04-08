@@ -74,6 +74,24 @@ static uint16_t readRegister(uint8_t adress){
   return ((registerContent[2]<<8) + registerContent[3]);
 }
 
+static uint16_t readRegisterLSB(uint8_t adress){
+
+  /* Wait until it's possible to read from SCI */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+
+  COMMAND_MODE;
+
+  /* Construction of instruction (Read opcode, adress) */
+  instruction[0] = 0x03;
+  instruction[1] = adress;
+  spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
+
+  RESET_MODE;
+
+  /* Return only the 2 last bytes (data from the register) */
+  return ((registerContent[3]<<8) + registerContent[2]);
+}
+
 /* Read a 16 bit data from the ram of the codec */
 uint16_t readRam(uint16_t adress){
   writeRegister(SCI_WRAMADDR,adress);
@@ -211,78 +229,78 @@ void codecPlayMusic(char *name){
     }
   }
 }
-static uint16_t test[32000];
 
-void writeSoundFile(char * name){
+static WORKING_AREA(waEncode, 1024);
+static FIL fil;
+int stopRecord = 0;
+int playerState = 1;
 
-  //uint16_t data;
-  static FIL fil;
-  //UINT bw;
+static msg_t writeSoundFile(void *arg){
+  (void) arg;
+  uint16_t data;
+  UINT bw;
   uint16_t endFillByte;
+    
+  /* Wait for the beginning of the ogg vorbis file*/
+  //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g')); 
 
-  f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
 
-  /*
-  while(1){
-    data = readRegister(SCI_HDAT0);
+  while(playerState){
+    data = readRegisterLSB(SCI_HDAT0);
     f_write(&fil,&data,2,&bw);
-    if(readRegister(SCI_HDAT1) == 0)
-      break;
-      }*/
-
-  int i;
-
-  for(i = 0 ; i < 32000 ; i++){
-    test[i] = readRegister(SCI_HDAT0);
-    if(readRegister(SCI_HDAT1) == 0)
-      break;
+    if (stopRecord && !readRegister(SCI_RECWORDS)) {
+       playerState = 0;
+    }
   }
-
+    
   endFillByte = readRam(PAR_END_FILL_BYTE);
-
+  writeSerial("End fill byte : %u \r\n",endFillByte);
   /* If it's odd lenght, endFillByte should be added */
   if(endFillByte & (1 << 15))
-    //f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
-    test[31999] = (uint8_t)endFillByte;
-
+    f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
+  
   f_close(&fil);
   writeRam(PAR_END_FILL_BYTE,0);
+  
+  playerState = 1;
 
-  for(i = 0;i<32000;i++)
-    writeSerial("%u",test[i]);
-
-}
+  return 0;
+} 
 
 
-void codecEncodeSound(int duration){
+void codecEncodeSound(int duration,char * name){
   /* Set the samplerate at 16kHz */
   writeRegister(SCI_AICTRL0,16000);
-  /* Automatic gain control */
-  writeRegister(SCI_AICTRL1,0);
+  /* G&in = 1 (best quality) */
+  writeRegister(SCI_AICTRL1,1024);
   /* Maximum gain amplification at x4 */
   writeRegister(SCI_AICTRL2,4096);
   /* Set in mono mode, and in format OGG Vorbis */
-  writeRegister(SCI_AICTRL3,4|(1 << 4));
+  writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
   /* Set quality mode to 5 */
-  writeRegister(SCI_WRAMADDR,0x5);
-
+  writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+  
   /* Start encoding procedure */
-  writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+  writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_LINE1 | SM_ENCODE);
   writeRegister(SCI_AIADDR,0x50);
+  
+  f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
 
-  writeSoundFile("test1");
+  chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, writeSoundFile,NULL); 
 
   /* Collect the data in HDAT0/1 */
   chThdSleepMilliseconds(duration);
-
-
+  
+  stopRecord = 1;
+  
+  palTogglePad(GPIOA,0);
 
   /* Stop the acquisition */
-  writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+  //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
   /* Wait until the codec exit the encoding mode */
   //while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
-
+  
   codecReset();
-
-
+  
+  stopRecord = 0;
 }
