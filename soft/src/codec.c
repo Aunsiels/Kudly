@@ -171,9 +171,12 @@ void codecPlayMusic(char * name){
   /* Open a file in reading mode */
   f_open(&fil,name,FA_READ);
   /* Get the file contain and keep it in a buffer */
-  while(f_read(&fil,musicBuffer,32,bytesNumber))
+  while(f_read(&fil,musicBuffer,32,bytesNumber)){
     /* Send the whole file to VS1063 */
     sendData(musicBuffer,32);
+    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0)
+      palTogglePad(GPIOA, 1);
+  }
   f_close(&fil);
   /* Read the extra parameters in order to obtain the endFillByte */
   endFillByte=(uint8_t)readRam(0x1e06);
@@ -252,7 +255,7 @@ void codecEncodeSound(int duration){
   writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
   writeRegister(SCI_AIADDR,0x50);
 
-  writeSoundFile("test1");
+  writeSoundFile("testa.ogg");
 
   /* Collect the data in HDAT0/1 */
   chThdSleepMilliseconds(duration);
