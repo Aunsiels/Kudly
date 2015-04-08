@@ -24,12 +24,12 @@ static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
 static char nup[] = "nup\r\n";
-static char gpio0[] = "gdi 0 none\r\ngdi 0 in\r\n";
+static char gpio0[] = "gdi 0 none\r\ngdi 0 ood\r\n";
 
 /* http request on Kudly website */
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
-static char stream_close[] = "stream_close all\r\n";
+static char stream_close[] = "stream_close 0\r\n";
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[20];
@@ -139,11 +139,11 @@ void wifiInitByUsart(void){
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
     sdStart(&SD3, &uartCfg);
+    wifiWriteByUsart(gpio0, sizeof(gpio0));
+    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(ssid, sizeof(ssid));
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(passkey, sizeof(passkey));
-    chThdSleepMilliseconds(1000);
-    wifiWriteByUsart(gpio0, sizeof(gpio0));
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(save, sizeof(save));
     chThdSleepMilliseconds(1000);
@@ -159,22 +159,22 @@ void wifiWriteByUsart(char * message, int length){
 void wifiReadByUsart(void) {
     static WORKING_AREA(usartRead_wa, 128);
     static WORKING_AREA(usartReadInMB_wa, 128);
-
+    
     chThdCreateStatic(
-            usartReadInMB_wa, sizeof(usartReadInMB_wa),
-            NORMALPRIO, usartReadInMB_thd, NULL);
-
+	usartReadInMB_wa, sizeof(usartReadInMB_wa),
+	NORMALPRIO, usartReadInMB_thd, NULL);
+    
     chThdCreateStatic(
-            usartRead_wa, sizeof(usartRead_wa),
-            NORMALPRIO, usartRead_thd, NULL);
+	usartRead_wa, sizeof(usartRead_wa),
+	NORMALPRIO, usartRead_thd, NULL);
 }
 
 /* Command shell to speak with wifi module in command mode */
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
-  (void)chp;
-  int i;
-  for(i = 0; i < argc; i++){
-    wifiWriteByUsart(argv[i], strlen(argv[i]));
+    (void)chp;
+    int i;
+    for(i = 0; i < argc; i++){
+	wifiWriteByUsart(argv[i], strlen(argv[i]));
     wifiWriteByUsart(space, sizeof(space));
   }
   wifiWriteByUsart(crlf, sizeof(crlf));

@@ -52,7 +52,7 @@ int main(void) {
     /* Init sccb */
     sccbInit();
 
-    /* Wifi */
+    /* Initialize wifi */
     wifiInitByUsart();
 
     /* Wifi test function */
