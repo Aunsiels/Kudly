@@ -12,4 +12,6 @@ uint32_t readRam32(uint16_t);
 void codecPlayMusic(char *);
 void codecEncodeSound(int,char *);
 
+void cmdPlay(BaseSequentialStream *, int, char *[]);
+
 #endif /* CODEC_H */

@@ -4,9 +4,9 @@
 #include "codec.h"
 #include "usb_serial.h"
 #include "ff.h"
+#include "chprintf.h"
 
-
-#define FILE_BUFFER_SIZE 512
+#define FILE_BUFFER_SIZE 32
 #define SDI_MAX_TRANSFER_SIZE 32
 #define min(a,b) (((a)<b))?(a):(b)
 
@@ -184,28 +184,30 @@ void codecLowPower(){
 
 
 static uint8_t playBuf[FILE_BUFFER_SIZE];
+static FIL readFp;
 
 void codecPlayMusic(char *name){
   UINT bytesNumber;
-  FIL readFp;
+
   uint8_t endFillByte=0;
   int cptEndFill=0;
   int cptReset=0;
+  int cptTrame=0;
   int t;
   /* Open a file in reading mode */
   f_open(&readFp,name,FA_OPEN_EXISTING | FA_READ);
   /* Get the file contain and keep it in a buffer */
-  while((f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))>0){
-    uint8_t *bufP = playBuf;
+  while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
   /* Send the whole file to VS1063 */
     t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
-    sendData(bufP,t);
-    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
-      palSetPad(GPIOA, 1);
-      chThdSleepMilliseconds(300);
-      palClearPad(GPIOA, 1);
-      chThdSleepMilliseconds(300);
-    }
+    sendData(playBuf,t);
+    cptTrame++;
+  }
+  if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
+    palSetPad(GPIOA, 0);
+    chThdSleepMilliseconds(300);
+    palClearPad(GPIOA, 0);
+    chThdSleepMilliseconds(300);
   }
   f_close(&readFp);
   /* Read the extra parameters in order to obtain the endFillByte */
@@ -240,9 +242,9 @@ static msg_t writeSoundFile(void *arg){
   uint16_t data;
   UINT bw;
   uint16_t endFillByte;
-    
+
   /* Wait for the beginning of the ogg vorbis file*/
-  //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g')); 
+  //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g'));
 
 
   while(playerState){
@@ -252,20 +254,20 @@ static msg_t writeSoundFile(void *arg){
        playerState = 0;
     }
   }
-    
+
   endFillByte = readRam(PAR_END_FILL_BYTE);
   writeSerial("End fill byte : %u \r\n",endFillByte);
   /* If it's odd lenght, endFillByte should be added */
   if(endFillByte & (1 << 15))
     f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
-  
+
   f_close(&fil);
   writeRam(PAR_END_FILL_BYTE,0);
-  
+
   playerState = 1;
 
   return 0;
-} 
+}
 
 
 void codecEncodeSound(int duration,char * name){
@@ -279,28 +281,38 @@ void codecEncodeSound(int duration,char * name){
   writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
   /* Set quality mode to 5 */
   writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-  
+
   /* Start encoding procedure */
   writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_LINE1 | SM_ENCODE);
   writeRegister(SCI_AIADDR,0x50);
-  
+
   f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
 
-  chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, writeSoundFile,NULL); 
+  chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, writeSoundFile,NULL);
 
   /* Collect the data in HDAT0/1 */
   chThdSleepMilliseconds(duration);
-  
+
   stopRecord = 1;
-  
+
   palTogglePad(GPIOA,0);
 
   /* Stop the acquisition */
   //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
   /* Wait until the codec exit the encoding mode */
   //while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
-  
+
   codecReset();
-  
+
   stopRecord = 0;
+}
+
+void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
+  (void) argv;
+
+  if (argc == 0) {
+    chprintf(chp, "Enter the file name after the command Play\r\n");
+    return;
+  }
+  codecPlayMusic(argv[0]);
 }
