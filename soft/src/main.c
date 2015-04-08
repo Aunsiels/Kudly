@@ -7,6 +7,7 @@
 #include "sd_perso.h"
 #include "sccb.h"
 #include "hug_sensors.h"
+#include "hand_sensors.h"
 
 int main(void) {
 
@@ -60,6 +61,9 @@ int main(void) {
     
     /* Init ADC hug sensors */
     initHugSensors();
+
+    /* Init ADC hand sensors */
+    initHandSensors();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
