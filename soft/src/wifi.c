@@ -221,7 +221,8 @@ void wifiCommands(void) {
 }
 
 /* Command shell to send http request and read the stream */
-void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
+void cmdWifiTest
+(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)chp;
   (void)argc;
   (void)argv;

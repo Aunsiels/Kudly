@@ -57,9 +57,9 @@ int main(void) {
     /* Wifi test function */
     wifiReadByUsart();
     wifiCommands();
-
+    
+    /* Init ADC hug sensors */
     initHugSensors();
-    startHugSensor();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
