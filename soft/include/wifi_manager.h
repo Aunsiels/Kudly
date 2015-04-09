@@ -19,4 +19,5 @@
  */
 void usartRead(void);
 
+void saveWebPage( char * address , char * file);
 #endif

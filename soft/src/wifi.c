@@ -47,6 +47,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
+	writeSerial("%c",wifi_buffer);
         chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
     }
     return 0;
