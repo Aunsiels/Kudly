@@ -214,15 +214,18 @@ void dcmi_lld_receive(DCMIDriver *dcmip, size_t n, bool_t oneShot,
   uint32_t dmaMode;
   dmaStreamSetMemory0(dcmip->dmarx, rxbuf0);
   dmaStreamSetMemory1(dcmip->dmarx, rxbuf1);
+  /* 4 for the size of a word */
   dmaStreamSetTransactionSize(dcmip->dmarx, n/4);
-  //dmaMode = dcmip->rxdmamode | STM32_DMA_CR_MINC;
-  dmaMode = STM32_DMA_CR_PL(2) |
+  dmaMode = dcmip->rxdmamode;
+  /*dmaMode = STM32_DMA_CR_PL(2) |
     STM32_DMA_CR_PSIZE_WORD |
     STM32_DMA_CR_MSIZE_WORD |
     STM32_DMA_CR_PBURST_SINGLE |
     STM32_DMA_CR_MBURST_SINGLE |
     STM32_DMA_CR_MINC |
-    STM32_DMA_CR_CHSEL(1);
+    STM32_DMA_CR_HTIE |
+    STM32_DMA_CR_TCIE |
+    STM32_DMA_CR_CHSEL(1);*/
   /* if second buffer not given, turn off double buffering */
   if ( rxbuf1 == NULL ) {
     dmaMode &= (~STM32_DMA_CR_DBM);

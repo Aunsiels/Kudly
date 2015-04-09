@@ -14,7 +14,7 @@
 /* The image buffer */
 uint8_t imgBuf[IMG_SIZE];
 uint8_t* imgBuf0 = imgBuf;
-uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
+//uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
 /* Source to indicate if a frame ends or dma ends */
 EventSource dmaEvS, frameEvS;
@@ -26,7 +26,6 @@ void frameEndCb(DCMIDriver* dcmip) {
     (void) dcmip;
     chSysLockFromIsr();
     chEvtBroadcastI(&frameEvS);
-    chEvtBroadcastI(&dmaEvS);
     chSysUnlockFromIsr();
 }
 
@@ -604,7 +603,7 @@ const unsigned char OV2640_JPEG_INIT[][2]=
     {0x2e, 0xdf},
     {0xff, 0x01},
     {0x3c, 0x32},
-    {0x11, 0x30},
+    {0x11, 0x00},
     {0x09, 0x02},
     {0x04, 0x28},
     {0x13, 0xe5},
@@ -997,18 +996,50 @@ const unsigned char OV2640_352x288_JPEG[][2]=
 
 static const DCMIConfig dcmicfg = {
     frameEndCb, /* Callback frame */
-    dmaTxferEndCb, /* Callaback dma */
-    DCMI_CR_VSPOL | /* High vsync */
-    DCMI_CR_HSPOL | /* High Hsync */
-    DCMI_CR_JPEG  | /* JPEG mode */
-    DCMI_CR_PCKPOL  | /* Rising edge */
-    STM32_DCMI_CR_CM /* Snapshot */
+    dmaTxferEndCb,
+    /* Callaback dma */
+    //DCMI_CR_VSPOL | /* High vsync */
+    //DCMI_CR_HSPOL | /* High Hsync */
+    //DCMI_CR_JPEG  | /* JPEG mode */
+    DCMI_CR_PCKPOL   /* Rising edge */
 };
+
+void initializeQVGA(void)
+{
+  uint32_t i;
+
+    /* Reset all registers */
+    sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
+    sccbWrite(COM7, COM7_SRST);
+  chThdSleepMilliseconds(200);
+
+  /* Initialize OV2640 */
+  for(i=0; i<(sizeof(OV2640_QVGA)/2); i++)
+  {
+    sccbWrite(OV2640_QVGA[i][0], OV2640_QVGA[i][1]);
+  }
+}
+
+void initilizeQQVGA(void)
+{
+  uint32_t i;
+
+    /* Reset all registers */
+    sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
+    sccbWrite(COM7, COM7_SRST);
+  chThdSleepMilliseconds(200);
+
+  /* Initialize OV2640 */
+  for(i=0; i<(sizeof(OV2640_QQVGA)/2); i++)
+  {
+    sccbWrite(OV2640_QQVGA[i][0], OV2640_QQVGA[i][1]);
+  }
+}
 
 /*
  * Initilize JPEG for the camera
  */
-static void initializeJPEG (void){
+void initializeJPEG (void){
     /* Reset all registers */
     sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
     sccbWrite(COM7, COM7_SRST);
@@ -1077,17 +1108,17 @@ void cameraInit() {
     palSetPad(GPIOC, GPIOC_CAMERA_ENABLE);
 
     /* Camera pin */
-    palSetPadMode(GPIOA, GPIOA_CAMERA_HSYNC, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D0, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D1, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D4, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D5, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_VSYNC, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D6, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D7, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13));
+    palSetPadMode(GPIOA, GPIOA_CAMERA_HSYNC, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP );
+    palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL);
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D0, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D1, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOC, GPIOC_CAMERA_D4, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D5, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, GPIOB_CAMERA_VSYNC, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D6, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOB, GPIOB_CAMERA_D7, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
+    palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
 
     chThdSleepMilliseconds(100);
     /* Start camera */
@@ -1125,27 +1156,54 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
         return;
     }
 
+    if (!sdIsReady()) {
+        chprintf(chp, "The cd card is not ready\r\n");
+        return;
+    }
+
+    /* File object */
+    FIL fil;
+    FRESULT res;
+
+    res = f_open(&fil, "test.jpg", FA_WRITE | FA_OPEN_ALWAYS);
+    if(res) {
+        chprintf(chp, "Problem while creating the file\r\n");
+        return;
+    }
+
     chprintf(chp, "Begin photo\r\n");
 
     chEvtRegisterMask(&dmaEvS, &dmaEvL, EVENT_MASK(1));
     chEvtRegisterMask(&frameEvS, &frameEvL, EVENT_MASK(2));
     chprintf(chp, "Beginning transfer:\n\r");
 
-    //using synchronous API for simplicity, single buffer.
-    //limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
-    // i.e. IMG_SIZE cannot be larger than 65535 here.
-    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE/2, imgBuf0, imgBuf1);
+    /*
+     * using synchronous API for simplicity, single buffer.
+     * limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
+     * i.e. IMG_SIZE cannot be larger than 65535 here.
+     */
+    dcmiStartReceive(&DCMID1, IMG_SIZE, imgBuf0, NULL);
     chprintf(chp, "Wait for event\n\r");
-    chEvtWaitOne(EVENT_MASK(1));
-    chprintf(chp, "Got first DMA interrupt\n\r");
+    //chEvtWaitOne(EVENT_MASK(1));
+    //chprintf(chp, "Got first DMA interrupt\n\r");
     chEvtWaitAll(EVENT_MASK(1) | EVENT_MASK(2));
     chprintf(chp, "Got second DMA interrupt, and DCMI interrupt.\n\r");
-    chprintf(chp, "End of the photo\r\n");
     
     /* Write the file */
-    int error = writeFile("test.jpg", (char *) imgBuf, sizeof(imgBuf));
-    if (error)
-       chprintf(chp, "A problem occured while writting in the file\r\n");
+    UINT written = 0;
+    f_write(&fil, (char *) imgBuf, sizeof(imgBuf), &written);
+    if (written != sizeof(imgBuf)) {
+        f_unlink("test.jpg");
+        chprintf(chp, "Problem while writting\r\n");
+        return;
+    }
+
+    res = f_close(&fil);
+    if (res) {
+        f_unlink("test.jpg");
+        chprintf(chp, "Problem while closing the file\r\n");
+        return;
+    }
 }
 
 /*

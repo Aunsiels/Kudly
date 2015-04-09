@@ -17,6 +17,12 @@
 #include "ff.h"
 
 /**
+ * \brief Is the sd card ready ?
+ * \return The state of the sd card.
+ */
+bool_t sdIsReady (void);
+
+/**
  * \brief Command tree for the shell
  * \param chp The stream where the strings will be written.
  * \param argc The number of arguments

@@ -108,6 +108,11 @@ static MMCConfig mmccfg = {&SPID2, &ls_spicfg, &hs_spicfg};
 /* Generic large buffer.*/
 uint8_t fbuff[1024];
 
+/* Is the sd card ready ? */
+bool_t sdIsReady (){
+    return fs_ready;
+}
+
 /* Scans all the files */
 FRESULT scan_files(BaseSequentialStream *chp, char *path) {
     FRESULT res;
