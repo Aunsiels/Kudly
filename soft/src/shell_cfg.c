@@ -38,6 +38,7 @@ static const ShellCommand commands[] = {
   {"test"   , cmdTest    },
   {"tree"   , cmdTree    },
   {"play"   , cmdPlay    },
+  {"encode" , cmdEncode  },
   {NULL     , NULL       }
 };
 

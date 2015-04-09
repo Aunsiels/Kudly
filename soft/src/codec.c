@@ -8,6 +8,7 @@
 
 #define FILE_BUFFER_SIZE 32
 #define SDI_MAX_TRANSFER_SIZE 32
+#define REC_BUFFER_SIZE 32
 #define min(a,b) (((a)<b))?(a):(b)
 
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
@@ -72,24 +73,6 @@ static uint16_t readRegister(uint8_t adress){
 
     /* Return only the 2 last bytes (data from the register) */
     return ((registerContent[2]<<8) + registerContent[3]);
-}
-
-static uint16_t readRegisterLSB(uint8_t adress){
-
-    /* Wait until it's possible to read from SCI */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
-
-    COMMAND_MODE;
-
-    /* Construction of instruction (Read opcode, adress) */
-    instruction[0] = 0x03;
-    instruction[1] = adress;
-    spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-
-    RESET_MODE;
-
-    /* Return only the 2 last bytes (data from the register) */
-    return ((registerContent[3]<<8) + registerContent[2]);
 }
 
 /* Read a 16 bit data from the ram of the codec */
@@ -232,45 +215,28 @@ void codecPlayMusic(char *name){
     } 
 }
 
-static WORKING_AREA(waEncode, 1024);
-static FIL fil;
+static WORKING_AREA(waEncode, 128);
+static FIL encodeFp;
+static uint8_t recBuf[REC_BUFFER_SIZE];
 int stopRecord = 0;
 int playerState = 1;
+int duration = 0;
 
-static msg_t writeSoundFile(void *arg){
+static msg_t waitRecording(void *arg){
     (void) arg;
-    uint16_t data;
-    UINT bw;
-    uint16_t endFillByte;
 
-    /* Wait for the beginning of the ogg vorbis file*/
-    //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g'));
+    /* Collect the data in HDAT0/1 */
+    chThdSleepMilliseconds(duration);
 
-
-    while(playerState){
-        data = readRegisterLSB(SCI_HDAT0);
-        f_write(&fil,&data,2,&bw);
-        if (stopRecord && !readRegister(SCI_RECWORDS)) {
-            playerState = 0;
-        }
-    }
-
-    endFillByte = readRam(PAR_END_FILL_BYTE);
-    writeSerial("End fill byte : %u \r\n",endFillByte);
-    /* If it's odd lenght, endFillByte should be added */
-    if(endFillByte & (1 << 15))
-        f_write(&fil,(uint8_t *)&endFillByte,1,&bw);
-
-    f_close(&fil);
-    writeRam(PAR_END_FILL_BYTE,0);
-
-    playerState = 1;
-
+    /* Stop the acquisition */
+    stopRecord = 1;  
+    //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+    
     return 0;
 }
 
+void codecEncodeSound(char * name, int dur){
 
-void codecEncodeSound(int duration,char * name){
     /* Set the samplerate at 16kHz */
     writeRegister(SCI_AICTRL0,16000);
     /* G&in = 1 (best quality) */
@@ -286,24 +252,60 @@ void codecEncodeSound(int duration,char * name){
     writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_LINE1 | SM_ENCODE);
     writeRegister(SCI_AIADDR,0x50);
 
-    f_open(&fil,name,FA_WRITE | FA_OPEN_ALWAYS);
+    /* Set the duration of the recording */
+    duration = dur;
+  
+    f_open(&encodeFp,name,FA_WRITE | FA_OPEN_ALWAYS);
 
-    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, writeSoundFile,NULL);
+    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, waitRecording,NULL);
 
-    /* Collect the data in HDAT0/1 */
-    chThdSleepMilliseconds(duration);
+    uint16_t data;
+    UINT bw;
+    uint16_t endFillByte;
+  
+    /* Wait for the beginning of the ogg vorbis encodeFpe*/
+    //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g'));
 
-    stopRecord = 1;
+    while(playerState){
+	int n;
+	
+	/* See if there is some data available */
+	if((n = readRegister(SCI_RECWORDS)) > 0) {
+	    int i;
+	    uint8_t *rbp = recBuf;
+	    
+	    n = min(n, REC_BUFFER_SIZE/2);
+	    for (i=0; i<n; i++) {
+		data = readRegister(SCI_RECDATA);
+		*rbp++ = (uint8_t)(data >> 8);
+		*rbp++ = (uint8_t)(data & 0xFF);
+	    }
+	    f_write(&encodeFp, recBuf, 2*n, &bw);
+	}   	    
+	else{
+	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){
+		playerState = 0;
+	    }
+	}
+    }
+    
+    endFillByte = readRam(PAR_END_FILL_BYTE);
+    
+    /* If it's odd lenght, endFillByte should be added */
+    if(endFillByte & (1 << 15))
+	f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
+
+    f_close(&encodeFp);
+    writeRam(PAR_END_FILL_BYTE,0);
 
     palTogglePad(GPIOA,0);
 
-    /* Stop the acquisition */
-    //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
     /* Wait until the codec exit the encoding mode */
-    //while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+    while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
     codecReset();
 
+    playerState = 1;
     stopRecord = 0;
 }
 
@@ -311,8 +313,18 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
 
     if (argc == 0) {
-        chprintf(chp, "Enter the file name after the command Play\r\n");
-        return;
+	chprintf(chp, "Enter the file name after the command Play\r\n");
+	return;
     }
     codecPlayMusic(argv[0]);
+}
+
+void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+
+    if (argc != 2) {
+	chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
+	return;
+    }
+    codecEncodeSound(argv[0],(int)argv[1]);
 }

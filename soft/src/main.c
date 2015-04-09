@@ -27,11 +27,6 @@ int main(void) {
 
     codecInit();
     palSetPad(GPIOA,0);
-    chThdSleepMilliseconds(2000);
-    palClearPad(GPIOA,0);
-    chThdSleepMilliseconds(500);
-    //codecEncodeSound(10000,"az.ogg");
-
 
     while(TRUE){
       chThdSleepMilliseconds(500);
