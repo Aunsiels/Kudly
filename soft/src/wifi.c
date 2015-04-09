@@ -10,7 +10,7 @@
 
 /* Mailbox for received data */
 static msg_t mb_buf[32];
-MAILBOX_DECL(mb, mb_buf, 32);
+MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -47,10 +47,34 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-        chMBPost(&mb, wifi_buffer, TIME_INFINITE);
-	writeSerial("%c", wifi_buffer);
+        chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
     }
     return 0;
+}
+
+/* Sends data by wifi */
+void wifiWriteByUsart(char * message, int length){
+    sdWrite(&SD3, (uint8_t*)message, length); 
+}
+
+/*  Launches the wifi reading */
+static void wifiReadByUsart(void) {
+    static WORKING_AREA(usartReadInMB_wa, 128);
+    
+    chThdCreateStatic(
+	usartReadInMB_wa, sizeof(usartReadInMB_wa),
+	NORMALPRIO, usartReadInMB_thd, NULL);
+}
+
+/* Command shell to speak with wifi module in command mode */
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void)chp;
+    int i;
+    for(i = 0; i < argc; i++){
+	wifiWriteByUsart(argv[i], strlen(argv[i]));
+	wifiWriteByUsart(space, sizeof(space));
+    }
+    wifiWriteByUsart(crlf, sizeof(crlf));
 }
 
 /* Initialization of wifi network */
@@ -63,13 +87,9 @@ void wifiInitByUsart(void){
 
     sdStart(&SD3, &uartCfg);
     wifiWriteByUsart(gpio0, sizeof(gpio0));
-    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(ssid, sizeof(ssid));
-    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(passkey, sizeof(passkey));
-    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(save, sizeof(save));
-    chThdSleepMilliseconds(1000);
     wifiWriteByUsart(nup, sizeof(nup));
 
     /*
@@ -81,31 +101,4 @@ void wifiInitByUsart(void){
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
     wifiReadByUsart();
-}
-
-
-
-/* Sends data by wifi */
-void wifiWriteByUsart(char * message, int length){
-    sdWrite(&SD3, (uint8_t*)message, length); 
-}
-
-/*  Launches the wifi reading */
-void wifiReadByUsart(void) {
-    static WORKING_AREA(usartReadInMB_wa, 128);
-
-    chThdCreateStatic(
-            usartReadInMB_wa, sizeof(usartReadInMB_wa),
-            NORMALPRIO, usartReadInMB_thd, NULL);
-}
-
-/* Command shell to speak with wifi module in command mode */
-void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
-  (void)chp;
-  int i;
-  for(i = 0; i < argc; i++){
-    wifiWriteByUsart(argv[i], strlen(argv[i]));
-    wifiWriteByUsart(space, sizeof(space));
-  }
-  wifiWriteByUsart(crlf, sizeof(crlf));
 }

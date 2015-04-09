@@ -13,6 +13,7 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
+extern Mailbox mbReceiveWifi;
 /**
  *
  * \brief Initializes the wifi communication
@@ -20,14 +21,6 @@
  * This function connects the board to the a406 network  
  */
 void wifiInitByUsart(void);
-
-/**
- *
- * \brief Launches the wifi reading
- *
- * This function starts two threads to read data from wifi and parses data to ligth LEDs
- */
-void wifiReadByUsart(void);
 
 /**
  *
@@ -49,21 +42,5 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
  *
  */
 void wifiCommands(void);
-
-/**
- *
- * \brief Test function for wifi
- * \param chp The stream where the strings will be written.
- * \param argc The number of arguments
- * \param argv The parameters
- *
- * This function reads the kudly website and lights LED with values written on it
- *
- */
-void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]);
-
-void sendMessages(void);
-
-void cmdWifiDL(BaseSequentialStream * chp, int argc, char * argv[]);
 
 #endif

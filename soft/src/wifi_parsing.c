@@ -2,6 +2,8 @@
 #include "hal.h"
 #include "string.h"
 #include "usb_serial.h"
+#include "wifi.h"
+#include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,9 +16,6 @@ static char function[2048];
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 50\r\n";
 static char stream_close[] = "stream_close all\r\n";
-
-/* Event source to signal a that wifi receive a function and feature */
-static int wifiStream; // Shared variable to notify end of stream
 
 enum state {
     WAIT_FEATURE,

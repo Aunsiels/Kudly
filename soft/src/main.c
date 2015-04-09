@@ -6,6 +6,7 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 #include "sccb.h"
+#include "wifi_manager.h"
 
 int main(void) {
 
@@ -52,6 +53,9 @@ int main(void) {
 
     /* Init Wifi */
     wifiInitByUsart();
+
+    /* Read wifi by usart */
+    usartRead();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

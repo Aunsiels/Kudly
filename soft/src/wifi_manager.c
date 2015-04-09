@@ -1,5 +1,10 @@
 #include "ch.h"
 #include "hal.h"
+#include "wifi.h"
+#include "usb_serial.h"
+#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 enum wifiReadState {
     IDLE,
@@ -22,7 +27,7 @@ static msg_t usartRead_thd(void * arg){
     static int  dataCpt;
 
     while(TRUE) {
-        if(chMBFetch(&mb,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
+        if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
             writeSerial("%c",c);
 
             /*
@@ -83,8 +88,7 @@ static msg_t usartRead_thd(void * arg){
                     break;
             }
         }
-    }
-    
+    }    
     return 0;
 }
 
