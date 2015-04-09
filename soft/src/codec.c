@@ -249,7 +249,7 @@ void codecEncodeSound(char * name, int dur){
     writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
 
     /* Start encoding procedure */
-    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_LINE1 | SM_ENCODE);
+    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
     writeRegister(SCI_AIADDR,0x50);
 
     /* Set the duration of the recording */
@@ -283,8 +283,7 @@ void codecEncodeSound(char * name, int dur){
 	    f_write(&encodeFp, recBuf, 2*n, &bw);
 	}   	    
 	else{
-	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){
-		playerState = 0;
+	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){		   playerState = 0;
 	    }
 	}
     }
