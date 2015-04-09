@@ -27,7 +27,7 @@ static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
 static char nup[] = "nup\r\n";
-static char gpio0[] = "gdi 0 none\r\ngdi 0 ood\r\n";
+static char gpio0[] = "gdi 0 none\r\ngdi 0 ipu\r\n";
 
 /* http request on Kudly website */
 static char cfg_echoOff[] = "set system.cmd.echo off\n\r";
@@ -50,6 +50,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
+//	writeSerial("%c",wifi_buffer);
         chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
     }
     return 0;
@@ -97,12 +98,12 @@ void wifiInitByUsart(void) {
 
     wifiWriteByUsart(dollar, sizeof(dollar));
 
+    wifiWriteByUsart(gpio0, sizeof(gpio0));
+
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-
-    wifiWriteByUsart(gpio0, sizeof(gpio0));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
