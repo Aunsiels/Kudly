@@ -168,6 +168,7 @@ void codecLowPower(){
 
 static uint8_t playBuf[FILE_BUFFER_SIZE];
 static FIL readFp;
+//static uint8_t options;
 
 void codecPlayMusic(char *name){
     UINT bytesNumber;
@@ -185,6 +186,8 @@ void codecPlayMusic(char *name){
         t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
         sendData(playBuf,t);
         cptTrame++;
+        //switch(readSerial(options, 1)){
+        //case 'q': writeRegister(SCI_MODE | CM_CANCEL)
     }
     if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
         palSetPad(GPIOA, 0);
