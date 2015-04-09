@@ -138,7 +138,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,0x1515);
+    writeRegister(SCI_VOL,0x2424);
 }
 
 void codecInit(){
@@ -165,29 +165,30 @@ void codecLowPower(){
     spiStop(&SPID4);
 }
 
-
 static uint8_t playBuf[FILE_BUFFER_SIZE];
 static FIL readFp;
-//static uint8_t options;
+static char * namePlayback;
 
-void codecPlayMusic(char *name){
+static WORKING_AREA(waPlayback, 2048);
+
+static msg_t threadPlayback(void *arg){
+    (void) arg;
+    
     UINT bytesNumber;
-
     uint8_t endFillByte=0;
     int cptEndFill=0;
     int cptReset=0;
     int cptTrame=0;
     int t;
     /* Open a file in reading mode */
-    f_open(&readFp,name,FA_OPEN_EXISTING | FA_READ);
+    f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
     /* Get the file contain and keep it in a buffer */
     while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
         /* Send the whole file to VS1063 */
         t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
         sendData(playBuf,t);
         cptTrame++;
-        //switch(readSerial(options, 1)){
-        //case 'q': writeRegister(SCI_MODE | CM_CANCEL)
+        // XXXXXXX NEED EVENT TO CONTROL MODE
     }
     if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
         palSetPad(GPIOA, 0);
@@ -216,6 +217,7 @@ void codecPlayMusic(char *name){
             break;
         }
     } 
+    return 0;
 }
 
 static WORKING_AREA(waEncode, 128);
@@ -316,7 +318,9 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
 	chprintf(chp, "Enter the file name after the command Play\r\n");
 	return;
     }
-    codecPlayMusic(argv[0]);
+
+    namePlayback = argv[0];
+    chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
 }
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -328,3 +332,28 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     }
     codecEncodeSound(argv[0],strtol(argv[1],NULL,10));
 }
+
+uint8_t control;
+
+void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+    
+    if (argc != 1) {
+	chprintf(chp, "Enter the command (p = pause)\r\n");
+	return;
+    }
+    
+    //NEED EVENT TO ENTER CONTROL MODE
+    
+    control = (uint8_t)argv[0][0];
+    
+    switch(control){
+    case 'p':
+	writeRam(PAR_PLAY_MODE,2);
+	break;
+    }
+    
+    
+    return;
+}
+
