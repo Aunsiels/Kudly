@@ -16,8 +16,8 @@ IDLE,
 
 static EVENTSOURCE_DECL(srcEndOfData);
 
-static FIL fil;
-static UINT* bw;
+//static FIL fil;
+//static UINT* bw;
 static int writeInFile =0;
 
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
@@ -67,10 +67,8 @@ static msg_t usartRead_thd(void * arg){
 		    break;
 		case 7: // After receiving \n\r
 		    if(rcvType == 'R') {
-			//writeSerial("%d bytes : ", headerSize);
 			wifiReadState = RECEIVE_RESPONSE;
 		    } else {
-			//writeSerial("Log : ");
 			wifiReadState = RECEIVE_LOG;
 		    }
 		    break;
@@ -79,29 +77,25 @@ static msg_t usartRead_thd(void * arg){
 		h++;
 		break;
 	    case RECEIVE_RESPONSE:
-		//writeSerial("Receive response : %c\r\n",c);
 		if(writeInFile){
-		    static FRESULT res;
-		    res = f_write(&fil,&c,1,bw);
-		    writeSerial("Data \r\n%c", c);
-		    if (*bw != 1)
-			writeSerial("Error: write 0 byte\r\n");
-		    if (res)
-			writeSerial("Cannot write one byte on file\r\n");
+//		    static FRESULT res;
+		    //res = f_write(&fil,&c,1,bw);
+		    writeSerial("Data %c\r\n", c);
+		    // if (*bw != 1)
+		    //	writeSerial("Error: write 0 byte\r\n");
+		    //if (res)
+		    //	writeSerial("Cannot write one byte on file\r\n");
 		}
 		dataCpt++;
-		if(dataCpt == headerSize) {
+		writeSerial("Data %c\r\n", c);
+		if(dataCpt >= headerSize) {
 		    if(writeInFile){
-			chSysLock();
-			chEvtBroadcastI(&srcEndOfData);
-			chSysUnlock();
+			chEvtBroadcast(&srcEndOfData);
 		    }
 		    wifiReadState = IDLE;
 		}
 		break;
-	    case RECEIVE_LOG:
-		//writeSerial("%c", c);
-                
+	    case RECEIVE_LOG:        
 		dataCpt++;
 		if(dataCpt == headerSize) {
 		    // DO SOMETHING
@@ -127,24 +121,25 @@ void usartRead(void) {
 
 void saveWebPage( char * address , char * file){
     (void)address;
+    (void)file;
     static EventListener lstEndOfData;
-    static FRESULT res;
+    //static FRESULT res;
 
     chEvtRegisterMask(&srcEndOfData, &lstEndOfData, 1);
-    res = f_open(&fil, file, FA_CREATE_ALWAYS | FA_WRITE);
-    if (res)
-	writeSerial("Cannot create this file %d\r\n",res);
-    else {
+//    res = f_open(&fil, file, FA_CREATE_ALWAYS | FA_WRITE);
+    //  if (res)
+//	writeSerial("Cannot create this file %d\r\n",res);
+    //  else {
 	wifiWriteByUsart(http_get, sizeof(http_get));
-	writeSerial("http request\r\n");
+	writeSerial("http request\r\n"); 
 	writeInFile = 1;
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
 	writeSerial("read stream\r\n");
-        chEvtWaitOne(1);
-	writeSerial("broadcast received\r\n");
-	writeInFile = 0;
+	//chEvtWaitAny(1);
+	//writeInFile = 0;
+      	writeSerial("broadcast received\r\n");
 	wifiWriteByUsart(stream_close, sizeof(stream_close));
-    }
-    f_close(&fil);
+	// }
+	// f_close(&fil);
     writeSerial("File closed ");
 }

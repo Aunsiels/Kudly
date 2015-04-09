@@ -51,14 +51,13 @@ int main(void) {
     /* Init sccb */
     sccbInit();
 
-    chThdSleepMilliseconds(10000);
-    
     /* Read wifi by usart */
     usartRead();
 
     /* Init Wifi */
     wifiInitByUsart();
 
+    chThdSleepMilliseconds(10000);
     //saveWebPage( "bla", "wifi.txt");
 
     chThdSleepMilliseconds(TIME_INFINITE);
