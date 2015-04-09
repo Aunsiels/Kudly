@@ -11,6 +11,7 @@
 #include "wifi.h"
 #include "hug_sensors.h"
 #include "hand_sensors.h"
+#include "codec.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -50,6 +51,8 @@ static const ShellCommand commands[] = {
     {"ledtest"     , cmdLedtest    },
     {"hugsensors"  , cmdHugSensors },
     {"handsensors" , cmdHandSensors},
+    {"play"        , cmdPlay       },
+    {"encode"      , cmdEncode     },
     {NULL          , NULL          }
 };
 

@@ -8,6 +8,7 @@
 #include "sccb.h"
 #include "hug_sensors.h"
 #include "hand_sensors.h"
+#include "codec.h"
 
 int main(void) {
 
@@ -65,6 +66,9 @@ int main(void) {
     /* Init ADC hand sensors */
     initHandSensors();
 
+    /* Init codec */
+    codecInit();
+    
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;
