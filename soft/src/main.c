@@ -20,7 +20,7 @@ int main(void) {
     shellPersoInit();
 
     /* Initialize SD card */
-    //sdPersoInit();
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();
@@ -51,11 +51,11 @@ int main(void) {
     /* Init sccb */
     sccbInit();
 
-    /* Init Wifi */
-    wifiInitByUsart();
-
     /* Read wifi by usart */
     usartRead();
+
+    /* Init Wifi */
+    wifiInitByUsart();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

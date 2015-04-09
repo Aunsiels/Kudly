@@ -58,7 +58,7 @@ static msg_t usartRead_thd(void * arg){
                             break;
                         case 7: // After receiving \n\r
                             if(rcvType == 'R') {
-                                writeSerial("Response : ");
+                                writeSerial("%d bytes : ", headerSize);
                                 wifiReadState = RECEIVE_RESPONSE;
                             } else {
                                 writeSerial("Log : ");
