@@ -73,24 +73,6 @@ uint32_t readRam32(uint16_t);
  * This function follows the sending protocol wrote in the VS1063 datasheet. It is also able to send a file from the SDcard 
  */
 
-void codecPlayMusic(char *);
-
-/**
- *
- * \brief Encodes a sound from the microphone
- *
- * This function needs a name file and a time of recording to be enabled. It writes in a file on the SDcard a sound with an .ogg format  
- */
-
-void codecEncodeSound(char *,int);
-
-/**
- *
- * \brief Shell command for displaying a sound
- *
- * This function enables the codecPlayMusic function in a shell command  
- */
-
 void cmdPlay(BaseSequentialStream *, int, char *[]);
 
 /**

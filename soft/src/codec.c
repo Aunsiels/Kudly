@@ -170,7 +170,6 @@ static FIL readFp;
 static char * namePlayback;
 
 static WORKING_AREA(waPlayback, 2048);
-
 static msg_t threadPlayback(void *arg){
     (void) arg;
     
@@ -220,13 +219,15 @@ static msg_t threadPlayback(void *arg){
     return 0;
 }
 
-static WORKING_AREA(waEncode, 128);
+
 static FIL encodeFp;
 static uint8_t recBuf[REC_BUFFER_SIZE];
 int stopRecord = 0;
 int playerState = 1;
 int duration = 0;
+static char * nameEncode;
 
+static WORKING_AREA(waWaitRecording, 128);
 static msg_t waitRecording(void *arg){
     (void) arg;
 
@@ -240,8 +241,10 @@ static msg_t waitRecording(void *arg){
     return 0;
 }
 
-void codecEncodeSound(char * name, int dur){
-    
+static WORKING_AREA(waEncode, 2048);
+static msg_t threadEncode(void *arg){
+    (void) arg;
+
     writeRegister(SCI_VOL,0x0707);
     /* Set the samplerate at 16kHz */
     writeRegister(SCI_AICTRL0,16000);
@@ -257,13 +260,10 @@ void codecEncodeSound(char * name, int dur){
     /* Start encoding procedure */
     writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
     writeRegister(SCI_AIADDR,0x50);
-
-    /* Set the duration of the recording */
-    duration = dur;
   
-    f_open(&encodeFp,name,FA_WRITE | FA_OPEN_ALWAYS);
+    f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
-    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, waitRecording,NULL);
+    chThdCreateStatic(waWaitRecording, sizeof(waWaitRecording),NORMALPRIO, waitRecording,NULL);
 
     uint16_t data;
     UINT bw;
@@ -286,7 +286,8 @@ void codecEncodeSound(char * name, int dur){
 	    f_write(&encodeFp, recBuf, 2*n, &bw);
 	}   	    
 	else{
-	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){		   playerState = 0;
+	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){		   
+		playerState = 0;
 	    }
 	}
     }
@@ -309,6 +310,8 @@ void codecEncodeSound(char * name, int dur){
 
     playerState = 1;
     stopRecord = 0;
+    
+    return 0;
 }
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -330,7 +333,10 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
 	chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
 	return;
     }
-    codecEncodeSound(argv[0],strtol(argv[1],NULL,10));
+
+    nameEncode = argv[0];
+    duration  = strtol(argv[1],NULL,10);
+    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
 }
 
 uint8_t control;
