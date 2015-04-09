@@ -86,6 +86,11 @@ void wifiInitByUsart(void){
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
 
     sdStart(&SD3, &uartCfg);
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
+
     wifiWriteByUsart(gpio0, sizeof(gpio0));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
@@ -96,9 +101,5 @@ void wifiInitByUsart(void){
      * Configuring wifi module in machine friendly command mode
      * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
      */
-    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
-    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
-    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
-    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
     wifiReadByUsart();
 }

@@ -13,7 +13,6 @@ enum wifiReadState {
     RECEIVE_LOG
 };
 
-static enum wifiReadState wifiReadState;
 
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
@@ -26,9 +25,10 @@ static msg_t usartRead_thd(void * arg){
     static char rcvType;
     static int  dataCpt;
 
+    static enum wifiReadState wifiReadState;
+
     while(TRUE) {
         if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
-            writeSerial("%c",c);
 
             /*
              * Parsing headers & data
@@ -43,7 +43,6 @@ static msg_t usartRead_thd(void * arg){
                     }
                     break;
                 case RECEIVE_HEADER:
-
                     switch(h) {
                         case 0: // Error code
                             errCode = (int)(c - 48);
@@ -59,8 +58,10 @@ static msg_t usartRead_thd(void * arg){
                             break;
                         case 7: // After receiving \n\r
                             if(rcvType == 'R') {
+                                writeSerial("Response : ");
                                 wifiReadState = RECEIVE_RESPONSE;
                             } else {
+                                writeSerial("Log : ");
                                 wifiReadState = RECEIVE_LOG;
                             }
                             break;
@@ -79,7 +80,7 @@ static msg_t usartRead_thd(void * arg){
                     break;
                 case RECEIVE_LOG:
                     writeSerial("%c", c);
-
+                    
                     dataCpt++;
                     if(dataCpt == headerSize) {
                         // DO SOMETHING
