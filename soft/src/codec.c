@@ -137,7 +137,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,0x2424);
+    writeRegister(SCI_VOL,0x0);
 
 }
 
@@ -239,10 +239,10 @@ void codecEncodeSound(char * name, int dur){
 
     /* Set the samplerate at 16kHz */
     writeRegister(SCI_AICTRL0,16000);
-    /* G&in = 1 (best quality) */
+    /* Gain = 1 (best quality) */
     writeRegister(SCI_AICTRL1,1024);
     /* Maximum gain amplification at x4 */
-    writeRegister(SCI_AICTRL2,4096);
+    writeRegister(SCI_AICTRL2,1024);
     /* Set in mono mode, and in format OGG Vorbis */
     writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
     /* Set quality mode to 5 */
