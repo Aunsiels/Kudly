@@ -101,7 +101,7 @@ void sendData(const uint8_t * data, int size){
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++)
-	spiSend(&SPID4,1,data++);
+        spiSend(&SPID4,1,data++);
 
     RESET_MODE;
 }
@@ -109,7 +109,7 @@ void sendData(const uint8_t * data, int size){
 static void loadPatch(void) {
     int i;
     for (i=0;i<CODE_SIZE;i++) {
-	writeRegister(atab[i], dtab[i]);
+        writeRegister(atab[i], dtab[i]);
     }
 }
 
@@ -138,7 +138,6 @@ void codecReset(void){
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
     writeRegister(SCI_VOL,0x0);
-
 }
 
 void codecInit(){
@@ -181,38 +180,38 @@ void codecPlayMusic(char *name){
     f_open(&readFp,name,FA_OPEN_EXISTING | FA_READ);
     /* Get the file contain and keep it in a buffer */
     while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
-	/* Send the whole file to VS1063 */
-	t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
-	sendData(playBuf,t);
-	cptTrame++;
+        /* Send the whole file to VS1063 */
+        t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
+        sendData(playBuf,t);
+        cptTrame++;
     }
     if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
-	palSetPad(GPIOA, 0);
-	chThdSleepMilliseconds(300);
-	palClearPad(GPIOA, 0);
-	chThdSleepMilliseconds(300);
+        palSetPad(GPIOA, 0);
+        chThdSleepMilliseconds(300);
+        palClearPad(GPIOA, 0);
+        chThdSleepMilliseconds(300);
     }
     f_close(&readFp);
     /* Read the extra parameters in order to obtain the endFillByte */
     endFillByte=(uint8_t)readRam(PAR_END_FILL_BYTE);
     /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
     for(cptEndFill=0; cptEndFill<2052; cptEndFill++){
-	sendData(&endFillByte,1);
-	palTogglePad(GPIOA, 2);
+        sendData(&endFillByte,1);
+        palTogglePad(GPIOA, 2);
     }
     /* Set SCI_MODE bit SM_CANCEL */
     writeRegister(SCI_MODE, readRegister(SCI_MODE | SM_CANCEL));
     while(readRegister(SCI_MODE)&SM_CANCEL){
-	for(cptEndFill=0; cptEndFill<32; cptEndFill++)
-	    sendData(&endFillByte,1);
-	cptReset++;
-	/* Test if SM_CANCEL hasn't cleared after sending 2048 bytes */
-	if(cptReset==63) {
-	    cptReset=0;
-	    codecReset();
-	    break;
-	}
-    }
+        for(cptEndFill=0; cptEndFill<32; cptEndFill++)
+            sendData(&endFillByte,1);
+        cptReset++;
+        /* Test if SM_CANCEL hasn't cleared after sending 2048 bytes */
+        if(cptReset==63) {
+            cptReset=0;
+            codecReset();
+            break;
+        }
+    } 
 }
 
 static WORKING_AREA(waEncode, 128);
