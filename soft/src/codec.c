@@ -5,6 +5,7 @@
 #include "usb_serial.h"
 #include "ff.h"
 #include "chprintf.h"
+#include <stdlib.h>
 
 #define FILE_BUFFER_SIZE 32
 #define SDI_MAX_TRANSFER_SIZE 32
@@ -137,8 +138,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,0x0000);
-
+    writeRegister(SCI_VOL,0x1515);
 }
 
 void codecInit(){
@@ -229,23 +229,24 @@ static msg_t waitRecording(void *arg){
     (void) arg;
 
     /* Collect the data in HDAT0/1 */
-    chThdSleepMilliseconds(duration);
+    chThdSleepMilliseconds(duration*1000);
 
     /* Stop the acquisition */
     stopRecord = 1;  
-    //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+    //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); DOESN'T WORK, NEED TO BE FIXED
     
     return 0;
 }
 
 void codecEncodeSound(char * name, int dur){
-
+    
+    writeRegister(SCI_VOL,0x0707);
     /* Set the samplerate at 16kHz */
     writeRegister(SCI_AICTRL0,16000);
-    /* G&in = 1 (best quality) */
-    writeRegister(SCI_AICTRL1,1024);
+    /* Gain = 1 (best quality) */
+    writeRegister(SCI_AICTRL1,2048);
     /* Maximum gain amplification at x4 */
-    writeRegister(SCI_AICTRL2,4096);
+    writeRegister(SCI_AICTRL2,40000);
     /* Set in mono mode, and in format OGG Vorbis */
     writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
     /* Set quality mode to 5 */
@@ -265,10 +266,7 @@ void codecEncodeSound(char * name, int dur){
     uint16_t data;
     UINT bw;
     uint16_t endFillByte;
-  
-    /* Wait for the beginning of the ogg vorbis encodeFpe*/
-    //while((readRegister(SCI_HDAT0) != 'O') | (readRegister(SCI_HDAT0) != 'g'));
-
+ 
     while(playerState){
 	int n;
 	
@@ -328,5 +326,5 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
 	chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
 	return;
     }
-    codecEncodeSound(argv[0],(int)argv[1]);
+    codecEncodeSound(argv[0],strtol(argv[1],NULL,10));
 }
