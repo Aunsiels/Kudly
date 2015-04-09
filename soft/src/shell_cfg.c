@@ -9,6 +9,7 @@
 #include "sd_perso.h"
 #include "sccb.h"
 #include "wifi.h"
+#include "wifi_manager.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -43,6 +44,7 @@ static const ShellCommand commands[] = {
     {"test"      , cmdTest    },
     {"tree"      , cmdTree    },
     {"wifi"      , cmdWifi    },
+    {"wifiStream", cmdWifiStream},
     {"led"       , cmdLed     },
     {"ledtest"   , cmdLedtest },
     {NULL        , NULL       }

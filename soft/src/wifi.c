@@ -20,6 +20,9 @@ static char space[] =" ";
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
+static char streamMode[] = "set bus.mode stream\n\r";
+static char saveReboot[] = "save\n\rreboot\n\r";
+static char dollar[] = "\n\r$$$";
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char save[] = "save\r\n";
@@ -78,7 +81,7 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 }
 
 /* Initialization of wifi network */
-void wifiInitByUsart(void){
+void wifiInitByUsart(void) {
   
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
@@ -86,6 +89,14 @@ void wifiInitByUsart(void){
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
 
     sdStart(&SD3, &uartCfg);
+
+    wifiWriteByUsart(streamMode, sizeof(streamMode));
+    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
+
+    chThdSleepMilliseconds(2000);
+
+    wifiWriteByUsart(dollar, sizeof(dollar));
+
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));

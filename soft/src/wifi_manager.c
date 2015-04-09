@@ -89,7 +89,7 @@ static msg_t usartRead_thd(void * arg){
                     break;
             }
         }
-    }    
+    } 
     return 0;
 }
 
@@ -107,23 +107,31 @@ void usartRead(void) {
 /*
  * Streaming through socket
  */
-void wifiStartStreaming(char * socketUrl, int port) {
-    (void)socketUrl;
-    (void)port;
-
-    writeSerial("Starting streaming...\n\r");
-
-    static char tcpConnect[] = "tcp_client 137.194.43.54 6789";
-    static char wifiExit[] = "wifi";
+void cmdWifiStream(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
 
     static char testHello[] = "Salut ! Ça va bien ?\r\n";
-    //static char testString[] = "Ici le module wifi wesh\r\n";
 
-    // setting up TCP connection
-    wifiWriteByUsart(tcpConnect, sizeof(tcpConnect));
-    wifiWriteByUsart(wifiExit, sizeof(wifiExit));
+    static char streamMode[] = "set bus.mode stream\n\r";
+    static char tcpAuto[] = "set tcp.client.auto_start 1\n\r";
+    static char tcpCli[] = "set tcp.client.remote_host 137.194.43.247\n\r";
+    static char tcpPort[] = "set tcp.client.remote_port 6789\n\r";
+    static char saveReboot[] = "save\n\rreboot\n\r";
 
-    wifiWriteByUsart(testHello, sizeof(testHello));
+    writeSerial("Configuring to stream mode...\n\r");
+    wifiWriteByUsart(streamMode, sizeof(streamMode));
+    wifiWriteByUsart(tcpCli, sizeof(tcpCli));
+    wifiWriteByUsart(tcpPort, sizeof(tcpPort));
+    wifiWriteByUsart(tcpAuto, sizeof(tcpAuto));
+    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
 
-    chThdSleep(TIME_INFINITE);
+    chThdSleepMilliseconds(1000);
+
+    writeSerial("Starting streaming...\n\r");
+    for(int i = 0 ; i < 10 ; i++) {
+        wifiWriteByUsart(testHello, sizeof(testHello));
+        chThdSleepMilliseconds(500);
+    }
 }

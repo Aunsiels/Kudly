@@ -19,4 +19,6 @@
  */
 void usartRead(void);
 
+void cmdWifiStream(BaseSequentialStream * chp, int argc, char * argv[]);
+
 #endif

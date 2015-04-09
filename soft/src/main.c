@@ -57,8 +57,6 @@ int main(void) {
     /* Init Wifi */
     wifiInitByUsart();
 
-    wifiStartStreaming(NULL, 0);
-
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;
