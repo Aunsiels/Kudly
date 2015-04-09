@@ -53,9 +53,6 @@ int main(void) {
     /* Init Wifi */
     wifiInitByUsart();
 
-    /* Wifi test function */
-    wifiCommands();
-
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;
