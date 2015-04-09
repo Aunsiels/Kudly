@@ -58,6 +58,7 @@ void writeRam32(uint16_t adress, uint32_t data){
 
 }
 
+/* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
 
     /* Wait until it's possible to read from SCI */
@@ -177,7 +178,6 @@ static msg_t threadPlayback(void *arg){
     uint8_t endFillByte=0;
     int cptEndFill=0;
     int cptReset=0;
-    int cptTrame=0;
     int t;
     /* Open a file in reading mode */
     f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
@@ -186,25 +186,21 @@ static msg_t threadPlayback(void *arg){
         /* Send the whole file to VS1063 */
         t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
         sendData(playBuf,t);
-        cptTrame++;
-        // XXXXXXX NEED EVENT TO CONTROL MODE
-    }
-    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
-        palSetPad(GPIOA, 0);
-        chThdSleepMilliseconds(300);
-        palClearPad(GPIOA, 0);
-        chThdSleepMilliseconds(300);
+	// XXXXXXX NEED EVENT TO CONTROL MODE
     }
     f_close(&readFp);
+    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
+	writeSerial("Error transmiiting audio file\r\n");
+	return 0;
+    }
     /* Read the extra parameters in order to obtain the endFillByte */
     endFillByte=(uint8_t)readRam(PAR_END_FILL_BYTE);
     /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
     for(cptEndFill=0; cptEndFill<2052; cptEndFill++){
         sendData(&endFillByte,1);
-        palTogglePad(GPIOA, 2);
     }
     /* Set SCI_MODE bit SM_CANCEL */
-    writeRegister(SCI_MODE, readRegister(SCI_MODE | SM_CANCEL));
+    writeRegister(SCI_MODE, readRegister(SCI_MODE) | SM_CANCEL);
     while(readRegister(SCI_MODE)&SM_CANCEL){
         for(cptEndFill=0; cptEndFill<32; cptEndFill++)
             sendData(&endFillByte,1);
@@ -222,9 +218,9 @@ static msg_t threadPlayback(void *arg){
 
 static FIL encodeFp;
 static uint8_t recBuf[REC_BUFFER_SIZE];
-int stopRecord = 0;
-int playerState = 1;
-int duration = 0;
+volatile int stopRecord = 0;
+volatile int playerState = 1;
+volatile int duration = 0;
 static char * nameEncode;
 
 static WORKING_AREA(waWaitRecording, 128);
@@ -236,7 +232,7 @@ static msg_t waitRecording(void *arg){
 
     /* Stop the acquisition */
     stopRecord = 1;  
-    //writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); DOESN'T WORK, NEED TO BE FIXED
+    /* TODO writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); DOESN'T WORK, NEED TO BE FIXED */
     
     return 0;
 }
@@ -248,9 +244,9 @@ static msg_t threadEncode(void *arg){
     writeRegister(SCI_VOL,0x0707);
     /* Set the samplerate at 16kHz */
     writeRegister(SCI_AICTRL0,16000);
-    /* Gain = 1 (best quality) */
+    /* Gain = 2 */
     writeRegister(SCI_AICTRL1,2048);
-    /* Maximum gain amplification at x4 */
+    /* Maximum gain amplification at x40 */
     writeRegister(SCI_AICTRL2,40000);
     /* Set in mono mode, and in format OGG Vorbis */
     writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
@@ -263,6 +259,7 @@ static msg_t threadEncode(void *arg){
   
     f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
+    /* TODO Event listener */
     chThdCreateStatic(waWaitRecording, sizeof(waWaitRecording),NORMALPRIO, waitRecording,NULL);
 
     uint16_t data;
@@ -349,7 +346,7 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
 	return;
     }
     
-    //NEED EVENT TO ENTER CONTROL MODE
+    /* TODO NEED EVENT TO ENTER CONTROL MODE */
     
     control = (uint8_t)argv[0][0];
     
