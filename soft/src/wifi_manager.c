@@ -142,4 +142,26 @@ void saveWebPage( char * address , char * file){
 	// }
 	// f_close(&fil);
     writeSerial("File closed ");
+/*
+ * Streaming through socket
+ */
+void wifiStartStreaming(char * socketUrl, int port) {
+    (void)socketUrl;
+    (void)port;
+
+    writeSerial("Starting streaming...\n\r");
+
+    static char tcpConnect[] = "tcp_client 137.194.43.54 6789";
+    static char wifiExit[] = "wifi";
+
+    static char testHello[] = "Salut ! Ça va bien ?\r\n";
+    //static char testString[] = "Ici le module wifi wesh\r\n";
+
+    // setting up TCP connection
+    wifiWriteByUsart(tcpConnect, sizeof(tcpConnect));
+    wifiWriteByUsart(wifiExit, sizeof(wifiExit));
+
+    wifiWriteByUsart(testHello, sizeof(testHello));
+
+    chThdSleep(TIME_INFINITE);
 }
