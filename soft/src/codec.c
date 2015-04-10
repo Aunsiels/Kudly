@@ -49,7 +49,7 @@ static void writeRegister(uint8_t adress, uint16_t command){
     RESET_MODE;
 
     /* Wait until the writing operation is done */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
 }
 
 /* Write a 16 bit data in the ram of the codec */
@@ -68,7 +68,7 @@ void writeRam32(uint16_t adress, uint32_t data){
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
     /* Wait until it's possible to read from SCI */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
 
     COMMAND_MODE;
 
@@ -104,7 +104,7 @@ void sendData(const uint8_t * data, int size){
     int i;
 
     /* Wait until it's possible to send data */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
 
     DATA_MODE;
 
@@ -132,7 +132,7 @@ void codecReset(void){
     /* Software reset of the codec */
     writeRegister(SCI_MODE,0x4);
     /* Wait until reset is complete */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
 
     /* Load the patch of the codec */
     loadPatch();
