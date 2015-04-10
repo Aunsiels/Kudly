@@ -40,7 +40,7 @@ static uint8_t registerContent[4];
 /* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
     /* Wait until it's possible to write in registers */
-    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0) & (SPID4.state != 2));
+    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
     
     COMMAND_MODE;
     
@@ -52,11 +52,6 @@ static void writeRegister(uint8_t adress, uint16_t command){
     spiSend(&SPID4,sizeof(instruction),instruction);
     
     RESET_MODE;
-
-    /* Wait until Dreq may be checked */
-    chThdSleepMilliseconds(1);
-    /* Wait until the writing operation is done */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 }
 
 /* Write a 16 bit data in the ram of the codec */
@@ -75,7 +70,7 @@ void writeRam32(uint16_t adress, uint32_t data){
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
     /* Wait until it's possible to read from SCI */
-    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0) & (SPID4.state != 2));
+    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 
     COMMAND_MODE;
 
@@ -112,7 +107,7 @@ void sendData(const uint8_t * data, int size){
     int i;
 
     /* Wait until it's possible to send data */
-    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0) & (SPID4.state != 2));
+    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 
     DATA_MODE;
 
@@ -154,7 +149,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,VOL_MONO<<8| VOL_MONO);
+    writeRegister(SCI_VOL,0x0);
 
     writeSerial("SPI state : %x\r\n",SPID4.state);
 }
@@ -271,11 +266,11 @@ static msg_t threadEncode(void *arg){
     
     while(1){
 	chEvtWaitOne(1);
-	writeRegister(SCI_VOL,0x0707);
+	writeRegister(SCI_VOL,0x0);
 	/* Set the samplerate at 16kHz */
 	writeRegister(SCI_AICTRL0,16000);
-	/* Gain = 2 */
-	writeRegister(SCI_AICTRL1,2048);
+	/* Gain = 4 */
+	writeRegister(SCI_AICTRL1,0);
 	/* Maximum gain amplification at x40 */
 	writeRegister(SCI_AICTRL2,40000);
 	/* Set in mono mode, and in format OGG Vorbis */
