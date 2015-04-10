@@ -12,6 +12,17 @@
 #define REC_BUFFER_SIZE 32
 #define min(a,b) (((a)<b))?(a):(b)
 
+/* Event and working area for playback and encoding threads */
+EVENTSOURCE_DECL(eventSourcePlay);
+EVENTSOURCE_DECL(eventSourceEncode);
+EVENTSOURCE_DECL(eventSourceWaitEncoding);
+EventSource eventSourcePlay;
+EventSource eventSourceEncode;
+EventSource eventSourceWaitEncoding;
+static WORKING_AREA(waEncode, 2048);
+static WORKING_AREA(waPlayback, 2048);
+static WORKING_AREA(waWaitEncoding, 128);
+
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
     NULL,
@@ -43,24 +54,19 @@ static void writeRegister(uint8_t adress, uint16_t command){
 
 /* Write a 16 bit data in the ram of the codec */
 void writeRam(uint16_t adress, uint16_t data){
-
     writeRegister(SCI_WRAMADDR,adress);
     writeRegister(SCI_WRAM,data);
-
 }
 
 /* Write a 32 bit data in the ram of the codec */
 void writeRam32(uint16_t adress, uint32_t data){
-
     writeRegister(SCI_WRAMADDR,adress);
     writeRegister(SCI_WRAM,(uint16_t) data);
     writeRegister(SCI_WRAM,(uint16_t) (data >> 16));
-
 }
 
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
-
     /* Wait until it's possible to read from SCI */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
@@ -115,10 +121,9 @@ static void loadPatch(void) {
     }
 }
 
-void codecReset(void){
 
-    /* Start of SPI bus */
-    spiAcquireBus(&SPID4);
+void codecReset(void){
+    /* Start of SPI bus */ 
     spiStart(&SPID4, &hs_spicfg);
     spiSelect(&SPID4);
 
@@ -142,19 +147,6 @@ void codecReset(void){
     writeRegister(SCI_VOL,0x2424);
 }
 
-void codecInit(){
-
-    /* Change the mode of the pins used for the codec and his SPI bus */
-    palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-
-    codecReset();
-}
-
 void codecLowPower(){
     /* Set clock settings : x1.0 to disable the PLL and save power */
     writeRegister(SCI_CLOCKF,0x0000);
@@ -170,48 +162,60 @@ static uint8_t playBuf[FILE_BUFFER_SIZE];
 static FIL readFp;
 static char * namePlayback;
 
-static WORKING_AREA(waPlayback, 2048);
 static msg_t threadPlayback(void *arg){
     (void) arg;
     
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourcePlay,&eventListener,1);
+  
     UINT bytesNumber;
     uint8_t endFillByte=0;
     int cptEndFill=0;
     int cptReset=0;
     int t;
-    /* Open a file in reading mode */
-    f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
-    /* Get the file contain and keep it in a buffer */
-    while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
+    
+    while (TRUE) {
+      chEvtWaitOne(1);
+      /* Open a file in reading mode */
+      f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
+      /* Get the file contain and keep it in a buffer */
+      while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
         /* Send the whole file to VS1063 */
         t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
         sendData(playBuf,t);
-	// XXXXXXX NEED EVENT TO CONTROL MODE
-    }
-    f_close(&readFp);
-    if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
-	writeSerial("Error transmiiting audio file\r\n");
-	return 0;
-    }
-    /* Read the extra parameters in order to obtain the endFillByte */
-    endFillByte=(uint8_t)readRam(PAR_END_FILL_BYTE);
-    /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
-    for(cptEndFill=0; cptEndFill<2052; cptEndFill++){
+	if(t != SDI_MAX_TRANSFER_SIZE)
+	  break;
+	//TODO  NEED EVENT TO CONTROL MODE
+      }
+
+      f_close(&readFp);
+
+       /* Read the extra parameters in order to obtain the endFillByte */
+      endFillByte=(uint8_t)readRam(PAR_END_FILL_BYTE);
+      /* Send the 2052 bytes of endFillByte at the end of a whole file transmission */
+      for(cptEndFill=0; cptEndFill<2052; cptEndFill++){
         sendData(&endFillByte,1);
-    }
-    /* Set SCI_MODE bit SM_CANCEL */
-    writeRegister(SCI_MODE, readRegister(SCI_MODE) | SM_CANCEL);
-    while(readRegister(SCI_MODE)&SM_CANCEL){
+      }
+      /* Set SCI_MODE bit SM_CANCEL */
+      writeRegister(SCI_MODE, readRegister(SCI_MODE) | SM_CANCEL);
+      while(readRegister(SCI_MODE)&SM_CANCEL){
         for(cptEndFill=0; cptEndFill<32; cptEndFill++)
-            sendData(&endFillByte,1);
+	  sendData(&endFillByte,1);
         cptReset++;
         /* Test if SM_CANCEL hasn't cleared after sending 2048 bytes */
         if(cptReset==63) {
-            cptReset=0;
-            codecReset();
-            break;
+	  cptReset=0;
+	  codecReset();
+	  break;
         }
-    } 
+      } 
+      
+      if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
+	writeSerial("Error transmiiting audio file\r\n");
+	return 0;
+      }
+     
+    }
     return 0;
 }
 
@@ -223,93 +227,124 @@ volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
 
-static WORKING_AREA(waWaitRecording, 128);
 static msg_t waitRecording(void *arg){
     (void) arg;
-
-    /* Collect the data in HDAT0/1 */
-    chThdSleepMilliseconds(duration*1000);
-
-    /* Stop the acquisition */
-    stopRecord = 1;  
-    /* TODO writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); DOESN'T WORK, NEED TO BE FIXED */
     
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourceWaitEncoding,&eventListener,1);
+
+    while(1){
+      chEvtWaitOne(1);
+      /* Collect the data in HDAT0/1 */
+      chThdSleepMilliseconds(duration*1000);
+      
+      /* Stop the acquisition */
+      stopRecord = 1;  
+    }
     return 0;
 }
 
-static WORKING_AREA(waEncode, 2048);
 static msg_t threadEncode(void *arg){
     (void) arg;
 
-    writeRegister(SCI_VOL,0x0707);
-    /* Set the samplerate at 16kHz */
-    writeRegister(SCI_AICTRL0,16000);
-    /* Gain = 2 */
-    writeRegister(SCI_AICTRL1,2048);
-    /* Maximum gain amplification at x40 */
-    writeRegister(SCI_AICTRL2,40000);
-    /* Set in mono mode, and in format OGG Vorbis */
-    writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
-    /* Set quality mode to 5 */
-    writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourceEncode,&eventListener,1);
 
-    /* Start encoding procedure */
-    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
-    writeRegister(SCI_AIADDR,0x50);
-  
-    f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
-
-    /* TODO Event listener */
-    chThdCreateStatic(waWaitRecording, sizeof(waWaitRecording),NORMALPRIO, waitRecording,NULL);
+    /* Thread to count the duration of recording */
+    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
 
     uint16_t data;
     UINT bw;
     uint16_t endFillByte;
- 
-    while(playerState){
+    
+    while(1){
+      chEvtWaitOne(1);
+      writeRegister(SCI_VOL,0x0707);
+      /* Set the samplerate at 16kHz */
+      writeRegister(SCI_AICTRL0,16000);
+      /* Gain = 2 */
+      writeRegister(SCI_AICTRL1,2048);
+      /* Maximum gain amplification at x40 */
+      writeRegister(SCI_AICTRL2,40000);
+      /* Set in mono mode, and in format OGG Vorbis */
+      writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
+      /* Set quality mode to 5 */
+      writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+
+      /* Start encoding procedure */
+      writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+      writeRegister(SCI_AIADDR,0x50);
+  
+      f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
+
+      chSysLock();
+      chEvtBroadcastI(&eventSourceWaitEncoding);
+      chSysUnlock();   
+      
+      while(playerState){
 	int n;
 	
 	/* See if there is some data available */
 	if((n = readRegister(SCI_RECWORDS)) > 0) {
-	    int i;
-	    uint8_t *rbp = recBuf;
+	  int i;
+	  uint8_t *rbp = recBuf;
 	    
-	    n = min(n, REC_BUFFER_SIZE/2);
-	    for (i=0; i<n; i++) {
-		data = readRegister(SCI_RECDATA);
-		*rbp++ = (uint8_t)(data >> 8);
-		*rbp++ = (uint8_t)(data & 0xFF);
-	    }
-	    f_write(&encodeFp, recBuf, 2*n, &bw);
+	  n = min(n, REC_BUFFER_SIZE/2);
+	  for (i=0; i<n; i++) {
+	    data = readRegister(SCI_RECDATA);
+	    *rbp++ = (uint8_t)(data >> 8);
+	    *rbp++ = (uint8_t)(data & 0xFF);
+	  }
+	  f_write(&encodeFp, recBuf, 2*n, &bw);
 	}   	    
 	else{
-	    if(stopRecord && !readRegister(SCI_RECWORDS) /*!(readRegister(SCI_MODE) & SM_CANCEL)*/){		   
-		playerState = 0;
-	    }
+	  if(stopRecord && !readRegister(SCI_RECWORDS)){		   
+	    playerState = 0;
+	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+	  }
 	}
-    }
+      }
     
-    endFillByte = readRam(PAR_END_FILL_BYTE);
+      endFillByte = readRam(PAR_END_FILL_BYTE);
     
-    /* If it's odd lenght, endFillByte should be added */
-    if(endFillByte & (1 << 15))
+      /* If it's odd lenght, endFillByte should be added */
+      if(endFillByte & (1 << 15))
 	f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
 
-    f_close(&encodeFp);
-    writeRam(PAR_END_FILL_BYTE,0);
+      f_close(&encodeFp);
+      writeRam(PAR_END_FILL_BYTE,0);
 
-    palTogglePad(GPIOA,0);
+      palTogglePad(GPIOA,0);
 
-    /* Wait until the codec exit the encoding mode */
-    while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+      /* Wait until the codec exit the encoding mode */
+      while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
-    codecReset();
+      codecReset();
 
-    playerState = 1;
-    stopRecord = 0;
-    
+      playerState = 1;
+      stopRecord = 0;
+    }
     return 0;
 }
+
+void codecInit(){
+    /* Change the mode of the pins used for the codec and his SPI bus */
+    palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+
+    spiAcquireBus(&SPID4);
+        
+    codecReset();
+    
+    /* Create the threads to perform playback and recording (the are waiting on en eventlistener) */
+    chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
+    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
+}
+
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
@@ -320,7 +355,9 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     }
 
     namePlayback = argv[0];
-    chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
+    chSysLock();
+    chEvtBroadcastI(&eventSourcePlay);
+    chSysUnlock();   
 }
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -333,7 +370,9 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
 
     nameEncode = argv[0];
     duration  = strtol(argv[1],NULL,10);
-    chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
+    chSysLock();
+    chEvtBroadcastI(&eventSourceEncode);
+    chSysUnlock();
 }
 
 uint8_t control;
