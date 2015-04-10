@@ -22,7 +22,6 @@ static EventListener dmaEvL, frameEvL;
 
 /* Callback frame end */
 static void frameEndCb(DCMIDriver* dcmip) {
-    (void) dcmip;
     chSysLockFromIsr();
     /* 
      * As I do not know the size of the image, I stop the dma when there is the
@@ -1086,8 +1085,8 @@ void initializeJPEG (void){
         sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 352
-    for(i=0; i<(sizeof(OV2640_352x288_JPEG)/2); i++){
-        sccbWrite(OV2640_352x288_JPEG[i][0], OV2640_352x288_JPEG[i][1]);
+    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++){
+        sccbWrite(OV2640_160x288_JPEG[i][0], OV2640_160x288_JPEG[i][1]);
     }
 #endif
 }
@@ -1186,13 +1185,9 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
     chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
 
-    /* Reinitialize the dcmi because it does not return in READY mode */
-    dcmiStop(&DCMID1);
-    /* Initializes the events */
-    chEvtInit(&dmaEvS);
-    chEvtInit(&frameEvS);
-
-    dcmiStart(&DCMID1, &dcmicfg);
+    /* Unregister the listeners */
+    chEvtUnregister(&dmaEvS, &dmaEvL);
+    chEvtUnregister(&frameEvS, &frameEvL);
 
     /* Write the file */
     UINT written = 0;

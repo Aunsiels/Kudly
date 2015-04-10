@@ -169,7 +169,6 @@ void dcmiStartReceive(DCMIDriver *dcmip, size_t n, void* rxbuf0, void* rxbuf1) {
 void dcmiStartReceiveOneShot(DCMIDriver *dcmip, size_t n, void* rxbuf0, void* rxbuf1) {
    chDbgCheck((dcmip != NULL) && ( n > 0 ) && ( n < 65536 ) && (rxbuf0 != NULL),
               "dcmiStartReceiveOneShot");
-
    chSysLock();
    chDbgAssert(dcmip->state == DCMI_READY, "dcmiStartReceiveOneShot(), #1", "not ready");
    dcmiStartReceiveOneShotI(dcmip, n, rxbuf0, rxbuf1);

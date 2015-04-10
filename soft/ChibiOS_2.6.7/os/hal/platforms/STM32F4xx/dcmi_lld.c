@@ -164,7 +164,7 @@ void dcmi_lld_start(DCMIDriver *dcmip) {
   nvicEnableVector( DCMI_IRQn, 
              CORTEX_PRIORITY_MASK(STM32_DCMI_DCMI1_DCMI_IRQ_PRIORITY));
 
-  dcmip->dcmi->IER |= STM32_DCMI_IER_FRAME_IE | STM32_DCMI_IER_VSYNC_IE;
+  dcmip->dcmi->IER |= STM32_DCMI_IER_FRAME_IE;
   dcmip->dcmi->CR  |= (dcmip->config->cr & 
                       ~(STM32_DCMI_CR_CAPTURE | STM32_DCMI_CR_ENABLE));
 }
