@@ -12,17 +12,16 @@
 #define IMG_SIZE    IMG_HEIGHT*IMG_WIDTH*BPP
 
 /* The image buffer */
-uint8_t imgBuf[IMG_SIZE];
-uint8_t* imgBuf0 = imgBuf;
-//uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
+static uint8_t imgBuf[IMG_SIZE];
+static uint8_t* imgBuf0 = imgBuf;
 
 /* Source to indicate if a frame ends or dma ends */
-EventSource dmaEvS, frameEvS;
+static EventSource dmaEvS, frameEvS;
 /* The listeners linked */
-EventListener dmaEvL, frameEvL;
+static EventListener dmaEvL, frameEvL;
 
 /* Callback frame end */
-void frameEndCb(DCMIDriver* dcmip) {
+static void frameEndCb(DCMIDriver* dcmip) {
     (void) dcmip;
     chSysLockFromIsr();
     chEvtBroadcastI(&frameEvS);
@@ -30,7 +29,7 @@ void frameEndCb(DCMIDriver* dcmip) {
 }
 
 /* Callback dma tx ends */
-void dmaTxferEndCb(DCMIDriver* dcmip) {
+static void dmaTxferEndCb(DCMIDriver* dcmip) {
     (void) dcmip;
     chSysLockFromIsr();
     chEvtBroadcastI(&dmaEvS);
@@ -998,42 +997,43 @@ static const DCMIConfig dcmicfg = {
     frameEndCb, /* Callback frame */
     dmaTxferEndCb,
     /* Callaback dma */
-    //DCMI_CR_VSPOL | /* High vsync */
-    //DCMI_CR_HSPOL | /* High Hsync */
-    //DCMI_CR_JPEG  | /* JPEG mode */
     DCMI_CR_PCKPOL   /* Rising edge */
 };
 
+/*
+ * Initializes the QVGA
+ */
 void initializeQVGA(void)
 {
-  uint32_t i;
+    uint32_t i;
 
     /* Reset all registers */
     sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
     sccbWrite(COM7, COM7_SRST);
-  chThdSleepMilliseconds(200);
+    chThdSleepMilliseconds(200);
 
-  /* Initialize OV2640 */
-  for(i=0; i<(sizeof(OV2640_QVGA)/2); i++)
-  {
-    sccbWrite(OV2640_QVGA[i][0], OV2640_QVGA[i][1]);
-  }
+    /* Initialize OV2640 */
+    for(i=0; i<(sizeof(OV2640_QVGA)/2); i++){
+        sccbWrite(OV2640_QVGA[i][0], OV2640_QVGA[i][1]);
+    }
 }
 
+/*
+ * Initializes the QQVGA
+ */
 void initilizeQQVGA(void)
 {
-  uint32_t i;
+    uint32_t i;
 
     /* Reset all registers */
     sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
     sccbWrite(COM7, COM7_SRST);
-  chThdSleepMilliseconds(200);
+    chThdSleepMilliseconds(200);
 
-  /* Initialize OV2640 */
-  for(i=0; i<(sizeof(OV2640_QQVGA)/2); i++)
-  {
-    sccbWrite(OV2640_QQVGA[i][0], OV2640_QQVGA[i][1]);
-  }
+    /* Initialize OV2640 */
+    for(i=0; i<(sizeof(OV2640_QQVGA)/2); i++){
+        sccbWrite(OV2640_QQVGA[i][0], OV2640_QQVGA[i][1]);
+    }
 }
 
 /*
@@ -1048,14 +1048,12 @@ void initializeJPEG (void){
     uint32_t i;
 
     /* Initialize OV2640 */
-    for(i=0; i<(sizeof(OV2640_JPEG_INIT)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_JPEG_INIT)/2); i++){
         sccbWrite(OV2640_JPEG_INIT[i][0], OV2640_JPEG_INIT[i][1]);
     }
 
     /* Set to output YUV422 */
-    for(i=0; i<(sizeof(OV2640_YUV422)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_YUV422)/2); i++){
         sccbWrite(OV2640_YUV422[i][0], OV2640_YUV422[i][1]);
     }
 
@@ -1063,31 +1061,27 @@ void initializeJPEG (void){
     sccbWrite(0x15, 0x00);
 
     /* Set to output JPEG */
-    for(i=0; i<(sizeof(OV2640_JPEG)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_JPEG)/2); i++){
         sccbWrite(OV2640_JPEG[i][0], OV2640_JPEG[i][1]);
     }
 
     chThdSleepMilliseconds(100);
 
+    /* Define the size */
 #if IMG_HEIGHT == 160
-    for(i=0; i<(sizeof(OV2640_160x120_JPEG)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_160x120_JPEG)/2); i++){
         sccbWrite(OV2640_160x120_JPEG[i][0], OV2640_160x120_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 176
-    for(i=0; i<(sizeof(OV2640_176x144_JPEG)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_176x144_JPEG)/2); i++){
         sccbWrite(OV2640_176x144_JPEG[i][0], OV2640_176x144_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 320
-    for(i=0; i<(sizeof(OV2640_320x240_JPEG)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_320x240_JPEG)/2); i++){
         sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 352
-    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++)
-    {
+    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++){
         sccbWrite(OV2640_160x288_JPEG[i][0], OV2640_160x288_JPEG[i][1]);
     }
 #endif
@@ -1157,7 +1151,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     }
 
     if (!sdIsReady()) {
-        chprintf(chp, "The cd card is not ready\r\n");
+        chprintf(chp, "The sd card is not ready\r\n");
         return;
     }
 
@@ -1184,10 +1178,8 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
      */
     dcmiStartReceive(&DCMID1, IMG_SIZE, imgBuf0, NULL);
     chprintf(chp, "Wait for event\n\r");
-    //chEvtWaitOne(EVENT_MASK(1));
-    //chprintf(chp, "Got first DMA interrupt\n\r");
     chEvtWaitAll(EVENT_MASK(1) | EVENT_MASK(2));
-    chprintf(chp, "Got second DMA interrupt, and DCMI interrupt.\n\r");
+    chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
     
     /* Write the file */
     UINT written = 0;
@@ -1214,8 +1206,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
  *     0x10 for Brightness -1,
  *     0x00 for Brightness -2,
  */
-void cameraSetBrightness(uint8_t brightness)
-{
+void cameraSetBrightness(uint8_t brightness){
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x04);
@@ -1231,8 +1222,7 @@ void cameraSetBrightness(uint8_t brightness)
  *     0x58 for B&W negative,
  *     0x00 for Normal,
  */
-void cameraSetBW(uint8_t blackWhite)
-{
+void cameraSetBW(uint8_t blackWhite){
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, blackWhite);
@@ -1248,8 +1238,7 @@ void cameraSetBW(uint8_t blackWhite)
  *     value1 = 0x40, value2 = 0x40 for Greenish,
  *     value1 = 0x40, value2 = 0xc0 for Reddish,
  */
-void cameraSetColorEffect(uint8_t value1, uint8_t value2)
-{
+void cameraSetColorEffect(uint8_t value1, uint8_t value2){
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x18);
@@ -1266,8 +1255,7 @@ void cameraSetColorEffect(uint8_t value1, uint8_t value2)
  *     value1 = 0x1c, value2 = 0x2a for Contrast -1,
  *     value1 = 0x18, value2 = 0x34 for Contrast -2,
  */
-void cameraSetContrast(uint8_t value1, uint8_t value2)
-{
+void cameraSetContrast(uint8_t value1, uint8_t value2){
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x04);
