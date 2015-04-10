@@ -33,20 +33,6 @@ static const SPIConfig hs_spicfg = {
     (1 << 4) | (1 << 3)
 };
 
-/* Callback function a rising edge of DREQ */
-static void extDreq(EXTDriver * extp, expchannel_t channel){
-    (void) extp;
-    (void) channel;
-    chSysLockFromIsr();
-    chEvtBroadcastI(&eventSourceDreq);
-    chSysUnlockFromIsr();
-}
-
-/* Codec DREQ interrupt configuration */
-static EXTChannelConfig config[] = {{EXT_CH_MODE_RISING_EDGE | EXT_CH_MODE_AUTOSTART  | EXT_MODE_GPIOE, extDreq}};
-
-
-
 /* Buffer used for construcion of read and write command instructions */
 static uint8_t instruction[4];
 static uint8_t registerContent[4];
@@ -65,7 +51,9 @@ static void writeRegister(uint8_t adress, uint16_t command){
     RESET_MODE;
 
     /* Wait until the writing operation is done */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+      chThdSleepMilliseconds(1);
+    }
 }
 
 /* Write a 16 bit data in the ram of the codec */
@@ -84,7 +72,9 @@ void writeRam32(uint16_t adress, uint32_t data){
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
     /* Wait until it's possible to read from SCI */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+      chThdSleepMilliseconds(1);
+    }
 
     COMMAND_MODE;
 
@@ -148,7 +138,9 @@ void codecReset(void){
     /* Software reset of the codec */
     writeRegister(SCI_MODE,0x4);
     /* Wait until reset is complete */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+      chThdSleepMilliseconds(1);
+    }
 
     /* Load the patch of the codec */
     loadPatch();
@@ -347,19 +339,13 @@ void codecInit(){
     /* Change the mode of the pins used for the codec and his SPI bus */
     palSetPadMode(GPIOE,GPIOE_SPI4_XDCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_XCS,PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-    palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLDOWN | PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode(GPIOE,GPIOE_CODEC_DREQ,PAL_MODE_INPUT_PULLUP | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-    /* Active interrupt on Dreq pin */
-    chSysLock();
-    extSetChannelModeI(&EXTD1,14, config);
-    chSysUnlock();
-
+    
     spiAcquireBus(&SPID4);
 
-    chEvtRegisterMask(&eventSourceDreq,&eventListenerDreq,2);
-    
     codecReset();
     
     /* Create the threads to perform playback and recording (the are waiting on en eventlistener) */
