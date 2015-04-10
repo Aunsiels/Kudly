@@ -22,4 +22,6 @@ void usartRead(void);
 void cmdWifiStream(BaseSequentialStream * chp, int argc, char * argv[]);
 
 void saveWebPage( char * address , char * file);
+
+void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]);
 #endif
