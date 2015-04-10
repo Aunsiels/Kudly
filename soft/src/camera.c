@@ -24,6 +24,11 @@ static EventListener dmaEvL, frameEvL;
 static void frameEndCb(DCMIDriver* dcmip) {
     (void) dcmip;
     chSysLockFromIsr();
+    /* 
+     * As I do not know the size of the image, I stop the dma when there is the
+     * end of the frame
+     */
+    dmaStreamDisable(dcmip->dmarx);
     chEvtBroadcastI(&frameEvS);
     chSysUnlockFromIsr();
 }
@@ -1176,11 +1181,18 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
      * limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
      * i.e. IMG_SIZE cannot be larger than 65535 here.
      */
-    dcmiStartReceive(&DCMID1, IMG_SIZE, imgBuf0, NULL);
+    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE, imgBuf0, NULL);
     chprintf(chp, "Wait for event\n\r");
-    chEvtWaitAll(EVENT_MASK(1) | EVENT_MASK(2));
+    chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
     chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
-    
+
+    dcmiStop(&DCMID1);
+    /* Initializes the events */
+    chEvtInit(&dmaEvS);
+    chEvtInit(&frameEvS);
+
+    dcmiStart(&DCMID1, &dcmicfg);
+
     /* Write the file */
     UINT written = 0;
     f_write(&fil, (char *) imgBuf, sizeof(imgBuf), &written);
