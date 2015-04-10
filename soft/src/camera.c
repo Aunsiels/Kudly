@@ -6,7 +6,9 @@
 #include "sccb.h"
 #include "ov2640_regs.h"
 
-#define IMG_HEIGHT  160
+#define JPEG_SIZE   3
+
+#define IMG_HEIGHT  200
 #define IMG_WIDTH   120
 #define BPP         1       /* bytes per pixel */
 #define IMG_SIZE    IMG_HEIGHT*IMG_WIDTH*BPP
@@ -14,6 +16,7 @@
 /* The image buffer */
 static uint8_t imgBuf[IMG_SIZE];
 static uint8_t* imgBuf0 = imgBuf;
+static uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
 /* Source to indicate if a frame ends or dma ends */
 static EventSource dmaEvS, frameEvS;
@@ -1072,21 +1075,21 @@ void initializeJPEG (void){
     chThdSleepMilliseconds(100);
 
     /* Define the size */
-#if IMG_HEIGHT == 160
+#if JPEG_SIZE == 0
     for(i=0; i<(sizeof(OV2640_160x120_JPEG)/2); i++){
         sccbWrite(OV2640_160x120_JPEG[i][0], OV2640_160x120_JPEG[i][1]);
     }
-#elif IMG_HEIGHT == 176
+#elif JPEG_SIZE == 1
     for(i=0; i<(sizeof(OV2640_176x144_JPEG)/2); i++){
         sccbWrite(OV2640_176x144_JPEG[i][0], OV2640_176x144_JPEG[i][1]);
     }
-#elif IMG_HEIGHT == 320
+#elif JPEG_SIZE == 2
     for(i=0; i<(sizeof(OV2640_320x240_JPEG)/2); i++){
         sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
     }
-#elif IMG_HEIGHT == 352
-    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++){
-        sccbWrite(OV2640_160x288_JPEG[i][0], OV2640_160x288_JPEG[i][1]);
+#elif JPEG_SIZE == 3
+    for(i=0; i<(sizeof(OV2640_352x288_JPEG)/2); i++){
+        sccbWrite(OV2640_352x288_JPEG[i][0], OV2640_352x288_JPEG[i][1]);
     }
 #endif
 }
@@ -1180,23 +1183,38 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
      * limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
      * i.e. IMG_SIZE cannot be larger than 65535 here.
      */
-    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE, imgBuf0, NULL);
-    chprintf(chp, "Wait for event\n\r");
-    chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
-    chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
+    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE/2, imgBuf0, imgBuf1);
+
+    eventmask_t currentEv;
+    int currentBuf = 0;
+
+    /* Receive all datas*/
+    do {
+        chprintf(chp, "Wait for event\n\r");
+        currentEv = chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
+        chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
+
+        /* Write the file */
+        UINT written = 0;
+        /* Write in the right buffer */
+        if (currentBuf)
+            f_write(&fil, (char *) imgBuf1, sizeof(imgBuf)/2, &written);
+        else
+            f_write(&fil, (char *) imgBuf0, sizeof(imgBuf)/2, &written);
+        /* Change buffer */
+        currentBuf = !currentBuf;
+        if (written != sizeof(imgBuf)/2) {
+            f_unlink(argv[0]);
+            chprintf(chp, "Problem while writting\r\n");
+            dmaStreamDisable(DCMID1.dmarx);
+            return;
+        }
+
+    } while (currentEv == EVENT_MASK(1));
 
     /* Unregister the listeners */
     chEvtUnregister(&dmaEvS, &dmaEvL);
     chEvtUnregister(&frameEvS, &frameEvL);
-
-    /* Write the file */
-    UINT written = 0;
-    f_write(&fil, (char *) imgBuf, sizeof(imgBuf), &written);
-    if (written != sizeof(imgBuf)) {
-        f_unlink(argv[0]);
-        chprintf(chp, "Problem while writting\r\n");
-        return;
-    }
 
     res = f_close(&fil);
     if (res) {

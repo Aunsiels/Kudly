@@ -121,6 +121,8 @@ void dcmi_lld_init(void) {
                     STM32_DMA_CR_PL(STM32_DCMI_DCMI1_DMA_PRIORITY) |
                     STM32_DMA_CR_DIR_P2M |
                     STM32_DMA_CR_TCIE |
+                    /* half transmission */
+                    STM32_DMA_CR_HTIE |
                     STM32_DMA_CR_DMEIE |
                     STM32_DMA_CR_TEIE |
                     STM32_DMA_CR_PBURST_SINGLE |
