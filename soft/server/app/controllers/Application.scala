@@ -56,17 +56,19 @@ object Application extends Controller {
      * Echo actor for websocket
      */
     object echoWSActor {
-        def props(out: ActorRef) = Props(new MyWebSocketActor(out))
+        def props(out: ActorRef) = Props(new echoWSActor(out))
     }
 
-    class MyWebSocketActor(out: ActorRef) extends Actor {
+    /* echo actor */
+    class echoWSActor(out: ActorRef) extends Actor {
         def receive = {
             case msg: String =>
-                      out ! ("I received your message: " + msg)
+                      out ! (msg)
         }
     }
 
-    def socket = WebSocket.acceptWithActor[String, String] { request => out =>
-        MyWebSocketActor.props(out)
+    /* echo websocket */
+    def echo = WebSocket.acceptWithActor[String, String] { request => out =>
+        echoWSActor.props(out)
     }
 }
