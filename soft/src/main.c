@@ -5,6 +5,7 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 #include "codec.h"
+#include "ext_init.h"
 
 int main(void) {
 
@@ -19,6 +20,8 @@ int main(void) {
 
     sdPersoInit();
 
+    extPersoInit();
+    
     palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
