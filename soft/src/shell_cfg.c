@@ -12,6 +12,7 @@
 #include "hug_sensors.h"
 #include "hand_sensors.h"
 #include "codec.h"
+#include "camera.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -32,6 +33,7 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
+    {"camera"      , cmdCamera     },
     {"sccbwrite"   , cmdWrite      },
     {"sccbread"    , cmdRead       },
     {"testSD"      , testSd        },
