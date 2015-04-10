@@ -39,17 +39,27 @@ static uint8_t registerContent[4];
 
 /* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
-    COMMAND_MODE;
+  /* Wait until it's possible to write in registers */
+  while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+    chThdSleepMilliseconds(1);
+  }
+  
+  COMMAND_MODE;
 
     /* Construction of instruction (Write opcode, adress, command) */
     instruction[0] = 0x02;
     instruction[1] = adress;
     instruction[2] = (command >> 8);
     instruction[3] = command;
+    while(SPID4.state != 2){
+      chThdSleepMilliseconds(10);
+    }
     spiSend(&SPID4,sizeof(instruction),instruction);
-
+    
     RESET_MODE;
 
+    /* Wait until Dreq may be checked */
+    chThdSleepMilliseconds(1);
     /* Wait until the writing operation is done */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
       chThdSleepMilliseconds(1);
@@ -81,10 +91,13 @@ static uint16_t readRegister(uint8_t adress){
     /* Construction of instruction (Read opcode, adress) */
     instruction[0] = 0x03;
     instruction[1] = adress;
+    while(SPID4.state != 2){
+      chThdSleepMilliseconds(10);
+    }
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-
+    
     RESET_MODE;
-
+    
     /* Return only the 2 last bytes (data from the register) */
     return ((registerContent[2]<<8) + registerContent[3]);
 }
@@ -110,12 +123,17 @@ void sendData(const uint8_t * data, int size){
     int i;
 
     /* Wait until it's possible to send data */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){chThdSleepMilliseconds(10);}
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
+      chThdSleepMilliseconds(1);
+    }
 
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++)
-        spiSend(&SPID4,1,data++);
+      while(SPID4.state != 2){
+	chThdSleepMilliseconds(10);
+      }
+    spiSend(&SPID4,1,data++);
 
     RESET_MODE;
 }
@@ -153,6 +171,8 @@ void codecReset(void){
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
     writeRegister(SCI_VOL,0x2424);
+
+    writeSerial("SPI state : %x\r\n",SPID4.state);
 }
 
 void codecLowPower(){
