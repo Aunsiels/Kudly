@@ -8,14 +8,22 @@ import java.io.File
 import java.io.FileInputStream
 import play.api.libs.iteratee._
 import scala.concurrent.ExecutionContext.Implicits.global
-
+import play.api.mvc._
+import play.api.Play.current
+import akka.actor._
 
 object Application extends Controller {
 
+    /*
+     * Welcome page
+     */
     def index = Action {
         Ok("Welcome page")
     }
   
+    /*
+     * Connexion fake through url
+     */
     def connexion(pseudo : String, password : String) = Action {
          if (pseudo == "kudly" && password == "kudly"){
              Ok("The connexion succeeded")
@@ -31,6 +39,9 @@ object Application extends Controller {
         Ok("<led>\n<pwm_set n=\"1\" r=\"255\" g=\"125\" b=\"3\"/>\n</led>")
     }
 
+    /*
+     * Stream an audio file throught a GET request
+     */
     def stream = Action {
         val file = new File("public/0233.ogg")
         val data = new FileInputStream(file)
@@ -39,5 +50,23 @@ object Application extends Controller {
         Ok.chunked(dataContent).
             withHeaders( (CONTENT_TYPE, "audio/ogg"),
                          (CACHE_CONTROL, "no-cache"))
+    }
+
+    /*
+     * Echo actor for websocket
+     */
+    object echoWSActor {
+        def props(out: ActorRef) = Props(new MyWebSocketActor(out))
+    }
+
+    class MyWebSocketActor(out: ActorRef) extends Actor {
+        def receive = {
+            case msg: String =>
+                      out ! ("I received your message: " + msg)
+        }
+    }
+
+    def socket = WebSocket.acceptWithActor[String, String] { request => out =>
+        MyWebSocketActor.props(out)
     }
 }
