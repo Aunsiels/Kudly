@@ -16,6 +16,12 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
+    /* Read wifi by usart */
+    usartRead();
+
+    /* Init Wifi */
+    wifiInitByUsart();
+
     /* Initialize shell */
     shellPersoInit();
 
@@ -50,12 +56,6 @@ int main(void) {
 
     /* Init sccb */
     sccbInit();
-
-    /* Read wifi by usart */
-    usartRead();
-
-    /* Init Wifi */
-    wifiInitByUsart();
 
     chThdSleepMilliseconds(10000);
     //saveWebPage( "bla", "wifi.txt");

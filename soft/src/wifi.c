@@ -29,7 +29,7 @@ static char dollar[] = "\n\r$$$\n\r";
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
-static char saveReboot[] = "save\n\rreboot\n\r";
+//static char saveReboot[] = "save\n\rreboot\n\r";
 static char gpio0[] = "gdi 0 none\r\ngdi 0 ipu\r\n";
 
 /* http request on Kudly website */
@@ -97,14 +97,8 @@ void wifiInitByUsart(void) {
     wifiReadByUsart();
 
     /*
-     * Wifi config
+     * Wifi config - switching to command mode
      */
-    chThdSleepMilliseconds(1000);
-    writeSerial("dollar\n\r");
-    wifiWriteByUsart(dollar, sizeof(dollar));
-    wifiWriteByUsart(dollar, sizeof(dollar));
-    wifiWriteByUsart(dollar, sizeof(dollar));
-    wifiWriteByUsart(dollar, sizeof(dollar));
     wifiWriteByUsart(dollar, sizeof(dollar));
 
     writeSerial("cfg\n\r");
@@ -120,14 +114,11 @@ void wifiInitByUsart(void) {
     /*
      * Saving, rebooting & set to command mode
      */
-    writeSerial("reboot\n\r");
     chThdSleepMilliseconds(3000);
     writeSerial("booted\n\r");
-    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
-    chThdSleepMilliseconds(2000);
-    wifiWriteByUsart(dollar, sizeof(dollar));
     wifiWriteByUsart(nup, sizeof(nup));
 
+    wifiWriteByUsart(dollar, sizeof(dollar));
 
     /*
      * Stream thread init, starts when launching cmdWifiStream();
