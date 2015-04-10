@@ -94,7 +94,7 @@ CSRC = $(PORTSRC) \
        $(LWSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       $(KUDLYSRC)/led.c codec.c usb_serial.c shell_cfg.c sd_perso.c pir.c main.c \
+       $(KUDLYSRC)/led.c codec.c usb_serial.c shell_cfg.c sd_perso.c  main.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c
 

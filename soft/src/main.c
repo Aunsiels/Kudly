@@ -18,7 +18,7 @@ int main(void) {
     shellPersoInit();
 
     sdPersoInit();
-
+    
     palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
