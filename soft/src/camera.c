@@ -1145,8 +1145,8 @@ void cameraInit() {
  */
 void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
-    if (argc > 0){
-        chprintf(chp, "Usage : dcmi\r\n");
+    if (argc != 1){
+        chprintf(chp, "Usage : camera filename\r\n");
         return;
     }
 
@@ -1164,7 +1164,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     FIL fil;
     FRESULT res;
 
-    res = f_open(&fil, "test.jpg", FA_WRITE | FA_OPEN_ALWAYS);
+    res = f_open(&fil, argv[0], FA_WRITE | FA_OPEN_ALWAYS);
     if(res) {
         chprintf(chp, "Problem while creating the file\r\n");
         return;
@@ -1186,6 +1186,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
     chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
 
+    /* Reinitialize the dcmi because it does not return in READY mode */
     dcmiStop(&DCMID1);
     /* Initializes the events */
     chEvtInit(&dmaEvS);
@@ -1197,14 +1198,14 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     UINT written = 0;
     f_write(&fil, (char *) imgBuf, sizeof(imgBuf), &written);
     if (written != sizeof(imgBuf)) {
-        f_unlink("test.jpg");
+        f_unlink(argv[0]);
         chprintf(chp, "Problem while writting\r\n");
         return;
     }
 
     res = f_close(&fil);
     if (res) {
-        f_unlink("test.jpg");
+        f_unlink(argv[0]);
         chprintf(chp, "Problem while closing the file\r\n");
         return;
     }
