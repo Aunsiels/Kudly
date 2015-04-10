@@ -15,6 +15,7 @@ IDLE,
     };
 
 static EVENTSOURCE_DECL(srcEndOfData);
+static EVENTSOURCE_DECL(wifiStreamEvtSrc);
 
 //static FIL fil;
 //static UINT* bw;
@@ -23,6 +24,18 @@ static int writeInFile =0;
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 500\r\n";
 static char stream_close[] = "stream_close all\r\n";
+
+/*
+static char streamMode[] = "set bus.mode stream\n\r";
+static char tcpAuto[] = "set tcp.client.auto_start 1\n\r";
+static char tcpCli[] = "set tcp.client.remote_host 137.194.43.247\n\r";
+static char tcpPort[] = "set tcp.client.remote_port 6789\n\r";
+static char saveReboot[] = "save\n\rreboot\n\r";
+*/
+static char streamMode[] = "exit\n\r";
+static char commandMode[] = "$$$\n\r";
+
+static char testHello[] = "Salut ! Ça va bien ?\r\n";
 
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
@@ -43,65 +56,65 @@ static msg_t usartRead_thd(void * arg){
              * Parsing headers & data
              */
             switch(wifiReadState) {
-	    case IDLE:
-		//Message beginning
-		if(c == 'R' || c == 'L' || c == 'S') {
-		    wifiReadState = RECEIVE_HEADER;
-		    rcvType = c;
-		    h = 0;
-		}
-		break;
-	    case RECEIVE_HEADER:
-		switch(h) {
-		case 0: // Error code
-		    errCode = (int)(c - 48);
-		    (void)errCode;
-		    break;
-		case 1: case 2: case 3: case 4: // Receiving header
-		    header[h-1] = c;
-		    break;
-		case 5: // Last header character
-		    header[h-1] = c;
-		    headerSize = strtol(header, (char **)NULL, 10);
-		    dataCpt = 0;
-		    break;
-		case 7: // After receiving \n\r
-		    if(rcvType == 'R') {
-			wifiReadState = RECEIVE_RESPONSE;
-		    } else {
-			wifiReadState = RECEIVE_LOG;
-		    }
-		    break;
-		}
-		
-		h++;
-		break;
-	    case RECEIVE_RESPONSE:
-		if(writeInFile){
-//		    static FRESULT res;
-		    //res = f_write(&fil,&c,1,bw);
-		    writeSerial("Data %c\r\n", c);
-		    // if (*bw != 1)
-		    //	writeSerial("Error: write 0 byte\r\n");
-		    //if (res)
-		    //	writeSerial("Cannot write one byte on file\r\n");
-		}
-		dataCpt++;
-		writeSerial("Data %c\r\n", c);
-		if(dataCpt >= headerSize) {
-		    if(writeInFile){
-			chEvtBroadcast(&srcEndOfData);
-		    }
-		    wifiReadState = IDLE;
-		}
-		break;
-	    case RECEIVE_LOG:        
-		dataCpt++;
-		if(dataCpt == headerSize) {
-		    // DO SOMETHING
-		    wifiReadState = IDLE;
-		}
-		break;
+                case IDLE:
+                    //Message beginning
+                    if(c == 'R' || c == 'L' || c == 'S') {
+                        wifiReadState = RECEIVE_HEADER;
+                        rcvType = c;
+                        h = 0;
+                    }
+                    break;
+                case RECEIVE_HEADER:
+                    switch(h) {
+                        case 0: // Error code
+                            errCode = (int)(c - 48);
+                            (void)errCode;
+                            break;
+                        case 1: case 2: case 3: case 4: // Receiving header
+                            header[h-1] = c;
+                            break;
+                        case 5: // Last header character
+                            header[h-1] = c;
+                            headerSize = strtol(header, (char **)NULL, 10);
+                            dataCpt = 0;
+                            break;
+                        case 7: // After receiving \n\r
+                            if(rcvType == 'R') {
+                                wifiReadState = RECEIVE_RESPONSE;
+                            } else {
+                                wifiReadState = RECEIVE_LOG;
+                            }
+                            break;
+                    }
+
+                    h++;
+                    break;
+                case RECEIVE_RESPONSE:
+                    if(writeInFile){
+                        //		    static FRESULT res;
+                        //res = f_write(&fil,&c,1,bw);
+                        writeSerial("Data %c\r\n", c);
+                        // if (*bw != 1)
+                        //	writeSerial("Error: write 0 byte\r\n");
+                        //if (res)
+                        //	writeSerial("Cannot write one byte on file\r\n");
+                    }
+                    dataCpt++;
+                    writeSerial("%c", c);
+                    if(dataCpt >= headerSize) {
+                        if(writeInFile){
+                            chEvtBroadcast(&srcEndOfData);
+                        }
+                        wifiReadState = IDLE;
+                    }
+                    break;
+                case RECEIVE_LOG:        
+                    dataCpt++;
+                    if(dataCpt == headerSize) {
+                        // DO SOMETHING
+                        wifiReadState = IDLE;
+                    }
+                    break;
             }
         }
     } 
@@ -137,7 +150,7 @@ void saveWebPage( char * address , char * file){
 	writeSerial("read stream\r\n");
 	//chEvtWaitAny(1);
 	//writeInFile = 0;
-      	writeSerial("broadcast received\r\n");
+    writeSerial("broadcast received\r\n");
 	wifiWriteByUsart(stream_close, sizeof(stream_close));
 	// }
 	// f_close(&fil);
@@ -145,31 +158,60 @@ void saveWebPage( char * address , char * file){
 /*
  * Streaming through socket
  */
+}
+
+/*
+ * Streaming thread, launched in wifiInit(), unlocked by wifiStream()
+ */
+static msg_t wifiStream_thd(void * args) {
+    (void)args;
+
+    static EventListener wifiStreamEvtLst;
+    chEvtRegisterMask(&wifiStreamEvtSrc, &wifiStreamEvtLst, 1);
+
+    while(1) {
+        if(chEvtWaitAny(1)) {
+            writeSerial("Switching to stream mode...");
+            wifiWriteByUsart(streamMode, sizeof(streamMode));
+
+            writeSerial("Starting streaming...\n\r");
+            for(int i = 0 ; i < 10 ; i++) {
+                wifiWriteByUsart(testHello, sizeof(testHello));
+                chThdSleepMilliseconds(500);
+            }
+            writeSerial("Switching back to command mode...");
+            wifiWriteByUsart(commandMode, sizeof(commandMode));
+        }
+    }
+
+    return 0;
+}
+
+/*
+ * Thread launcher
+ */
+void wifiStreamInit(void) {
+    static WORKING_AREA(wifiStream_wa, 128);
+
+    chThdCreateStatic(
+            wifiStream_wa, sizeof(wifiStream_wa),
+            NORMALPRIO, wifiStream_thd, NULL);
+}
+
+/*
+ * Unlock wifiStream_thd and start stream mode
+ */
+void wifiStream(void) {
+    chEvtBroadcast(&wifiStreamEvtSrc);
+}
+
+/*
+ * Command to start a stream from the shell
+ */
 void cmdWifiStream(BaseSequentialStream * chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
 
-    static char testHello[] = "Salut ! Ça va bien ?\r\n";
-
-    static char streamMode[] = "set bus.mode stream\n\r";
-    static char tcpAuto[] = "set tcp.client.auto_start 1\n\r";
-    static char tcpCli[] = "set tcp.client.remote_host 137.194.43.247\n\r";
-    static char tcpPort[] = "set tcp.client.remote_port 6789\n\r";
-    static char saveReboot[] = "save\n\rreboot\n\r";
-
-    writeSerial("Configuring to stream mode...\n\r");
-    wifiWriteByUsart(streamMode, sizeof(streamMode));
-    wifiWriteByUsart(tcpCli, sizeof(tcpCli));
-    wifiWriteByUsart(tcpPort, sizeof(tcpPort));
-    wifiWriteByUsart(tcpAuto, sizeof(tcpAuto));
-    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
-
-    chThdSleepMilliseconds(1000);
-
-    writeSerial("Starting streaming...\n\r");
-    for(int i = 0 ; i < 10 ; i++) {
-        wifiWriteByUsart(testHello, sizeof(testHello));
-        chThdSleepMilliseconds(500);
-    }
+    wifiStream();
 }

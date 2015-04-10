@@ -7,10 +7,14 @@
 #include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "wifi_manager.h"
 
 /* Mailbox for received data */
 static msg_t mb_buf[32];
 MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
+
+/* Beginning of response */
+extern EventSource beginningResponseSrc;
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -21,12 +25,11 @@ static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
 static char streamMode[] = "set bus.mode stream\n\r";
-static char saveReboot[] = "save\n\rreboot\n\r";
-static char dollar[] = "\n\r$$$";
+static char dollar[] = "\n\r$$$\n\r";
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
-static char save[] = "save\r\n";
 static char nup[] = "nup\r\n";
+static char saveReboot[] = "save\n\rreboot\n\r";
 static char gpio0[] = "gdi 0 none\r\ngdi 0 ipu\r\n";
 
 /* http request on Kudly website */
@@ -83,7 +86,7 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 
 /* Initialization of wifi network */
 void wifiInitByUsart(void) {
-  
+
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
@@ -91,27 +94,43 @@ void wifiInitByUsart(void) {
 
     sdStart(&SD3, &uartCfg);
 
-    wifiWriteByUsart(streamMode, sizeof(streamMode));
-    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
+    wifiReadByUsart();
 
-    chThdSleepMilliseconds(2000);
-
+    /*
+     * Wifi config
+     */
+    chThdSleepMilliseconds(1000);
+    writeSerial("dollar\n\r");
+    wifiWriteByUsart(dollar, sizeof(dollar));
+    wifiWriteByUsart(dollar, sizeof(dollar));
+    wifiWriteByUsart(dollar, sizeof(dollar));
+    wifiWriteByUsart(dollar, sizeof(dollar));
     wifiWriteByUsart(dollar, sizeof(dollar));
 
+    writeSerial("cfg\n\r");
     wifiWriteByUsart(gpio0, sizeof(gpio0));
-
+    wifiWriteByUsart(streamMode, sizeof(streamMode));
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
-    wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(nup, sizeof(nup));
 
     /*
-     * Configuring wifi module in machine friendly command mode
-     * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
+     * Saving, rebooting & set to command mode
      */
-    wifiReadByUsart();
+    writeSerial("reboot\n\r");
+    chThdSleepMilliseconds(3000);
+    writeSerial("booted\n\r");
+    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
+    chThdSleepMilliseconds(2000);
+    wifiWriteByUsart(dollar, sizeof(dollar));
+    wifiWriteByUsart(nup, sizeof(nup));
+
+
+    /*
+     * Stream thread init, starts when launching cmdWifiStream();
+     */
+    wifiStream();
 }
