@@ -28,8 +28,12 @@ int main(void) {
     /* Led initialization */
     ledInit();
 
-    chThdSleepMilliseconds(100);
-    palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
+    
+    /* Init sccb */
+    sccbInit();
+
+    /* DCMI init */
+    cameraInit();
 
     /* Initialize wifi */
     wifiInitByUsart();
@@ -46,12 +50,6 @@ int main(void) {
 
     /* Init codec */
     codecInit();
-    
-    /* Init sccb */
-    sccbInit();
-
-    /* DCMI init */
-    cameraInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
