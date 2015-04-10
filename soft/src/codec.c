@@ -130,7 +130,7 @@ void codecReset(void){
     RESET_MODE;
 
     /* Software reset of the codec */
-    writeRegister(SCI_MODE,0x4);
+    writeRegister(SCI_MODE,SM_RESET);
     /* Wait until reset is complete */
     while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
@@ -138,9 +138,9 @@ void codecReset(void){
     loadPatch();
 
     /* Use native SPI modes and use both XDCS ans XCS for chip select */
-    writeRegister(SCI_MODE,0x800);
+    writeRegister(SCI_MODE,SM_SDINEW);
     /* Set Clock settings : x4.5 multiplier (+ x1 when needed, to encode in Ogg Vorbis)  */
-    writeRegister(SCI_CLOCKF,0xC800);
+    writeRegister(SCI_CLOCKF,SC_MULT_53_45X|SC_ADD_53_10X);
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
