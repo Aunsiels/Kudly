@@ -14,6 +14,7 @@
 #define _WIFI_H_
 
 extern Mailbox mbReceiveWifi;
+void externBroadcast(void);
 /**
  *
  * \brief Initializes the wifi communication
