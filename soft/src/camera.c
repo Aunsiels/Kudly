@@ -8,7 +8,7 @@
 
 #define JPEG_SIZE   3
 
-#define IMG_HEIGHT  160
+#define IMG_HEIGHT  200
 #define IMG_WIDTH   120
 #define BPP         1       /* bytes per pixel */
 #define IMG_SIZE    IMG_HEIGHT*IMG_WIDTH*BPP
@@ -1206,6 +1206,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
         if (written != sizeof(imgBuf)/2) {
             f_unlink(argv[0]);
             chprintf(chp, "Problem while writting\r\n");
+            dmaStreamDisable(DCMID1.dmarx);
             return;
         }
 
