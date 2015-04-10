@@ -154,7 +154,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,0x2424);
+    writeRegister(SCI_VOL,VOL_MONO<<8| VOL_MONO);
 
     writeSerial("SPI state : %x\r\n",SPID4.state);
 }
@@ -165,7 +165,7 @@ void codecLowPower(){
     /* Reduce the samplerate, the VSDSP core will just wait for an interrupt, thus saving power */
     writeRegister(SCI_AUDATA,0x0010);
     /* Set the attenuation to his maximum */
-    writeRegister(SCI_VOL,0xffff);
+    writeRegister(SCI_VOL,VOL_LOW_POWER<<8 | VOL_LOW_POWER);
     /* Stop the SPI bus */
     spiStop(&SPID4);
 }
