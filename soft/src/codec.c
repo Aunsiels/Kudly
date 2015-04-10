@@ -149,7 +149,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    writeRegister(SCI_VOL,0x0);
+    codecVolume(10);
 
     writeSerial("SPI state : %x\r\n",SPID4.state);
 }
@@ -160,7 +160,7 @@ void codecLowPower(){
     /* Reduce the samplerate, the VSDSP core will just wait for an interrupt, thus saving power */
     writeRegister(SCI_AUDATA,0x0010);
     /* Set the attenuation to his maximum */
-    writeRegister(SCI_VOL,VOL_LOW_POWER<<8 | VOL_LOW_POWER);
+    codecVolume(0);
     /* Stop the SPI bus */
     spiStop(&SPID4);
 }
@@ -266,7 +266,7 @@ static msg_t threadEncode(void *arg){
     
     while(1){
 	chEvtWaitOne(1);
-	writeRegister(SCI_VOL,0x0);
+	codecVolume(10);
 	/* Set the samplerate at 16kHz */
 	writeRegister(SCI_AICTRL0,16000);
 	/* Gain = 4 */
@@ -352,6 +352,46 @@ void codecInit(){
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
 }
 
+void codecVolume(int volume) {
+    
+    switch(volume){
+    case 0: writeRegister(SCI_VOL, 0xffff);
+        break;
+    case 1: 
+        writeRegister(SCI_VOL, 0xe1e1);
+        break;
+    case 2: 
+        writeRegister(SCI_VOL, 0xc8c8);
+        break;
+    case 3: 
+        writeRegister(SCI_VOL, 0xafaf);
+        break;
+    case 4: 
+        writeRegister(SCI_VOL, 0x9696);
+        break;
+    case 5: 
+        writeRegister(SCI_VOL, 0x7d7d);
+        break;
+    case 6: 
+        writeRegister(SCI_VOL, 0x6464);
+        break;
+    case 7: 
+        writeRegister(SCI_VOL, 0x4b4b);
+        break;
+    case 8: 
+        writeRegister(SCI_VOL, 0x3232);
+        break;
+    case 9: 
+        writeRegister(SCI_VOL, 0x1919);
+        break;
+    case 10: 
+        writeRegister(SCI_VOL, 0x0000);
+        break;
+    default : 
+        writeRegister(SCI_VOL, 0x7d7d);
+        break;
+    }
+}
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;

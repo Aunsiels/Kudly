@@ -68,6 +68,15 @@ uint32_t readRam32(uint16_t);
 
 /**
  *
+ * \brief Changes the output volume
+ *
+ * This function writes in the register SCI_VOL a value of a sound volume. Its argument is an int from 0 to 10, 0 for min and 10 for max  
+ */
+
+void codecVolume(int);
+
+/**
+ *
  * \brief Displays a music file
  *
  * This function follows the sending protocol wrote in the VS1063 datasheet. It is also able to send a file from the SDcard 
