@@ -1081,8 +1081,8 @@ void initializeJPEG (void){
         sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 352
-    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++){
-        sccbWrite(OV2640_160x288_JPEG[i][0], OV2640_160x288_JPEG[i][1]);
+    for(i=0; i<(sizeof(OV2640_352x288_JPEG)/2); i++){
+        sccbWrite(OV2640_352x288_JPEG[i][0], OV2640_352x288_JPEG[i][1]);
     }
 #endif
 }
