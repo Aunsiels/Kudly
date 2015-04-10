@@ -157,7 +157,6 @@ void saveWebPage( char * address , char * file){
 /*
  * Streaming through socket
  */
-}
 
 /*
  * Streaming thread, launched in wifiInit(), unlocked by wifiStream()
