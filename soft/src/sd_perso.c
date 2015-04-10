@@ -108,6 +108,11 @@ static MMCConfig mmccfg = {&SPID2, &ls_spicfg, &hs_spicfg};
 /* Generic large buffer.*/
 uint8_t fbuff[1024];
 
+/* Is the sd card ready ? */
+bool_t sdIsReady (){
+    return fs_ready;
+}
+
 /* Scans all the files */
 FRESULT scan_files(BaseSequentialStream *chp, char *path) {
     FRESULT res;
@@ -698,4 +703,33 @@ void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
 
 ERROR :
     chprintf(chp, "The SD test FAILED\r\n");
+}
+
+FRESULT writeFile(char * filename, char * buf, UINT length){
+    if (!fs_ready) {
+        return 1;
+    }
+
+    /* File object */
+    FIL fil;
+    FRESULT res;
+
+    res = f_open(&fil, filename, FA_WRITE | FA_OPEN_ALWAYS);
+    if(res) {
+        return res;
+    }
+
+    UINT written = 0;
+    f_write(&fil, buf, length, &written);
+    if (written != length) {
+        f_unlink(filename);
+        return 1;
+    }
+
+    res = f_close(&fil);
+    if (res) {
+        f_unlink(filename);
+        return res;
+    }
+    return res;
 }

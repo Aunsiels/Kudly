@@ -8,3 +8,5 @@ touch.
 SCCB  : in the terminal, you can do sccbread and sccbwrite to read and write in
 the registers of the camera
 WIFI : function wifiTest reads Kudly website and ligths LEDs with written values
+CODEC : function play playback a audio file (OGG Vorbis for example) stocked on the SD card. The only one parameter is the name of the file.
+        function encode stock a sound from the microphone in OGG Vorbis on the SD card. The first parameter is the name of the file, the second the duration (in seconds), of the recording) 

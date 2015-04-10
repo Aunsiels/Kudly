@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "usb_serial.h"
 
-#define DELAY             2000
+#define DELAY             4
 #define SCCB_UNINIT       0
 #define SCCB_READY        1
 #define SIO_C             9
@@ -14,6 +14,29 @@
 #define WRITE_ADDRESS     96
 
 static int state = 0;
+
+static BSEMAPHORE_DECL(sccb_clk, 1);
+
+static void callback_gpt4(GPTDriver *gptp){   
+    (void) gptp;
+
+    chSysLockFromIsr();
+    chBSemSignalI(&sccb_clk);
+    chSysUnlockFromIsr();
+}
+
+/* General Purpose Timer config */
+static GPTConfig gpt4cfg = {
+    1000000, /* timer clock 1MHz */
+    callback_gpt4, /* Timer callback */
+    0
+};
+
+static void sccbWait(int time){
+    gptStartOneShot(&GPTD4, time);
+    chBSemWait(&sccb_clk);
+}
+                    
 
 /*
  * Initialize the sccb
@@ -25,6 +48,10 @@ void sccbInit(){
     /* Initializes the value of the pins */
     palSetPad(GPIOC, SIO_C);
     palSetPad(GPIOC, SIO_D);
+
+    /* Init GPT */
+    gptStart(&GPTD4, &gpt4cfg);
+
     /* Ready to be used */
     state = SCCB_READY;
 }
@@ -39,19 +66,19 @@ static void sccbStartTransmission(void){
     /* A transmission begins with SIO_C and SIO_D both high and then both low */
     palSetPad(GPIOC, SIO_D);
     /* start condition setup time, min 600ns */
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     palSetPad(GPIOC, SIO_C);
     /* t high, min 600ns */
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     palClearPad(GPIOC, SIO_D);
     /* start condition hold time, min 600ns */
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     palClearPad(GPIOC, SIO_C);
     /* t low, min 1.3us */
-    chThdSleepMicroseconds(DELAY/2);
+    sccbWait(DELAY/2);
 }
 
 /*
@@ -63,15 +90,15 @@ static void sccbStopTransmission(void){
 
     /* An end is SIO_D low and then both SIO_C and SIO_D high */
     palClearPad(GPIOC, SIO_D);
-    chThdSleepMicroseconds(DELAY/2);
+    sccbWait(DELAY/2);
 
     palSetPad(GPIOC, SIO_C);
     /* Stop condition setup time */
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     palSetPad(GPIOC,SIO_D);
     /* Bus free time before new start */
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 }
 
 /*
@@ -83,22 +110,22 @@ static void sccbNA(void){
 
     /* Shows that data have been received */
     palSetPad(GPIOC, SIO_D);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY/2);
 
     /* TIC */
     palSetPad(GPIOC, SIO_C);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     /* TAC */
     palClearPad(GPIOC, SIO_C);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     /* 
      * When there is an Acknoledgement, it will be the end of the transmission
      * because we acknowledge only the there is a read answer 
      */
     palClearPad(GPIOC, SIO_D);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 }
 
 /*
@@ -115,37 +142,37 @@ static int sccbSendByte(uint8_t data){
             palSetPad(GPIOC, SIO_D);
         else
             palClearPad(GPIOC, SIO_D);
-        chThdSleepMicroseconds(DELAY/2);
+        sccbWait(DELAY/2);
         
         /* TIC */
         palSetPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY);
+        sccbWait(DELAY);
 
         /* TAC */
         palClearPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY/2);
+        sccbWait(DELAY/2);
     }
 
     palClearPad(GPIOC, SIO_D);
     /* Now we check if the camera received something */
     /* We get ready to ready what is on SIO_D */
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_INPUT);
-    chThdSleepMicroseconds(DELAY/2);
+    sccbWait(DELAY/2);
 
     /* TIC */
     palSetPad(GPIOC, SIO_C);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     /* We read the acknowledgement */
     success = 1 - palReadPad(GPIOC, SIO_D);    
 
     /* TAC */
     palClearPad(GPIOC, SIO_C);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     /* We put the output mode again */
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_OUTPUT_OPENDRAIN);
-    chThdSleepMicroseconds( DELAY);
+    sccbWait( DELAY);
 
     return success;
 }
@@ -159,16 +186,17 @@ static uint8_t sccbReadByte(void){
     
     /* Ready to read */
     palSetPadMode(GPIOC, SIO_D, PAL_MODE_INPUT);
-    chThdSleepMicroseconds(DELAY);
+    sccbWait(DELAY);
 
     uint8_t data = 0;
 
     int i;
     /* We read all the bits, beginning the MSB*/
     for(i = 0; i < 8; ++i){
+        sccbWait(DELAY/2);
         /* TIC */
         palSetPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY/2);
+        sccbWait(DELAY/2);
 
         /* Lets read */
         /* We first move the last read data */
@@ -177,9 +205,11 @@ static uint8_t sccbReadByte(void){
         if (palReadPad(GPIOC, SIO_D))
             data++;
 
+        sccbWait(DELAY/2);
+
         /* TAC */
         palClearPad(GPIOC, SIO_C);
-        chThdSleepMicroseconds(DELAY/2);
+        sccbWait(DELAY/2);
     }
 
     /* We put the output mode again */

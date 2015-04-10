@@ -17,6 +17,12 @@
 #include "ff.h"
 
 /**
+ * \brief Is the sd card ready ?
+ * \return The state of the sd card.
+ */
+bool_t sdIsReady (void);
+
+/**
  * \brief Command tree for the shell
  * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
@@ -103,5 +109,14 @@ void sdPersoInit(void);
  * reading a file, create a directory...
  * */
 void testSd(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief Write data in a file
+ * \param filename The name of the file
+ * \param buf The buffer that contains data
+ * \param length The number of data to write
+ * \return The error code
+ */
+FRESULT writeFile(char * filename, char * buf, UINT length);
 
 #endif

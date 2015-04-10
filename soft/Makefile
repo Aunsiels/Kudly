@@ -96,13 +96,18 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
        $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/camera.c \
        $(KUDLYSRC)/led.c \
        $(KUDLYSRC)/usb_serial.c \
        $(KUDLYSRC)/shell_cfg.c \
        $(KUDLYSRC)/sd_perso.c \
+       $(KUDLYSRC)/hug_sensors.c \
+       $(KUDLYSRC)/hand_sensors.c \
+       $(KUDLYSRC)/codec.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(KUDLYSRC)/sccb.c
+
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
