@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 /* Mailbox for received data */
-static msg_t mb_buf[32];
+static msg_t mb_buf[320];
 MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
 
 /* Special strings to print */
@@ -20,8 +20,8 @@ static char space[] =" ";
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char streamMode[] = "set bus.mode stream\n\r";
-static char saveReboot[] = "save\n\rreboot\n\r";
+//static char streamMode[] = "set bus.mode stream\n\r";
+//static char saveReboot[] = "save\n\rreboot\n\r";
 static char dollar[] = "\n\r$$$";
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
@@ -50,7 +50,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-//	writeSerial("%c",wifi_buffer);
+	//writeSerial("%c",wifi_buffer);
         chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
     }
     return 0;
@@ -91,8 +91,8 @@ void wifiInitByUsart(void) {
 
     sdStart(&SD3, &uartCfg);
 
-    wifiWriteByUsart(streamMode, sizeof(streamMode));
-    wifiWriteByUsart(saveReboot, sizeof(saveReboot));
+    //wifiWriteByUsart(streamMode, sizeof(streamMode));
+    //wifiWriteByUsart(saveReboot, sizeof(saveReboot));
 
     chThdSleepMilliseconds(2000);
 

@@ -20,7 +20,7 @@ int main(void) {
     shellPersoInit();
 
     /* Initialize SD card */
-    //sdPersoInit();
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();
@@ -58,8 +58,8 @@ int main(void) {
     wifiInitByUsart();
 
     chThdSleepMilliseconds(10000);
-    //saveWebPage( "bla", "wifi.txt");
-    wifiStartStreaming(NULL, 0);
+    //   saveWebPage( "bla", "wifi.txt");
+    // wifiStartStreaming(NULL, 0);
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;
