@@ -16,17 +16,11 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    /* Read wifi by usart */
-    usartRead();
-
-    /* Init Wifi */
-    wifiInitByUsart();
-
     /* Initialize shell */
     shellPersoInit();
 
     /* Initialize SD card */
-    //sdPersoInit();
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();
@@ -58,7 +52,6 @@ int main(void) {
     sccbInit();
 
     chThdSleepMilliseconds(10000);
-    //saveWebPage( "bla", "wifi.txt");
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;

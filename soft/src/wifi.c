@@ -10,11 +10,8 @@
 #include "wifi_manager.h"
 
 /* Mailbox for received data */
-static msg_t mb_buf[32];
+static msg_t mb_buf[320];
 MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
-
-/* Beginning of response */
-extern EventSource beginningResponseSrc;
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -29,7 +26,6 @@ static char dollar[] = "\n\r$$$\n\r";
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
-//static char saveReboot[] = "save\n\rreboot\n\r";
 static char gpio0[] = "gdi 0 none\r\ngdi 0 ipu\r\n";
 
 /* http request on Kudly website */
@@ -53,7 +49,6 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-//	writeSerial("%c",wifi_buffer);
         chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
     }
     return 0;

@@ -8,22 +8,21 @@
 #include "ff.h"
 
 enum wifiReadState {
-IDLE,
+    IDLE,
     RECEIVE_HEADER,
     RECEIVE_RESPONSE,
     RECEIVE_LOG
-    };
+};
 
 static EVENTSOURCE_DECL(srcEndOfData);
 static EVENTSOURCE_DECL(wifiStreamEvtSrc);
 
-//static FIL fil;
-//static UINT* bw;
+static FIL fil;
 static int writeInFile =0;
 
 static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
 static char stream_read[] = "stream_read 0 500\r\n";
-static char stream_close[] = "stream_close all\r\n";
+static char stream_close[] = "stream_close 0\r\n";
 
 /*
 static char streamMode[] = "set bus.mode stream\n\r";
@@ -40,15 +39,15 @@ static char testHello[] = "Salut ! Ça va bien ?\r\n";
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
     (void)arg;
-    static char c;
+    static msg_t c;
     static int  h;
-    static char header[5];
+    static char header[6];
     static int  headerSize;
     static int  errCode;
     static char rcvType;
     static int  dataCpt;
 
-    static enum wifiReadState wifiReadState;
+    static enum wifiReadState wifiReadState = IDLE;
 
     while(TRUE) {
         if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
@@ -56,65 +55,60 @@ static msg_t usartRead_thd(void * arg){
              * Parsing headers & data
              */
             switch(wifiReadState) {
-                case IDLE:
-                    //Message beginning
-                    if(c == 'R' || c == 'L' || c == 'S') {
-                        wifiReadState = RECEIVE_HEADER;
-                        rcvType = c;
-                        h = 0;
-                    }
-                    break;
-                case RECEIVE_HEADER:
-                    switch(h) {
-                        case 0: // Error code
-                            errCode = (int)(c - 48);
-                            (void)errCode;
-                            break;
-                        case 1: case 2: case 3: case 4: // Receiving header
-                            header[h-1] = c;
-                            break;
-                        case 5: // Last header character
-                            header[h-1] = c;
-                            headerSize = strtol(header, (char **)NULL, 10);
-                            dataCpt = 0;
-                            break;
-                        case 7: // After receiving \n\r
-                            if(rcvType == 'R') {
-                                wifiReadState = RECEIVE_RESPONSE;
-                            } else {
-                                wifiReadState = RECEIVE_LOG;
-                            }
-                            break;
-                    }
-
-                    h++;
-                    break;
-                case RECEIVE_RESPONSE:
-                    if(writeInFile){
-                        //		    static FRESULT res;
-                        //res = f_write(&fil,&c,1,bw);
-                        writeSerial("Data %c\r\n", c);
-                        // if (*bw != 1)
-                        //	writeSerial("Error: write 0 byte\r\n");
-                        //if (res)
-                        //	writeSerial("Cannot write one byte on file\r\n");
-                    }
-                    dataCpt++;
-                    writeSerial("%c", c);
-                    if(dataCpt >= headerSize) {
-                        if(writeInFile){
-                            chEvtBroadcast(&srcEndOfData);
-                        }
-                        wifiReadState = IDLE;
-                    }
-                    break;
-                case RECEIVE_LOG:        
-                    dataCpt++;
-                    if(dataCpt == headerSize) {
-                        // DO SOMETHING
-                        wifiReadState = IDLE;
-                    }
-                    break;
+	    case IDLE:
+		/* Message beginning */
+		if((char)c == 'R' || (char)c == 'L' || (char)c == 'S') {
+		    wifiReadState = RECEIVE_HEADER;
+		    rcvType = (char)c;
+		    h = 0;
+		}
+		break;
+	    case RECEIVE_HEADER:
+		switch(h) {
+		case 0: /* Error code */
+		    errCode = (int)((char)c - 48);
+		    (void)errCode;
+		    break;
+		case 1: case 2: case 3: case 4: /* Receiving header */
+		    header[h-1] = (char)c; 
+		    break;
+		case 5: /* Last header character */
+		    header[h-1] = (char)c;
+		    header[h] = '\0';
+		    int i;
+		    for(i = 0 ; i < h ; i++){
+			if(header[i] != '0')
+			    break;
+		    }
+		    headerSize = strtol(&header[i], (char **)NULL, 10);
+		    dataCpt = 0;
+		    break;
+		case 7: /* After receiving \n\r */
+		    if(rcvType == 'R') {
+			wifiReadState = RECEIVE_RESPONSE;
+		    } else {
+			wifiReadState = RECEIVE_LOG;
+		    }
+		    break;
+		}		
+		h++;
+		break;
+	    case RECEIVE_RESPONSE:
+		writeSerial("RECEIVE_RESPONSE :%c\r\n",(char)c);
+		dataCpt++;
+		if(dataCpt == headerSize) {
+		    // DO SOMETHING
+		    wifiReadState = IDLE;
+		}
+		break;
+	    case RECEIVE_LOG:
+		writeSerial("RECEIVE_LOG :%c\r\n",(char)c);
+		dataCpt++;
+		if(dataCpt == headerSize) {
+		    // DO SOMETHING
+		    wifiReadState = IDLE;
+		}
+		break;
             }
         }
     } 
@@ -135,26 +129,31 @@ void usartRead(void) {
 void saveWebPage( char * address , char * file){
     (void)address;
     (void)file;
-    static EventListener lstEndOfData;
-    //static FRESULT res;
+    //static EventListener lstEndOfData;
+    static FRESULT res;
 
-    chEvtRegisterMask(&srcEndOfData, &lstEndOfData, 1);
-//    res = f_open(&fil, file, FA_CREATE_ALWAYS | FA_WRITE);
-    //  if (res)
+    (void)res;
+    (void)fil;
+    //chEvtRegisterMask(&srcEndOfData, &lstEndOfData, 1);
+    //   res = f_open(&fil, file, FA_CREATE_ALWAYS | FA_WRITE);
+    //if (res)
 //	writeSerial("Cannot create this file %d\r\n",res);
     //  else {
 	wifiWriteByUsart(http_get, sizeof(http_get));
-	writeSerial("http request\r\n"); 
+	//writeSerial("http request\r\n"); 
+	chSysLock();
 	writeInFile = 1;
+	chSysUnlock();
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
-	writeSerial("read stream\r\n");
-	//chEvtWaitAny(1);
+	//writeSerial("read stream\r\n");
+	//chEvtWaitOne(1);
 	//writeInFile = 0;
-    writeSerial("broadcast received\r\n");
+	//writeSerial("broadcast received\r\n");
 	wifiWriteByUsart(stream_close, sizeof(stream_close));
-	// }
-	// f_close(&fil);
-    writeSerial("File closed ");
+//    }
+	//f_close(&fil);
+	//writeSerial("File closed ");
+}
 /*
  * Streaming through socket
  */
