@@ -16,11 +16,9 @@
 EVENTSOURCE_DECL(eventSourcePlay);
 EVENTSOURCE_DECL(eventSourceEncode);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
-EVENTSOURCE_DECL(eventSourceDreq);
 EventSource eventSourcePlay;
 EventSource eventSourceEncode;
 EventSource eventSourceWaitEncoding;
-EventListener eventListenerDreq;
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
@@ -30,7 +28,7 @@ static const SPIConfig hs_spicfg = {
     NULL,
     GPIOE,
     11,
-    (1 << 4) | (1 << 3)
+    SPI_CR1_BR_1 | SPI_CR1_BR_0
 };
 
 /* Buffer used for construcion of read and write command instructions */
@@ -135,9 +133,7 @@ void codecReset(void){
     /* Software reset of the codec */
     writeRegister(SCI_MODE,SM_RESET);
     /* Wait until reset is complete */
-    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0){
-	chThdSleepMilliseconds(1);
-    }
+    while(palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0);
 
     /* Load the patch of the codec */
     loadPatch();
@@ -150,8 +146,6 @@ void codecReset(void){
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
     writeRegister(SCI_VOL,0x0);
-
-    writeSerial("SPI state : %x\r\n",SPID4.state);
 }
 
 void codecLowPower(){
@@ -347,7 +341,7 @@ void codecInit(){
 
     codecReset();
     
-    /* Create the threads to perform playback and recording (the are waiting on en eventlistener) */
+    /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
 }
