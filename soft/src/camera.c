@@ -22,8 +22,12 @@ static EventListener dmaEvL, frameEvL;
 
 /* Callback frame end */
 static void frameEndCb(DCMIDriver* dcmip) {
-    (void) dcmip;
     chSysLockFromIsr();
+    /* 
+     * As I do not know the size of the image, I stop the dma when there is the
+     * end of the frame
+     */
+    dmaStreamDisable(dcmip->dmarx);
     chEvtBroadcastI(&frameEvS);
     chSysUnlockFromIsr();
 }
@@ -1081,8 +1085,8 @@ void initializeJPEG (void){
         sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
     }
 #elif IMG_HEIGHT == 352
-    for(i=0; i<(sizeof(OV2640_352x288_JPEG)/2); i++){
-        sccbWrite(OV2640_352x288_JPEG[i][0], OV2640_352x288_JPEG[i][1]);
+    for(i=0; i<(sizeof(OV2640_160x288_JPEG)/2); i++){
+        sccbWrite(OV2640_160x288_JPEG[i][0], OV2640_160x288_JPEG[i][1]);
     }
 #endif
 }
@@ -1140,8 +1144,8 @@ void cameraInit() {
  */
 void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
-    if (argc > 0){
-        chprintf(chp, "Usage : dcmi\r\n");
+    if (argc != 1){
+        chprintf(chp, "Usage : camera filename\r\n");
         return;
     }
 
@@ -1159,7 +1163,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     FIL fil;
     FRESULT res;
 
-    res = f_open(&fil, "test.jpg", FA_WRITE | FA_OPEN_ALWAYS);
+    res = f_open(&fil, argv[0], FA_WRITE | FA_OPEN_ALWAYS);
     if(res) {
         chprintf(chp, "Problem while creating the file\r\n");
         return;
@@ -1176,23 +1180,27 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
      * limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
      * i.e. IMG_SIZE cannot be larger than 65535 here.
      */
-    dcmiStartReceive(&DCMID1, IMG_SIZE, imgBuf0, NULL);
+    dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE, imgBuf0, NULL);
     chprintf(chp, "Wait for event\n\r");
-    chEvtWaitAll(EVENT_MASK(1) | EVENT_MASK(2));
+    chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
     chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
-    
+
+    /* Unregister the listeners */
+    chEvtUnregister(&dmaEvS, &dmaEvL);
+    chEvtUnregister(&frameEvS, &frameEvL);
+
     /* Write the file */
     UINT written = 0;
     f_write(&fil, (char *) imgBuf, sizeof(imgBuf), &written);
     if (written != sizeof(imgBuf)) {
-        f_unlink("test.jpg");
+        f_unlink(argv[0]);
         chprintf(chp, "Problem while writting\r\n");
         return;
     }
 
     res = f_close(&fil);
     if (res) {
-        f_unlink("test.jpg");
+        f_unlink(argv[0]);
         chprintf(chp, "Problem while closing the file\r\n");
         return;
     }
