@@ -69,6 +69,15 @@ void cmdEncode(BaseSequentialStream *, int, char *[]);
 
 /**
  *
+ * \brief Shell command for volume control 
+ *
+ * This function control volume (may be set from 0 to 10)  
+ */
+
+void cmdVolume(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
  * \brief Shell command for control of the sound during playback
  *
  * This function control volume and allow interrupt playback in a shell command  

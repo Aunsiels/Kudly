@@ -23,7 +23,10 @@ EventSource eventSourceWaitEncoding;
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
+
 volatile int volLevel = 5;
+/* Mutex used to control access of SPI bus */
+static Mutex mtx;
 
 /* Functions used to access registers and ram of the codec */
 static void writeRegister(uint8_t adress, uint16_t command);
@@ -37,7 +40,7 @@ static void sendData(const uint8_t * data, int size);
 /* Function used to load a patch in the codec (called at each software register) */
 static void loadPatch(void);
 
-/* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
+/* SPI configuration */
 static const SPIConfig hs_spicfg = {
     NULL,
     GPIOE,
@@ -65,6 +68,13 @@ static msg_t threadPlayback(void *arg){
 
     while (TRUE) {
 	chEvtWaitOne(1);
+	/* Can't playback if SPI is not ready (typicaly when encoding) */
+	if(SPID4.state != 2){
+	       writeSerial("SPI not ready\r\n");
+	       goto endPlayback;
+	}
+	/* Reset the control command */
+	control = 0;
 	/* Open a file in reading mode */
 	f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
 	/* Get the file contain and keep it in a buffer */
@@ -132,6 +142,8 @@ static msg_t threadPlayback(void *arg){
 	    return 0;
 	}
      
+    endPlayback:
+	chThdSleepMilliseconds(1);
     }
     return 0;
 }
@@ -175,7 +187,13 @@ static msg_t threadEncode(void *arg){
     uint16_t endFillByte;
     
     while(1){
+	/* Wait for the thread to be called */
 	chEvtWaitOne(1);
+	/* Can't encode if SPI is not ready (typicaly when playback) */
+	if(SPID4.state != 2){
+	       writeSerial("SPI not ready\r\n");
+	       goto endEncoding;
+	}
 	/* Set volume at maximum (for now micro is not pre-amplified) */
 	codecVolume(10);
 	/* Set the samplerate at 16kHz */
@@ -246,6 +264,8 @@ static msg_t threadEncode(void *arg){
 
 	playerState = 1;
 	stopRecord = 0;
+	endEncoding:
+	  chThdSleepMilliseconds(1);
     }
     return 0;
 }
@@ -295,7 +315,7 @@ void codecVolume(int volume) {
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
 
-    if (argc == 0) {
+    if (argc != 1) {
 	chprintf(chp, "Enter the file name after the command Play\r\n");
 	return;
     }
@@ -304,6 +324,17 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysLock();
     chEvtBroadcastI(&eventSourcePlay);
     chSysUnlock();   
+}
+
+void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+
+    if (argc != 1) {
+	chprintf(chp, "Enter the volume level after the command Volume\r\n");
+	return;
+    }
+
+    codecVolume(strtol(argv[0],NULL,10));   
 }
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -325,7 +356,7 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     
     if (argc != 1) {
-	chprintf(chp, "Enter the command (p = pause)\r\n");
+	chprintf(chp, "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
 	return;
     }
 
@@ -345,7 +376,8 @@ void codecInit(){
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     
     spiAcquireBus(&SPID4);
-
+    chMtxInit(&mtx);
+    
     codecReset();
     
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
@@ -375,7 +407,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are at middle (5 over 10) */
-    codecVolume(volLevel);
+    codecVolume(5);
 }
 
 void codecLowPower(void){
@@ -406,8 +438,10 @@ static void writeRegister(uint8_t adress, uint16_t command){
     instruction[1] = adress;
     instruction[2] = (command >> 8);
     instruction[3] = command;
+    chMtxLock(&mtx);
     spiSend(&SPID4,sizeof(instruction),instruction);
-    
+    chMtxUnlock();
+
     RESET_MODE;
 }
 
@@ -434,9 +468,10 @@ static uint16_t readRegister(uint8_t adress){
     /* Construction of instruction (Read opcode, adress) */
     instruction[0] = 0x03;
     instruction[1] = adress;
-   
+    chMtxLock(&mtx);
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-    
+    chMtxUnlock();
+
     RESET_MODE;
     
     /* Return only the 2 last bytes (data from the register) */
@@ -468,9 +503,12 @@ static void sendData(const uint8_t * data, int size){
 
     DATA_MODE;
 
-    for(i = 0 ; i < size ; i++)
+    for(i = 0 ; i < size ; i++){
+	chMtxLock(&mtx);
 	spiSend(&SPID4,1,data++);
-
+	chMtxUnlock();
+    }
+    
     RESET_MODE;
 }
 
