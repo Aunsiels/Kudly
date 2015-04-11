@@ -49,6 +49,4 @@ void wifiCommands(void);
  * \breif TCP connection
  *
  */
-void wifiStartStreaming(char * socketUrl, int port);
-
 #endif

@@ -14,9 +14,13 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
-//static char stream_read[] = "stream_read 0 5000\r\n";
+static char stream_read[] = "stream_read 0 5000\r\n";
+//static char stream_close[] ="stream_close 0\r\n";
+static char http_get[] ="http_get ";
+static char endLine[] ="\r\n";
+static char message[120];
 
-
+static bool_t print = FALSE;
 
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
@@ -29,13 +33,11 @@ static msg_t usartRead_thd(void * arg){
     static char rcvType;
     static int  dataCpt;   
     static enum wifiReadState wifiReadState = IDLE;
-
     while(TRUE) {
 	    if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
 		 /*
 		 * Parsing headers & data
 		 */
-		writeSerial("Case : %d %c\r\n",wifiReadState,(char)c);
 		switch(wifiReadState) {
 		case IDLE:
 		    /* Message beginning */
@@ -65,7 +67,6 @@ static msg_t usartRead_thd(void * arg){
 			    if(headerSize !=0)
 				wifiReadState = RECEIVE_RESPONSE;
 			    else{
-			
 				externBroadcast();
 				wifiReadState = IDLE;
 			    }
@@ -75,12 +76,11 @@ static msg_t usartRead_thd(void * arg){
 		    h++;
 		    break;
 		case RECEIVE_RESPONSE:
-		    //writeSerial("%c",(char)c);
+		    if(print)
+			writeSerial("%c",(char)c);
 		    dataCpt++;
 		    if(dataCpt == headerSize) {
 			// DO SOMETHING    
-			writeSerial("broadcast\r\n");
-			
 			externBroadcast();			
 			wifiReadState = IDLE;
 		    }
@@ -106,14 +106,23 @@ void usartRead(void) {
 
 void saveWebPage( char * address , char * file){
     (void) file;
-    (void)address;
-//    wifiWriteByUsart(address, strlen(address));
-    //  wifiWriteByUsart(stream_read, sizeof(stream_read));
+    wifiWriteByUsart(address, strlen(address));
+    print = TRUE;
+    wifiWriteByUsart(stream_read, sizeof(stream_read));
+    print = FALSE;
+    // wifiWriteByUsart(stream_close,sizeof(stream_close));
 }
 
 void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]){
     (void)chp;
     (void)argc;
     (void)argv;
-    saveWebPage("http_get kudly.herokuapp.com/pwm\r\n", "wifi.txt");
+    if (argc != 2) {
+        writeSerial( "Usage: wifiweb WebAddress SaveLocation\r\n");
+        return;
+    }
+    strcat(message ,http_get);
+    strcat(message , argv[0]);
+    strcat(message , endLine);
+    saveWebPage(message, argv[1]);
 }
