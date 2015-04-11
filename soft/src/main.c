@@ -12,12 +12,16 @@ int main(void) {
 
     halInit();
     chSysInit();
-
+    palClearPad(GPIOB, GPIOB_SPI2_MISO);
+    chThdSleepMilliseconds(100);
     /* Initialize the serial over usb */
     initUsbSerial();
 
     /* Initialize shell */
     shellPersoInit();
+
+    /* Initialize SD card */
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();
@@ -48,16 +52,11 @@ int main(void) {
     /* Init sccb */
     sccbInit();
     
-    
     /* Read wifi by usart */
     usartRead();
 
     /* Init Wifi */
     wifiInitByUsart();
-    
-    /* Initialize SD card */
-    sdPersoInit();
-
     
     chThdSleepMilliseconds(TIME_INFINITE);
 

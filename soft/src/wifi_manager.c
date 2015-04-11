@@ -18,8 +18,10 @@ static char stream_read[] = "stream_read 0 5000\r\n";
 static char stream_close[] ="stream_close 0\r\n";
 static char http_get[] ="http_get ";
 static char endLine[] ="\r\n";
-
-static bool_t print = FLASE;
+static char webpage[100];
+static bool_t print = TRUE;
+static bool_t save = FALSE;
+static bool_t mailBox = FALSE;
 
 static FIL fil;
 static FRESULT res;
@@ -34,6 +36,7 @@ static msg_t usartRead_thd(void * arg){
     static char rcvType;
     static int  dataCpt;   
     static enum wifiReadState wifiReadState = IDLE;
+    static int i =0;
     while(TRUE) {
 	    if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
 		 /*
@@ -79,12 +82,14 @@ static msg_t usartRead_thd(void * arg){
 		case RECEIVE_RESPONSE:
 		    if(print){
 			writeSerial("%c",(char)c);
-			msg_t * ptr = &c ; 
-			res= f_write (&fil, (char *)ptr,1,(void*)NULL);
-			if (res) {
-			    writeSerial( "Cannot write in file\r\n");
-			}
 		    }
+		    if(save){
+			webpage[i]=(char)c;
+			i++;
+		    }
+		    if (mailBox)
+			(void)mailBox;
+
 		    dataCpt++;
 		    if(dataCpt == headerSize) {
 			// DO SOMETHING    
@@ -113,14 +118,20 @@ void usartRead(void) {
 
 void saveWebPage( char * address , char * file){
     f_open(&fil,file,FA_WRITE | FA_CREATE_ALWAYS);
-    if (res) {
-        writeSerial( "Cannot create this file\r\n");
-    }
+    if (FR_EXIST)
+	writeSerial("This file already exist\r\n");
+    else if (res) 
+        writeSerial("Cannot create this file\r\n");
+    
     wifiWriteByUsart(address, strlen(address));
-    print = TRUE;
+    save = TRUE;
     wifiWriteByUsart(stream_read, sizeof(stream_read));
-    print = FALSE;
+    save = FALSE;
     wifiWriteByUsart(stream_close,sizeof(stream_close));
+    res = f_write (&fil,webpage,strlen(webpage),(void*)NULL);
+    if (res) {
+        writeSerial( "Cannot write in file %d\r\n",res);
+    }
     f_close(&fil);
 }
 

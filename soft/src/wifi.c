@@ -31,8 +31,7 @@ static char wifi_buffer;
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
-//static char gpio0_none[] = "gdi 0 none\r\n";
-static char gpio0_ipu[] = "gdi 0 ood\r\n";
+static char save[] = "save\r\n";
 
 /* http request on Kudly website */
 static char cfg_echoOff[] = "set system.cmd.echo off\r\n";
@@ -106,12 +105,11 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-    //   wifiWriteByUsart(gpio0_none, sizeof(gpio0_none));
-    wifiWriteByUsart(gpio0_ipu, sizeof(gpio0_ipu));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
+    wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(5000);
+    chThdSleepMilliseconds(8000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
     /*
