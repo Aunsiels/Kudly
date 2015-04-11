@@ -15,13 +15,14 @@ enum wifiReadState {
 };
 
 static char stream_read[] = "stream_read 0 5000\r\n";
-//static char stream_close[] ="stream_close 0\r\n";
+static char stream_close[] ="stream_close 0\r\n";
 static char http_get[] ="http_get ";
 static char endLine[] ="\r\n";
-static char message[120];
 
-static bool_t print = FALSE;
+static bool_t print = FLASE;
 
+static FIL fil;
+static FRESULT res;
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
     (void)arg;
@@ -76,8 +77,14 @@ static msg_t usartRead_thd(void * arg){
 		    h++;
 		    break;
 		case RECEIVE_RESPONSE:
-		    if(print)
+		    if(print){
 			writeSerial("%c",(char)c);
+			msg_t * ptr = &c ; 
+			res= f_write (&fil, (char *)ptr,1,(void*)NULL);
+			if (res) {
+			    writeSerial( "Cannot write in file\r\n");
+			}
+		    }
 		    dataCpt++;
 		    if(dataCpt == headerSize) {
 			// DO SOMETHING    
@@ -105,12 +112,16 @@ void usartRead(void) {
 }
 
 void saveWebPage( char * address , char * file){
-    (void) file;
+    f_open(&fil,file,FA_WRITE | FA_CREATE_ALWAYS);
+    if (res) {
+        writeSerial( "Cannot create this file\r\n");
+    }
     wifiWriteByUsart(address, strlen(address));
     print = TRUE;
     wifiWriteByUsart(stream_read, sizeof(stream_read));
     print = FALSE;
-    // wifiWriteByUsart(stream_close,sizeof(stream_close));
+    wifiWriteByUsart(stream_close,sizeof(stream_close));
+    f_close(&fil);
 }
 
 void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]){
@@ -121,6 +132,7 @@ void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]){
         writeSerial( "Usage: wifiweb WebAddress SaveLocation\r\n");
         return;
     }
+    static char message[120];
     strcat(message ,http_get);
     strcat(message , argv[0]);
     strcat(message , endLine);

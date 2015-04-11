@@ -31,8 +31,8 @@ static char wifi_buffer;
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
-static char gpio0_none[] = "gdi 0 none\r\n";
-static char gpio0_ipu[] = "gdi 0 ipu\r\n";
+//static char gpio0_none[] = "gdi 0 none\r\n";
+static char gpio0_ipu[] = "gdi 0 ood\r\n";
 
 /* http request on Kudly website */
 static char cfg_echoOff[] = "set system.cmd.echo off\r\n";
@@ -84,11 +84,13 @@ static void wifiReadByUsart(void) {
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
     (void)chp;
     int i;
+    static char message[120];
     for(i = 0; i < argc; i++){
-	wifiWriteByUsart(argv[i], strlen(argv[i]));
-	wifiWriteByUsart(space, sizeof(space));
+	strcat(message ,argv[i]);
+	strcat(message ,space);
     }
-    wifiWriteByUsart(crlf, sizeof(crlf));
+    strcat(message ,crlf);
+    wifiWriteByUsart(message, strlen(message));
 }
 
 /* Initialization of wifi network */
@@ -100,18 +102,18 @@ void wifiInitByUsart(void) {
 
     sdStart(&SD3, &uartCfg);
     wifiReadByUsart();
-    wifiWriteByUsart(gpio0_none, sizeof(gpio0_none));
-    wifiWriteByUsart(gpio0_ipu, sizeof(gpio0_ipu));
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
+    //   wifiWriteByUsart(gpio0_none, sizeof(gpio0_none));
+    wifiWriteByUsart(gpio0_ipu, sizeof(gpio0_ipu));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(10000);
+    chThdSleepMilliseconds(5000);
     wifiWriteByUsart(nup, sizeof(nup));
-    writeSerial("wifi ready to use");
+    writeSerial("Wifi ready to use\r\n");
     /*
      * Configuring wifi module in machine friendly command mode
      * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
