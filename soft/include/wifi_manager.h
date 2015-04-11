@@ -18,7 +18,7 @@
  * Parses header and data on usart3 channel
  */
 void usartRead(void);
-
+extern int dataSize;
 
 void cmdWifiStream(BaseSequentialStream * chp, int argc, char * argv[]);
 

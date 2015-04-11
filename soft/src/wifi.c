@@ -28,8 +28,8 @@ static char space[] =" ";
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
-static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
+static char ssid[] = "set wlan.ssid \"NUMERICABLE-9BE8\"\r\n";
+static char passkey[] = "set wlan.passkey \"A6B80C5247\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -66,13 +66,13 @@ void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length);
     //writeSerial(message);
     chEvtWaitOne(1);
+    //writeSerial("%d",dataSize);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
-
 }
 
 /*  Launches the wifi reading */
 static void wifiReadByUsart(void) {
-    static WORKING_AREA(usartReadInMB_wa, 128);
+    static WORKING_AREA(usartReadInMB_wa, 2048);
     
     chThdCreateStatic(
 	usartReadInMB_wa, sizeof(usartReadInMB_wa),
@@ -83,7 +83,7 @@ static void wifiReadByUsart(void) {
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
     (void)chp;
     int i;
-    static char message[120];
+    char message[120];
     for(i = 0; i < argc; i++){
 	strcat(message ,argv[i]);
 	strcat(message ,space);
