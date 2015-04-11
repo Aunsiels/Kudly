@@ -13,6 +13,7 @@
 #include "hand_sensors.h"
 #include "codec.h"
 #include "camera.h"
+#include "websocket.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -49,6 +50,7 @@ static const ShellCommand commands[] = {
     {"tree"        , cmdTree       },
     {"wifi"        , cmdWifi       },
     {"wifiTest"    , cmdWifiTest   },
+    {"webSocket"   , cmdWebSoc     },
     {"led"         , cmdLed        },
     {"ledtest"     , cmdLedtest    },
     {"hugsensors"  , cmdHugSensors },

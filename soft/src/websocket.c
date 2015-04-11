@@ -1,17 +1,19 @@
-#include "websocket.c"
+#include "websocket.h"
 
 #include "hal.h"
 #include "ch.h"
 #include "string.h"
+#include "chprintf.h"
+#include "wifi.h"
 
-#define ECH0_1 "http_get -o kudly.herokuapp.com/echo"
-#define ECHO_2 "had 0 Upgrade websocket"
-#define ECHO_3 "had 0 Connection Upgrade"
-#define ECHO_4 "had 0 Sec-WebSocket-Key x3JJHMbDL1EzLkh9GBhXDw=="
-#define ECHO_5 "had 0 Sec-WebSocket-Protocol chat"
-#define ECHO_6 "had 0 Sec-WebSocket-Version 13"
-#define ECHO_7 "had 0 Origin http://example.com"
-#define ECHO_8 "hre 0"
+static char ECHO_1[] = "http_get -o kudly.herokuapp.com/echo\n\r";
+static char ECHO_2[] = "had 0 Upgrade websocket\n\r";
+static char ECHO_3[] = "had 0 Connection Upgrade\n\r";
+static char ECHO_4[] = "had 0 Sec-WebSocket-Key x3JJHMbDL1EzLkh9GBhXDw==\n\r";
+static char ECHO_5[] = "had 0 Sec-WebSocket-Protocol chat\n\r";
+static char ECHO_6[] = "had 0 Sec-WebSocket-Version 13\n\r";
+static char ECHO_7[] = "had 0 Origin http://example.com\n\r";
+static char ECHO_8[] = "hre 0\n\r";
 
 /*
  * Initializes a websocket connection
@@ -59,5 +61,22 @@ void websocketEncode(char * str){
     for(i = 0; i < length; ++i){
         //send str[i]
     }
+}
+
+void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    static char streamWrite[] = "stream_write 0 5\r\n";
+    static char specialChars[] = {0x81, 0x01, 0x65};
+
+    websocketInit();
+
+    chThdSleepMilliseconds(1000);
+
+    wifiWriteByUsart(streamWrite, sizeof(streamWrite));
+    wifiWriteByUsart(specialChars, sizeof(specialChars));
+    wifiWriteByUsart("\n\r", 2);
 }
 
