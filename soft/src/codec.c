@@ -168,6 +168,7 @@ static msg_t waitRecording(void *arg){
 	chThdSleepMilliseconds(duration*1000);
       
 	/* Stop the acquisition */
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
 	stopRecord = 1;  
     }
     return 0;
@@ -241,9 +242,8 @@ static msg_t threadEncode(void *arg){
 		f_write(&encodeFp, recBuf, 2*n, &bw);
 	    }   	    
 	    else{
-		if(stopRecord && !readRegister(SCI_RECWORDS)){		   
+		if(stopRecord && !readRegister(SCI_RECWORDS)){
 		    playerState = 0;
-		    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
 		}
 	    }
 	}
