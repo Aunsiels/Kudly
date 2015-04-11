@@ -22,6 +22,7 @@ EventSource eventSourceWaitEncoding;
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
+volatile int volLevel = 5;
 
 /* SPI configuration (21MHz, CPHA=0, CPOL=0, MSb first) */
 static const SPIConfig hs_spicfg = {
@@ -145,7 +146,7 @@ void codecReset(void){
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
     /* Both left and right volumes are at middle (5 over 10) */
-    codecVolume(7);
+    codecVolume(volLevel);
 }
 
 void codecLowPower(){
@@ -162,7 +163,7 @@ void codecLowPower(){
 static uint8_t playBuf[FILE_BUFFER_SIZE];
 static FIL readFp;
 static char * namePlayback;
-volatile int controlMode;
+volatile uint8_t control;
 
 static msg_t threadPlayback(void *arg){
     (void) arg;
@@ -175,7 +176,6 @@ static msg_t threadPlayback(void *arg){
     int cptEndFill=0;
     int cptReset=0;
     int t;
-    controlMode = 0;
 
     while (TRUE) {
 	chEvtWaitOne(1);
@@ -188,13 +188,32 @@ static msg_t threadPlayback(void *arg){
 	    sendData(playBuf,t);
 	    if(t != SDI_MAX_TRANSFER_SIZE)
 		break;
-	    if (controlMode == 1){
+	    switch(control){
+	    case 'q' :
 		writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
 		break;
+	    case '+' :
+		if(volLevel == 10)
+		    break;
+		else{
+		    volLevel++;
+		    codecVolume(volLevel);
+		    break;
+		}
+	    case '-' :
+		if(volLevel == 0)
+		    break;
+		else{
+		    volLevel--;
+		    codecVolume(volLevel);
+		    break;
+		}
+		
+	    default:
+		break;
 	    }
+	    control = 0;
 	}
-
-	controlMode = 0;
 
 	f_close(&readFp);
 
@@ -279,6 +298,8 @@ static msg_t threadEncode(void *arg){
 	writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
 	/* Set quality mode to 5 */
 	writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+	/* Active the Vu Meter */
+	writeRam(PAR_PLAY_MODE,PAR_PLAY_MODE_VU_METER_ENA);
 
 	/* Start encoding procedure */
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
@@ -292,7 +313,7 @@ static msg_t threadEncode(void *arg){
       
 	while(playerState){
 	    int n;
-	
+	    int vuMeter;
 	    /* See if there is some data available */
 	    if((n = readRegister(SCI_RECWORDS)) > 0) {
 		int i;
@@ -303,6 +324,8 @@ static msg_t threadEncode(void *arg){
 		    data = readRegister(SCI_RECDATA);
 		    *rbp++ = (uint8_t)(data >> 8);
 		    *rbp++ = (uint8_t)(data & 0xFF);
+		    vuMeter = readRam(PAR_VU_METER);
+		    //writeSerial("G : %d | D : %d\r\n",vuMeter&PAR_VU_METER_LEFT_MASK,vuMeter&PAR_VU_METER_RIGHT_MASK);
 		}
 		f_write(&encodeFp, recBuf, 2*n, &bw);
 	    }   	    
@@ -424,8 +447,6 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysUnlock();
 }
 
-uint8_t control;
-
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     
@@ -433,18 +454,8 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
 	chprintf(chp, "Enter the command (p = pause)\r\n");
 	return;
     }
-    
-    controlMode = 1;
-    
+
     control = (uint8_t)argv[0][0];
-    
-    switch(control){
-    case 'p':
-	writeRam(PAR_PLAY_MODE,2);
-	break;
-    default:
-	break;
-    }
         
     return;
 }
