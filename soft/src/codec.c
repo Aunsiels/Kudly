@@ -3,6 +3,7 @@
 #include "codecDefinitions.h"
 #include "codec.h"
 #include "usb_serial.h"
+#include "led.h"
 #include "ff.h"
 #include "chprintf.h"
 #include <stdlib.h>
@@ -325,7 +326,9 @@ static msg_t threadEncode(void *arg){
 		    *rbp++ = (uint8_t)(data >> 8);
 		    *rbp++ = (uint8_t)(data & 0xFF);
 		    level = readRam(PAR_ENC_CHANNEL_MAX);
-		    writeSerial("Level : %d\r\n",level);
+		    if(level > 200){
+			ledSetColorRGB(2,level/30,0,0);
+		    }
 		    writeRam(PAR_ENC_CHANNEL_MAX,0);
 		}
 		f_write(&encodeFp, recBuf, 2*n, &bw);
@@ -346,8 +349,6 @@ static msg_t threadEncode(void *arg){
 
 	f_close(&encodeFp);
 	writeRam(PAR_END_FILL_BYTE,0);
-
-	palTogglePad(GPIOA,0);
 
 	/* Wait until the codec exit the encoding mode */
 	while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
@@ -417,6 +418,7 @@ void codecVolume(int volume) {
         writeRegister(SCI_VOL, 0x7d7d);
         break;
     }
+    volLevel = volume;
 }
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
