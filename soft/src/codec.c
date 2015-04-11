@@ -164,12 +164,14 @@ static msg_t waitRecording(void *arg){
 
     while(1){
 	chEvtWaitOne(1);
-	/* Collect the data in HDAT0/1 */
-	chThdSleepMilliseconds(duration*1000);
-      
-	/* Stop the acquisition */
-	writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-	stopRecord = 1;  
+	if(duration != 0){
+	    /* Collect the data in HDAT0/1 */
+	    chThdSleepMilliseconds(duration*1000);
+	    
+	    /* Stop the acquisition */
+	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+	    stopRecord = 1;
+	}
     }
     return 0;
 }
@@ -247,7 +249,7 @@ static msg_t threadEncode(void *arg){
 		}
 	    }
 	}
-    
+	
 	endFillByte = readRam(PAR_END_FILL_BYTE);
     
 	/* If it's odd lenght, endFillByte should be added */
@@ -350,6 +352,16 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysLock();
     chEvtBroadcastI(&eventSourceEncode);
     chSysUnlock();
+}
+
+void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+    (void) argc;
+    (void) chp;
+    
+    /* Stop the encoding (when duration is set to 0) */
+    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+    stopRecord = 1;  
 }
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {

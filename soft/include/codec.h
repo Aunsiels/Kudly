@@ -69,6 +69,15 @@ void cmdEncode(BaseSequentialStream *, int, char *[]);
 
 /**
  *
+ * \brief Shell command for stop encoding a sound
+ *
+ * This function stop the encoding of a sound  
+ */
+
+void cmdStop(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
  * \brief Shell command for volume control 
  *
  * This function control volume (may be set from 0 to 10)  
