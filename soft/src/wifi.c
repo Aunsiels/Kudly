@@ -17,7 +17,7 @@ void externBroadcast(void){
 static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
-static msg_t mb_buf[320];
+static msg_t mb_buf[32];
 MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
 
 /* Special strings to print */
@@ -55,7 +55,7 @@ static msg_t usartReadInMB_thd(void * args) {
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
 	//writeSerial("%c",wifi_buffer);
-        chMBPost(&mbReceiveWifi, wifi_buffer, TIME_INFINITE);
+        chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
     }
     return 0;
 }
