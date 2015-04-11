@@ -313,7 +313,7 @@ static msg_t threadEncode(void *arg){
       
 	while(playerState){
 	    int n;
-	    int vuMeter;
+	    uint16_t level;
 	    /* See if there is some data available */
 	    if((n = readRegister(SCI_RECWORDS)) > 0) {
 		int i;
@@ -324,8 +324,9 @@ static msg_t threadEncode(void *arg){
 		    data = readRegister(SCI_RECDATA);
 		    *rbp++ = (uint8_t)(data >> 8);
 		    *rbp++ = (uint8_t)(data & 0xFF);
-		    vuMeter = readRam(PAR_VU_METER);
-		    //writeSerial("G : %d | D : %d\r\n",vuMeter&PAR_VU_METER_LEFT_MASK,vuMeter&PAR_VU_METER_RIGHT_MASK);
+		    level = readRam(PAR_ENC_CHANNEL_MAX);
+		    writeSerial("Level : %d\r\n",level);
+		    writeRam(PAR_ENC_CHANNEL_MAX,0);
 		}
 		f_write(&encodeFp, recBuf, 2*n, &bw);
 	    }   	    
