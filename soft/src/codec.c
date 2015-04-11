@@ -144,9 +144,8 @@ void codecReset(void){
     writeRegister(SCI_CLOCKF,SC_MULT_53_45X|SC_ADD_53_10X);
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
-    /* Both left and right volumes are 0x24 * -0.5 = -18.0 dB */
-    codecVolume(10);
-    writeSerial("SPI state : %x\r\n",SPID4.state);
+    /* Both left and right volumes are at middle (5 over 10) */
+    codecVolume(7);
 }
 
 void codecLowPower(){
@@ -163,6 +162,7 @@ void codecLowPower(){
 static uint8_t playBuf[FILE_BUFFER_SIZE];
 static FIL readFp;
 static char * namePlayback;
+volatile int controlMode;
 
 static msg_t threadPlayback(void *arg){
     (void) arg;
@@ -175,7 +175,8 @@ static msg_t threadPlayback(void *arg){
     int cptEndFill=0;
     int cptReset=0;
     int t;
-    
+    controlMode = 0;
+
     while (TRUE) {
 	chEvtWaitOne(1);
 	/* Open a file in reading mode */
@@ -187,8 +188,13 @@ static msg_t threadPlayback(void *arg){
 	    sendData(playBuf,t);
 	    if(t != SDI_MAX_TRANSFER_SIZE)
 		break;
-	    //TODO  NEED EVENT TO CONTROL MODE
+	    if (controlMode == 1){
+		writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+		break;
+	    }
 	}
+
+	controlMode = 0;
 
 	f_close(&readFp);
 
@@ -261,10 +267,11 @@ static msg_t threadEncode(void *arg){
     
     while(1){
 	chEvtWaitOne(1);
+	/* Set volume at maximum (for now micro is not pre-amplified) */
 	codecVolume(10);
 	/* Set the samplerate at 16kHz */
 	writeRegister(SCI_AICTRL0,16000);
-	/* Gain = 4 */
+	/* Automatic gain control */
 	writeRegister(SCI_AICTRL1,0);
 	/* Maximum gain amplification at x40 */
 	writeRegister(SCI_AICTRL2,40000);
@@ -427,7 +434,7 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
 	return;
     }
     
-    /* TODO NEED EVENT TO ENTER CONTROL MODE */
+    controlMode = 1;
     
     control = (uint8_t)argv[0][0];
     
@@ -435,9 +442,10 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     case 'p':
 	writeRam(PAR_PLAY_MODE,2);
 	break;
+    default:
+	break;
     }
-    
-    
+        
     return;
 }
 
