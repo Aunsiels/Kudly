@@ -92,7 +92,7 @@ static msg_t threadPlayback(void *arg){
 		if(volLevel == 10)
 		    break;
 		else{
-		    volLevel++;
+		    volLevel+=5;
 		    codecVolume(volLevel);
 		    break;
 		}
@@ -100,7 +100,7 @@ static msg_t threadPlayback(void *arg){
 		if(volLevel == 0)
 		    break;
 		else{
-		    volLevel--;
+		    volLevel-=5;
 		    codecVolume(volLevel);
 		    break;
 		}
@@ -198,7 +198,7 @@ static msg_t threadEncode(void *arg){
 	       goto endEncoding;
 	}
 	/* Set volume at maximum (for now micro is not pre-amplified) */
-	codecVolume(10);
+	codecVolume(100);
 	/* Set the samplerate at 16kHz */
 	writeRegister(SCI_AICTRL0,16000);
 	/* Automatic gain control */
@@ -273,44 +273,9 @@ static msg_t threadEncode(void *arg){
 }
 
 void codecVolume(int volume) {
-    
-    switch(volume){
-    case 0: writeRegister(SCI_VOL, 0xffff);
-        break;
-    case 1: 
-        writeRegister(SCI_VOL, 0xe1e1);
-        break;
-    case 2: 
-        writeRegister(SCI_VOL, 0xc8c8);
-        break;
-    case 3: 
-        writeRegister(SCI_VOL, 0xafaf);
-        break;
-    case 4: 
-        writeRegister(SCI_VOL, 0x9696);
-        break;
-    case 5: 
-        writeRegister(SCI_VOL, 0x7d7d);
-        break;
-    case 6: 
-        writeRegister(SCI_VOL, 0x6464);
-        break;
-    case 7: 
-        writeRegister(SCI_VOL, 0x4b4b);
-        break;
-    case 8: 
-        writeRegister(SCI_VOL, 0x3232);
-        break;
-    case 9: 
-        writeRegister(SCI_VOL, 0x1919);
-        break;
-    case 10: 
-        writeRegister(SCI_VOL, 0x0000);
-        break;
-    default : 
-        writeRegister(SCI_VOL, 0x7d7d);
-        break;
-    }
+    uint8_t inverseVolume;
+    inverseVolume = 255 - (uint8_t)(volume*2.5);
+    writeRegister(SCI_VOL,(inverseVolume << 8)| inverseVolume);
     volLevel = volume;
 }
 
@@ -418,8 +383,8 @@ void codecReset(void){
     writeRegister(SCI_CLOCKF,SC_MULT_53_45X|SC_ADD_53_10X);
     /* Set encoding samplerate to 16000Hz, in mono mode */
     writeRegister(SCI_AUDATA,0x3E80);
-    /* Both left and right volumes are at middle (5 over 10) */
-    codecVolume(5);
+    /* Both left and right volumes are at middle (50 over 100) */
+    codecVolume(50);
 }
 
 void codecLowPower(void){
