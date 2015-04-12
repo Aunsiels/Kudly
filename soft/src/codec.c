@@ -313,7 +313,7 @@ static msg_t threadFullDuplex(void *arg){
 	while(playerState){
 	    /* See if there is some data available */
 	    if(readRegister(SCI_RECWORDS) > 0){
-		//TODO : initialize mailboxes / chMBPost(&mb_encoding,readRegister(SCI_RECDATA),TIME_INFINITE);	   
+		chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);	   
 	    }
 	    
 	    else if(stopRecord){
@@ -323,7 +323,7 @@ static msg_t threadFullDuplex(void *arg){
 	    else{
 		int i;
 		for(i = 0 ; i < 16 ; i++){
-		    //TODO : initialize mailboxes / if(chMBFetch(&mb_decoding,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
+		    if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
 		}
 		sendData(playBuf,32);
 	    }
