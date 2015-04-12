@@ -4,20 +4,26 @@
 #include "ch.h"
 #include "string.h"
 
-#define ECH0_1 "http_get -o kudly.herokuapp.com/echo"
-#define ECHO_2 "had 0 Upgrade websocket"
-#define ECHO_3 "had 0 Connection Upgrade"
-#define ECHO_4 "had 0 Sec-WebSocket-Key x3JJHMbDL1EzLkh9GBhXDw=="
-#define ECHO_5 "had 0 Sec-WebSocket-Protocol chat"
-#define ECHO_6 "had 0 Sec-WebSocket-Version 13"
-#define ECHO_7 "had 0 Origin http://example.com"
-#define ECHO_8 "hre 0"
+static char ECHO_0[] = "stream_close 0\r\n";
+static char ECH0_1[] = "http_get -o kudly.herokuapp.com/echo\r\n";
+static char ECHO_2[] = "had 0 Upgrade websocket\r\n";
+static char ECHO_3[] = "had 0 Connection Upgrade\r\n";
+static char ECHO_4[] = "had 0 Sec-WebSocket-Key x3JJHMbDL1EzLkh9GBhXDw==\r\n";
+static char ECHO_5[] = "had 0 Sec-WebSocket-Protocol chat\r\n";
+static char ECHO_6[] = "had 0 Sec-WebSocket-Version 13\r\n";
+static char ECHO_7[] = "had 0 Origin http://example.com\r\n";
+static char ECHO_8[] = "hre 0\r\n";
+static char STREAM_WRITE "stream_write 0 ";
+
+/* Contains an int to send */
+static char intStringSend[10];
 
 /*
  * Initializes a websocket connection
  */
 void websocketInit(void){
     /* Init sequence */
+    sdWrite(&SD3, (uint8_t*) ECHO_0, sizeof(ECHO_0));
     sdWrite(&SD3, (uint8_t*) ECHO_1, sizeof(ECHO_1));
     sdWrite(&SD3, (uint8_t*) ECHO_2, sizeof(ECHO_2));
     sdWrite(&SD3, (uint8_t*) ECHO_3, sizeof(ECHO_3));
@@ -33,9 +39,27 @@ void websocketInit(void){
  * Encode a string to send
  */
 void websocketEncode(char * str){
+    int length = strlen(str);
+
+    /* The length of the message to send */
+    int msgLength = 0;
+    /* Message type */
+    msgLength++;
+    /* Size of the message encoder */
+    if (length < 126) {
+        msgLength++;
+    } else if (length < 65536) {
+        msgLength += 3;
+    } else {
+        msgLength += 9;
+    }
+    /* Raw message */
+    msgLength += length;
+
+    /* Begins to send message */
+    sdWrite(&SD3, (uint8_t*) STREAM_WRITE, sizeof(STREAM_WRITE));
 
     // SEND 129
-    int length = strlen(str);
 
     if (length < 126) {
         //send (char) length
