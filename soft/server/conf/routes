@@ -18,3 +18,5 @@ GET    /pwm                         controllers.Application.pwm
 GET    /echo                        controllers.Application.echo
 
 POST   /echopost                    controllers.Application.postEcho
+
+POST   /setpwm                      controllers.Application.setPwm

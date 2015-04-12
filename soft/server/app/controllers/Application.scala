@@ -12,7 +12,19 @@ import play.api.mvc._
 import play.api.Play.current
 import akka.actor._
 
+import com.mongodb.casbah.Imports._
+
 object Application extends Controller {
+
+    /* Database */
+    val dataBase = MongoClient(
+        MongoClientURI(
+            "mongodb://kudly:19071993@ds041168.mongolab.com:41168/kudly"
+        )
+    ).getDB("kudly")
+
+    /* Collection of raw data */
+    val rawCollection = dataBase("Raw")
 
     /*
      * Welcome page
@@ -77,6 +89,9 @@ object Application extends Controller {
         "data" -> text
     )
 
+    /* 
+     * Simply answer with what was received
+     */
     def postEcho = Action { implicit request =>
         echoForm.bindFromRequest.fold(
             errors => {
@@ -86,4 +101,50 @@ object Application extends Controller {
             }
         )
     }
+
+    /*
+     * Contains a led description
+     */
+    case class Led (
+        n     : Int,
+        r     : Int,
+        g     : Int,
+        b     : Int
+    )
+
+    /*
+     * Led form
+     */
+    val ledForm : Form[Led] = Form(
+        mapping(
+            "n" -> number(min = 0, max = 2),
+            "r" -> number(min = 0, max = 255),
+            "g" -> number(min = 0, max = 255),
+            "b" -> number(min = 0, max = 255)
+        )(Led.apply)(Led.unapply)
+    )
+
+    /*
+     * Set the pwm value
+     */
+    def setPwm = Action { implicit request =>
+        ledForm.bindFromRequest.fold(
+            errors => {
+                BadRequest("Wrong parameters")},
+            led    => {
+                rawCollection.remove("data" $eq "led")
+                var ledData = MongoDBObject(
+                    "data" -> "led",
+                    "n"    -> led.n,
+                    "r"    -> led.r,
+                    "g"    -> led.g,
+                    "b"    -> led.b)
+                rawCollection += ledData
+                Ok("Led data received")
+            }
+        )
+    }
+
+
+                 
 }
