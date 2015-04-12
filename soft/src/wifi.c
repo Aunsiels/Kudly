@@ -9,11 +9,7 @@
 #include <stdlib.h>
 #include "wifi_manager.h"
 
-EVENTSOURCE_DECL(srcEndToReadUsart);
-void externBroadcast(void){
-    chEvtBroadcast(&srcEndToReadUsart);
-}
-
+/* Event listener for the end of reading by usart */ 
 static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
@@ -64,9 +60,7 @@ static msg_t usartReadInMB_thd(void * args) {
 void wifiWriteByUsart(char * message, int length){
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
     sdWrite(&SD3, (uint8_t*)message, length);
-    //writeSerial(message);
     chEvtWaitOne(1);
-    //writeSerial("%d",dataSize);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 

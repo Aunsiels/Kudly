@@ -1,4 +1,3 @@
-
 /**
  * \file wifi.h
  * \brief Wifi feature use usart3
@@ -15,6 +14,26 @@
 
 extern Mailbox mbReceiveWifi;
 void externBroadcast(void);
+
+/**
+ *
+ * \brief Send data by wifi using usart3
+ * \param message The message to be sent
+ * \param length The length of this message
+ * Bloking function
+ */
+void wifiWriteByUsart(char * message, int length);
+
+
+/**
+ *
+ * \brief Send command to wifi module
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
+
 /**
  *
  * \brief Initializes the wifi communication
@@ -23,30 +42,4 @@ void externBroadcast(void);
  */
 void wifiInitByUsart(void);
 
-/**
- *
- * \brief Send data by wifi using usart3
- *
- */
-void wifiWriteByUsart(char * message, int length);
-
-/**
- *
- * \brief Stops the wifi communication
- *
- */
-void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
-
-/**
- *
- * \brief Launches thread to interpret command from wifi
- *
- */
-void wifiCommands(void);
-
-/**
- *
- * \breif TCP connection
- *
- */
 #endif
