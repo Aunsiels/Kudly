@@ -161,6 +161,28 @@ object Application extends Controller {
         )
     }
 
+    /*
+     * Graph data form
+     */
+    val graphForm : Form[Int] = Form(
+         "value" -> number
+    )
 
-                 
+    /* 
+     * Set temp value
+     */
+    def temp = Action { implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data  => {
+                var tempData = MongoDBObject(
+                    "data"  -> "temp",
+                    "value" -> data,
+                    "date"  -> new java.util.Date()
+                )
+                rawCollection += tempData
+                Ok("Temperature received")
+            }
+        )
+    }
 }

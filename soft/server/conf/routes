@@ -20,3 +20,5 @@ GET    /echo                        controllers.Application.echo
 POST   /echopost                    controllers.Application.postEcho
 
 POST   /setpwm                      controllers.Application.setPwm
+
+POST   /temp                        controllers.Application.temp
