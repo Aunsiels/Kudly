@@ -66,7 +66,7 @@ void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length);
     //writeSerial(message);
     chEvtWaitOne(1);
-    //writeSerial("%d",dataSize);
+    writeSerial("%d",dataSize);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 

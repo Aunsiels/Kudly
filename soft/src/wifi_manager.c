@@ -14,8 +14,7 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
-static char stream_read[] = "stream_read 0 18\r\n";
-//static char stream_list[] = "stream_list\r\n";
+static char stream_read[] = "stream_read 0 4\r\n";
 static char http_get[] ="http_get ";
 static char endLine[] ="\r\n";
 static bool_t print = TRUE;
@@ -23,7 +22,7 @@ static bool_t save = FALSE;
 
 static FIL fil;
 static FRESULT res;
-static char stream_buffer[20];
+static char stream_buffer[6];
 
 int dataSize;
 /* Thread that always reads wifi received data */
@@ -112,7 +111,6 @@ void usartRead(void) {
 }
  
 void saveWebPage( char * address , char * file){
-
     f_open(&fil,file,FA_WRITE | FA_CREATE_ALWAYS);
     if (FR_EXIST)
 	writeSerial("This file already exist\r\n");
@@ -122,9 +120,10 @@ void saveWebPage( char * address , char * file){
     save = TRUE;
     print = FALSE;
     wifiWriteByUsart(stream_read, sizeof(stream_read));
-    while (dataSize > 18){
+    while (NULL != strstr(stream_read,"failed")){
 	f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
+	chThdSleepMilliseconds(10);
     }
     f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
 
