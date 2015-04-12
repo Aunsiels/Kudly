@@ -15,4 +15,6 @@ GET    /sound                       controllers.Application.stream
 
 GET    /pwm                         controllers.Application.pwm
 
-POST   /echo                        controllers.Application.echo
+GET    /echo                        controllers.Application.echo
+
+POST   /echopost                    controllers.Application.postEcho

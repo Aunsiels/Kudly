@@ -71,4 +71,19 @@ object Application extends Controller {
     def echo = WebSocket.acceptWithActor[String, String] { request => out =>
         echoWSActor.props(out)
     }
+
+    /* Echo Form */
+    val echoForm : Form[String] = Form(
+        "data" -> text
+    )
+
+    def postEcho = Action { implicit request =>
+        echoForm.bindFromRequest.fold(
+            errors => {
+                BadRequest("Bad data") },
+            data   => {
+                Ok("Receive data : " + data)
+            }
+        )
+    }
 }
