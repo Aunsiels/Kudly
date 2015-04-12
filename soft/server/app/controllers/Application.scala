@@ -27,6 +27,28 @@ object Application extends Controller {
     val rawCollection = dataBase("Raw")
 
     /*
+     * Contains a led description
+     */
+    case class Led (
+        n     : Int,
+        r     : Int,
+        g     : Int,
+        b     : Int
+    )
+
+    /*
+     * Led form
+     */
+    val ledForm : Form[Led] = Form(
+        mapping(
+            "n" -> number(min = 0, max = 2),
+            "r" -> number(min = 0, max = 255),
+            "g" -> number(min = 0, max = 255),
+            "b" -> number(min = 0, max = 255)
+        )(Led.apply)(Led.unapply)
+    )
+
+    /*
      * Welcome page
      */
     def index = Action {
@@ -51,7 +73,11 @@ object Application extends Controller {
         val data = rawCollection.findOne("data" $eq "led")
         data match {
             case Some(led) => {
-                var l = led.getAs[Led]("led").getOrElse(Led(0,0,0,0))
+                var l = Led (
+                    led.getAs[Int]("n").getOrElse(0),
+                    led.getAs[Int]("r").getOrElse(0),
+                    led.getAs[Int]("g").getOrElse(0),
+                    led.getAs[Int]("b").getOrElse(0))
                 Ok("<led>\n<pwm_set n=\""+ 
                    + l.n + "\" r=\""
                    + l.r + "\" g=\""
@@ -114,28 +140,6 @@ object Application extends Controller {
     }
 
     /*
-     * Contains a led description
-     */
-    case class Led (
-        n     : Int,
-        r     : Int,
-        g     : Int,
-        b     : Int
-    )
-
-    /*
-     * Led form
-     */
-    val ledForm : Form[Led] = Form(
-        mapping(
-            "n" -> number(min = 0, max = 2),
-            "r" -> number(min = 0, max = 255),
-            "g" -> number(min = 0, max = 255),
-            "b" -> number(min = 0, max = 255)
-        )(Led.apply)(Led.unapply)
-    )
-
-    /*
      * Set the pwm value
      */
     def setPwm = Action { implicit request =>
@@ -146,7 +150,11 @@ object Application extends Controller {
                 rawCollection.remove("data" $eq "led")
                 var ledData = MongoDBObject(
                     "data"  -> "led",
-                    "value" -> led)
+                    "n" -> led.n,
+                    "r" -> led.r,
+                    "g" -> led.g,
+                    "b" -> led.b
+                )
                 rawCollection += ledData
                 Ok("Led data received")
             }
