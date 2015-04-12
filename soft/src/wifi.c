@@ -28,8 +28,8 @@ static char space[] =" ";
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"NUMERICABLE-9BE8\"\r\n";
-static char passkey[] = "set wlan.passkey \"A6B80C5247\"\r\n";
+static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
+static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -66,7 +66,7 @@ void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length);
     //writeSerial(message);
     chEvtWaitOne(1);
-    writeSerial("%d",dataSize);
+    //writeSerial("%d",dataSize);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 
