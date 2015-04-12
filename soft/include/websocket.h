@@ -7,6 +7,9 @@
 /* Main receiving mailbox */
 extern Mailbox * mb;
 
+/* Codec sending buffer */
+extern char codecBuffer[16];
+
 /**
  * \brief Initializes a websocket connection
  */
