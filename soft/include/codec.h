@@ -69,6 +69,16 @@ void cmdEncode(BaseSequentialStream *, int, char *[]);
 
 /**
  *
+ * \brief Shell command for encoding and decoding sounds at the same time
+ *
+ * This function enables the Codec (Fullduplex) function in a shell command 
+ * It is used for streaming audio : the data are stocked in a mailbox, and readen from a mailbox
+ */
+
+void cmdFullDuplex(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
  * \brief Shell command for stop encoding a sound
  *
  * This function stop the encoding of a sound  

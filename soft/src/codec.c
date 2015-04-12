@@ -17,12 +17,15 @@
 EVENTSOURCE_DECL(eventSourcePlay);
 EVENTSOURCE_DECL(eventSourceEncode);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
+EVENTSOURCE_DECL(eventSourceFullDuplex);
 EventSource eventSourcePlay;
 EventSource eventSourceEncode;
 EventSource eventSourceWaitEncoding;
+EventSource eventSourceFullDuplex;
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
+static WORKING_AREA(waFullDuplex, 2048);
 
 volatile int volLevel = 5;
 /* Mutex used to control access of SPI bus */
@@ -89,7 +92,7 @@ static msg_t threadPlayback(void *arg){
 		writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
 		break;
 	    case '+' :
-		if(volLevel == 10)
+		if(volLevel == 100)
 		    break;
 		else{
 		    volLevel+=5;
@@ -209,9 +212,7 @@ static msg_t threadEncode(void *arg){
 	writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
 	/* Set quality mode to 5 */
 	writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-	/* Active the Vu Meter */
-	writeRam(PAR_PLAY_MODE,PAR_PLAY_MODE_VU_METER_ENA);
-
+	
 	/* Start encoding procedure */
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
 	writeRegister(SCI_AIADDR,0x50);
@@ -272,6 +273,82 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
+
+static msg_t threadFullDuplex(void *arg){
+    (void) arg;
+
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,1);
+
+    uint16_t data;
+    UINT bw;
+    uint16_t endFillByte;
+    
+    while(1){
+	/* Wait for the thread to be called */
+	chEvtWaitOne(1);
+	/* Can't encode if SPI is not ready (typicaly when playback or encoding) */
+	if(SPID4.state != 2){
+	       writeSerial("SPI not ready\r\n");
+	       goto endFullDuplex;
+	}
+	/* Set volume at maximum (for now micro is not pre-amplified) */
+	codecVolume(100);
+	/* Set the samplerate at 16kHz */
+	writeRegister(SCI_AICTRL0,16000);
+	/* Automatic gain control */
+	writeRegister(SCI_AICTRL1,0);
+	/* Maximum gain amplification at x40 */
+	writeRegister(SCI_AICTRL2,40000);
+	/* Set in mono mode, in format PCM (non-compressed), full duplex mode, no header generated */
+	writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);
+	/* Set quality mode to 5 */
+	writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+
+
+	// TODO synchronization with the wifi streaming
+
+
+	/* Start encoding procedure */
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+	writeRegister(SCI_AIADDR,0x50);
+  
+	while(playerState){
+	    /* See if there is some data available */
+	    if(readRegister(SCI_RECWORDS) > 0){
+		chMBPost(&mb_encoding,readRegister(SCI_RECDATA),TIME_INFINITE);			 
+	    }
+	    
+	    else if(stopRecord){
+		playerState = 0;
+	    }
+
+	    else{
+		//TODO Send data to the SDI
+	    }
+	}
+	
+	endFillByte = readRam(PAR_END_FILL_BYTE);
+    
+	/* If it's odd lenght, endFillByte should be added */
+	if(endFillByte & (1 << 15))
+	    f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
+
+	writeRam(PAR_END_FILL_BYTE,0);
+
+	/* Wait until the codec exit the encoding mode */
+	while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+
+	codecReset();
+
+	playerState = 1;
+	stopRecord = 0;
+	endFullDuplex:
+	  chThdSleepMilliseconds(1);
+    }
+    return 0;
+}
+
 void codecVolume(int volume) {
     uint8_t inverseVolume;
     inverseVolume = 255 - (uint8_t)(volume*2.5);
@@ -293,17 +370,6 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysUnlock();   
 }
 
-void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
-    (void) argv;
-
-    if (argc != 1) {
-	chprintf(chp, "Enter the volume level after the command Volume\r\n");
-	return;
-    }
-
-    codecVolume(strtol(argv[0],NULL,10));   
-}
-
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
 
@@ -317,6 +383,27 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysLock();
     chEvtBroadcastI(&eventSourceEncode);
     chSysUnlock();
+}
+
+void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+    (void) argc;
+    (void) chp;
+    
+    chSysLock();
+    chEvtBroadcastI(&eventSourceFullDuplex);
+    chSysUnlock();
+}
+
+void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+
+    if (argc != 1) {
+	chprintf(chp, "Enter the volume level after the command Volume\r\n");
+	return;
+    }
+
+    codecVolume(strtol(argv[0],NULL,10));   
 }
 
 void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
