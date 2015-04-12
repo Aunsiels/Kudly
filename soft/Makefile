@@ -97,6 +97,8 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/main.c \
        $(KUDLYSRC)/wifi.c \
        $(KUDLYSRC)/camera.c \
+       $(KUDLYSRC)/wifi_manager.c \
+       $(KUDLYSRC)/wifi_parsing.c \
        $(KUDLYSRC)/led.c \
        $(KUDLYSRC)/usb_serial.c \
        $(KUDLYSRC)/shell_cfg.c \
@@ -173,7 +175,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wstrict-prototypes -Werror
+CWARN = -Wall -Wextra -Wstrict-prototypes -Werror -std=gnu99
 
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra
