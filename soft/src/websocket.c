@@ -5,39 +5,68 @@
 #include "string.h"
 #include "chprintf.h"
 #include "wifi.h"
+#include "usb_serial.h"
 
-static char STREAM_WRITE "stream_write 0 ";
+static char STREAM_WRITE[] = "stream_write 0 ";
+
+/* Codec mailboxes */
+//static msg_t mbCodecOut_buf[32];
+//static msg_t mbCodecIn_buf[32];
+//MAILBOX_DECL(mbCodecOut, mcCodecOut_buf, 32);
+//MAILBOX_DECL(mbCodecIn, mcCodecIn_buf, 32);
 
 /* Contains an int to send */
-static char intStringSend[10];
+//static char intStringSend[10];
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
-static char streamWrite[] = "write 0 284\r\n";
+static char streamWrite[] = "write 0 163\r\n";
 
-static char webSocketClient1[] =
+static char webSocketHeader[] =
 "GET /echo HTTP/1.1\r\n\
 Host: kudly.herokuapp.com\r\n\
-Pragma: no-cache\r\n\
-Cache-Control: no-cache\r\n\
-Upgrade: websocket\r\n";
-
-static char webSocketClient2[] =
-"Connection: Upgrade\r\n\
-Sec-WebSocket-Key: x3JJHRbDL1EzLkh9GBhXDw==\r\n\
-Sec-WebSocket-Protocol: chat, superchat\r\n\
+Upgrade: websocket\r\n\
+Connection: Upgrade\r\n\
+Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
-Origin: http://kudly.herokuapp.com\r\n\
 \r\n";
 
 /*
  * Initializes a websocket connection
  */
 void websocketInit(void){
+    //static WORKING_AREA(streamingOut_wa, 128);
+    //static WORKING_AREA(streamingIn_wa, 128);
+
     /* Init sequence */
     wifiWriteByUsart(tcpc, sizeof(tcpc));
     wifiWriteByUsart(streamWrite, sizeof(streamWrite));
-    wifiWriteByUsart(webSocketClient1, sizeof(webSocketClient1));
-    wifiWriteByUsart(webSocketClient2, sizeof(webSocketClient2));
+    wifiWriteByUsart(webSocketHeader, sizeof(webSocketHeader));
+    chThdSleepMilliseconds(500);
+
+    wifiWriteByUsart("read 0 200\r\n", 11);
+    chThdSleepMilliseconds(500);
+
+    /*
+    chThdCreateStatic(
+            streamingOut_wa, sizeof(streamingOut_wa),
+            NORMALPRIO, streamingOut, NULL);
+
+    chThdCreateStatic(
+            streamingOut_wa, sizeof(streamingOut_wa),
+            NORMALPRIO, streamingOut, NULL);
+            */
+}
+
+void sendToWS(char * str) {
+    static char webSocketData[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
+
+    wifiWriteByUsart("write 0 14\r\n", 12);
+    wifiWriteByUsart(webSocketData, 6);
+    wifiWriteByUsart(str, 8);
+
+    chThdSleepMilliseconds(500);
+    wifiWriteByUsart("read 0 10\r\n", 11);
+
 }
 
 /*
@@ -90,12 +119,25 @@ void websocketEncode(char * str){
     }
 }
 
-void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
+void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
 
     websocketInit();
 
+}
+
+void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    if(argc == 0) {
+        chprintf(chp, "Écrit 8 chars après la commande steuplai\r\n");
+        return;
+    }
+
+    sendToWS(argv[0]);
 }
 

@@ -34,6 +34,7 @@ void wifiReadByUsart(void);
  *
  */
 void wifiWriteByUsart(char * message, int length);
+void wifiWriteUnsigned(uint8_t * message, int length);
 
 /**
  *

@@ -14,6 +14,9 @@ void websocketInit(void);
  * \param str The string to encode
  */
 void websocketEncode(char * str);
+void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]);
 void cmdWebSoc(BaseSequentialStream * chp, int argc, char * argv[]);
+
+void sendToWS(char * str);
 
 #endif
