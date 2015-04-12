@@ -19,18 +19,15 @@ int main(void) {
 
     sdPersoInit();
     
-    palSetPadMode(GPIOA,0,PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPadMode(GPIOA,1,PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPadMode(GPIOA,2,PAL_MODE_OUTPUT_PUSHPULL);
-
-    palSetPadMode(GPIOE,8,PAL_MODE_OUTPUT_PUSHPULL);
+    ledInit();
 
     codecInit();
-    palSetPad(GPIOA,0);
 
     while(TRUE){
-      chThdSleepMilliseconds(500);
-      palTogglePad(GPIOA,1);
+	ledSetColorRGB(1,0,0,0);
+	chThdSleepMilliseconds(500);
+	ledSetColorRGB(1,0,255,0);
+	chThdSleepMilliseconds(500);
     }
 
     return 0;
