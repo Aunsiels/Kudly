@@ -122,9 +122,9 @@ void dcmi_lld_init(void) {
                     STM32_DMA_CR_DIR_P2M |
                     STM32_DMA_CR_TCIE |
                     /* half transmission */
-                    STM32_DMA_CR_HTIE |
-                    STM32_DMA_CR_DMEIE |
-                    STM32_DMA_CR_TEIE |
+                    //STM32_DMA_CR_HTIE |
+                    //STM32_DMA_CR_DMEIE |
+                    //STM32_DMA_CR_TEIE |
                     STM32_DMA_CR_PBURST_SINGLE |
                     STM32_DMA_CR_MBURST_SINGLE |
                     STM32_DMA_CR_PSIZE_WORD |
@@ -168,7 +168,7 @@ void dcmi_lld_start(DCMIDriver *dcmip) {
 
   dcmip->dcmi->IER |= STM32_DCMI_IER_FRAME_IE;
   dcmip->dcmi->CR  |= (dcmip->config->cr & 
-                      ~(STM32_DCMI_CR_CAPTURE | STM32_DCMI_CR_ENABLE));
+                     ~(STM32_DCMI_CR_CAPTURE | STM32_DCMI_CR_ENABLE));
 }
 
 /**
