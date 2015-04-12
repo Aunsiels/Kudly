@@ -10,13 +10,10 @@
 static char STREAM_WRITE[] = "stream_write 0 ";
 
 /* Codec mailboxes */
-//static msg_t mbCodecOut_buf[32];
-//static msg_t mbCodecIn_buf[32];
-//MAILBOX_DECL(mbCodecOut, mcCodecOut_buf, 32);
-//MAILBOX_DECL(mbCodecIn, mcCodecIn_buf, 32);
-
-/* Contains an int to send */
-//static char intStringSend[10];
+static msg_t mbCodecOut_buf[32];
+static msg_t mbCodecIn_buf[32];
+MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 32);
+MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 32);
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
 static char streamWrite[] = "write 0 163\r\n";
@@ -30,13 +27,23 @@ Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
 
+static msg_t streamingIn(void * args) {
+    (void)args;
+
+    return 0;
+}
+
+
+static msg_t streamingOut(void * args) {
+    (void)args;
+
+    return 0;
+}
+
 /*
  * Initializes a websocket connection
  */
 void websocketInit(void){
-    //static WORKING_AREA(streamingOut_wa, 128);
-    //static WORKING_AREA(streamingIn_wa, 128);
-
     /* Init sequence */
     wifiWriteByUsart(tcpc, sizeof(tcpc));
     wifiWriteByUsart(streamWrite, sizeof(streamWrite));
@@ -46,15 +53,17 @@ void websocketInit(void){
     wifiWriteByUsart("read 0 200\r\n", 11);
     chThdSleepMilliseconds(500);
 
-    /*
+    static WORKING_AREA(streamingOut_wa, 128);
+    static WORKING_AREA(streamingIn_wa, 128);
+
     chThdCreateStatic(
-            streamingOut_wa, sizeof(streamingOut_wa),
-            NORMALPRIO, streamingOut, NULL);
+            streamingIn_wa, sizeof(streamingIn_wa),
+            NORMALPRIO, streamingIn, NULL);
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
             NORMALPRIO, streamingOut, NULL);
-            */
+
 }
 
 void sendToWS(char * str) {

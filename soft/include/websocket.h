@@ -4,6 +4,9 @@
 #include "hal.h"
 #include "ch.h"
 
+/* Main receiving mailbox */
+extern Mailbox * mb;
+
 /**
  * \brief Initializes a websocket connection
  */
