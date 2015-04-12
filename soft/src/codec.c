@@ -273,16 +273,13 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
+//TODO : initialize mailboxes / static uint16_t codecBuf[16];
 
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
 
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,1);
-
-    uint16_t data;
-    UINT bw;
-    uint16_t endFillByte;
     
     while(1){
 	/* Wait for the thread to be called */
@@ -316,23 +313,21 @@ static msg_t threadFullDuplex(void *arg){
 	while(playerState){
 	    /* See if there is some data available */
 	    if(readRegister(SCI_RECWORDS) > 0){
-		chMBPost(&mb_encoding,readRegister(SCI_RECDATA),TIME_INFINITE);			 
+		//TODO : initialize mailboxes / chMBPost(&mb_encoding,readRegister(SCI_RECDATA),TIME_INFINITE);	   
 	    }
 	    
 	    else if(stopRecord){
 		playerState = 0;
 	    }
-
+	    
 	    else{
-		//TODO Send data to the SDI
+		int i;
+		for(i = 0 ; i < 16 ; i++){
+		    //TODO : initialize mailboxes / if(chMBFetch(&mb_decoding,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
+		}
+		sendData(playBuf,32);
 	    }
 	}
-	
-	endFillByte = readRam(PAR_END_FILL_BYTE);
-    
-	/* If it's odd lenght, endFillByte should be added */
-	if(endFillByte & (1 << 15))
-	    f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
 
 	writeRam(PAR_END_FILL_BYTE,0);
 
@@ -447,6 +442,7 @@ void codecInit(){
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
+    chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
 }
 
 void codecReset(void){
