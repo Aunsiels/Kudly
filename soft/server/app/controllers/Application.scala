@@ -48,7 +48,18 @@ object Application extends Controller {
      * Send a simple test for leds
      */
     def pwm = Action {
-        Ok("<led>\n<pwm_set n=\"1\" r=\"255\" g=\"125\" b=\"3\"/>\n</led>")
+        val data = rawCollection.findOne("data" $eq "led")
+        data match {
+            case Some(led) => {
+                var l = led.getAs[Led]("led").getOrElse(Led(0,0,0,0))
+                Ok("<led>\n<pwm_set n=\""+ 
+                   + l.n + "\" r=\""
+                   + l.r + "\" g=\""
+                   + l.g + "\" b=\""
+                   + l.b + "\"/>\n</led>")}
+            case None =>
+                Ok("No value yet")
+        }
     }
 
     /*
@@ -134,11 +145,8 @@ object Application extends Controller {
             led    => {
                 rawCollection.remove("data" $eq "led")
                 var ledData = MongoDBObject(
-                    "data" -> "led",
-                    "n"    -> led.n,
-                    "r"    -> led.r,
-                    "g"    -> led.g,
-                    "b"    -> led.b)
+                    "data"  -> "led",
+                    "value" -> led)
                 rawCollection += ledData
                 Ok("Led data received")
             }
