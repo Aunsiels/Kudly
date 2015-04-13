@@ -99,9 +99,6 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/wifi_manager.c \
        $(KUDLYSRC)/wifi_parsing.c \
        $(KUDLYSRC)/camera.c \
-       $(KUDLYSRC)/camera.c \
-       $(KUDLYSRC)/wifi_manager.c \
-       $(KUDLYSRC)/wifi_parsing.c \
        $(KUDLYSRC)/led.c \
        $(KUDLYSRC)/usb_serial.c \
        $(KUDLYSRC)/shell_cfg.c \
