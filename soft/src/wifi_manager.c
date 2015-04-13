@@ -15,6 +15,7 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
+/* Some string for polling functions */
 static char stream_poll[] = "stream_poll 0\r\n";
 static char stream_close[] = "stream_close all\r\n";
 
@@ -142,7 +143,8 @@ void usartRead(void) {
 	usartRead_wa, sizeof(usartRead_wa),
 	NORMALPRIO, usartRead_thd, NULL);
 }
- 
+
+/* Polling for http_get command */ 
 static void polling_request(void){
     wifiWriteByUsart(stream_poll, sizeof(stream_poll));
     while(TRUE){
@@ -154,19 +156,6 @@ static void polling_request(void){
 	    else{
 		wifiWriteByUsart(stream_poll, sizeof(stream_poll));
 	    }
-	}
-    }
-}
-
-static void polling_post(void){
-    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
-    if(NULL != strstr(stream_buffer, "Command failed"))
-	return;
-    else {
-	if(NULL != strstr(stream_buffer, "1"))
-	    return;
-	else{
-	    wifiWriteByUsart(stream_close, sizeof(stream_close));
 	}
     }
 }
@@ -213,6 +202,20 @@ void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
     strcat(msgWifi , endLine);
     saveWebPage(msgWifi, argv[1]);
     msgWifi[0] ='\0';
+}
+
+/* Polling for http_post command */ 
+static void polling_post(void){
+    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    if(NULL != strstr(stream_buffer, "Command failed"))
+	return;
+    else {
+	if(NULL != strstr(stream_buffer, "1"))
+	    return;
+	else{
+	    wifiWriteByUsart(stream_close, sizeof(stream_close));
+	}
+    }
 }
 
 /* Function that sends hhtp_request and save th page in file */
