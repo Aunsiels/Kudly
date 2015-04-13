@@ -158,6 +158,7 @@ volatile int stopRecord = 0;
 volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
+static uint16_t soundAverage[10];
 
 static msg_t waitRecording(void *arg){
     (void) arg;
@@ -191,7 +192,6 @@ static msg_t threadEncode(void *arg){
     uint16_t data;
     UINT bw;
     uint16_t endFillByte;
-    uint16_t cptVol;
     
     while(1){
         /* Wait for the thread to be called */
@@ -226,10 +226,10 @@ static msg_t threadEncode(void *arg){
       
         while(playerState){
             int n;
-            uint16_t level;
+            uint16_t level=0;
             /* See if there is some data available */
             if((n = readRegister(SCI_RECWORDS)) > 0) {
-                int i;
+                int i,j, cptVol=0;
                 uint8_t *rbp = recBuf;
 	    
                 n = min(n, REC_BUFFER_SIZE/2);
@@ -237,16 +237,18 @@ static msg_t threadEncode(void *arg){
                     data = readRegister(SCI_RECDATA);
                     *rbp++ = (uint8_t)(data >> 8);
                     *rbp++ = (uint8_t)(data & 0xFF);
-                    level = readRam(PAR_ENC_CHANNEL_MAX);
+                    soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
+                    if(cptVol==9){
+                        cptVol=0;
+                        level=0;
+                        for(j=0; j<10; j++)
+                            level=level + (soundAverage[j]/20);
+                    }
                     if(level > 200){
                         ledSetColorRGB(2,level/30,0,0);
                     }
                     cptVol++;
-                    /* Measure the volume on 2000 data */
-                    if(cptVol==2000){
-                        cptVol=0;
-                        writeRam(PAR_ENC_CHANNEL_MAX,0);
-                    }
+                    /* Measures the volume on 200 data */
                 }
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
@@ -279,7 +281,7 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
-static uint16_t codecBuf[16];
+//static uint16_t codecBuf[16];
 
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
@@ -319,7 +321,7 @@ static msg_t threadFullDuplex(void *arg){
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
-                chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);	   
+                //chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);	   
             }
 	    
             else if(stopRecord){
@@ -329,10 +331,10 @@ static msg_t threadFullDuplex(void *arg){
             else{
                 int i;
                 for(i = 0 ; i < 16 ; i++){
-                    if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
+                    //if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
                 }
                 // TODO Talk with Dim about the buffers used
-                sendData(playBuf,32);
+                //              sendData(codecBuf,32);
             }
         }
     
