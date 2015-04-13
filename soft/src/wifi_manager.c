@@ -109,7 +109,7 @@ static msg_t usartRead_thd(void * arg){
 		if(print)
 		    writeSerial("%c",(char)c);
 		/* Saving in stream_buffer */
-		//if (save)
+		if (save)
 		    stream_buffer[dataCpt]= (char)c;
 
 		dataCpt++;

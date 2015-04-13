@@ -64,7 +64,7 @@ static const uint8_t vcom_configuration_descriptor_data[67] = {
                                              Interface Class, CDC section
                                              4.2).                            */
                            0x02,          /* bInterfaceSubClass (Abstract
-                                           Control Model, CDC section 4.3).   */
+					     Control Model, CDC section 4.3).   */
                            0x01,          /* bInterfaceProtocol (AT commands,
                                              CDC section 4.4).                */
                            0),            /* iInterface.                      */
@@ -156,12 +156,12 @@ static const uint8_t vcom_string1[] = {
  * Device Description string.
  */
 static const uint8_t vcom_string2[] = {
-  USB_DESC_BYTE(56),                    /* bLength.                         */
-  USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  'C', 0, 'h', 0, 'i', 0, 'b', 0, 'i', 0, 'O', 0, 'S', 0, '/', 0,
-  'R', 0, 'T', 0, ' ', 0, 'V', 0, 'i', 0, 'r', 0, 't', 0, 'u', 0,
-  'a', 0, 'l', 0, ' ', 0, 'C', 0, 'O', 0, 'M', 0, ' ', 0, 'P', 0,
-  'o', 0, 'r', 0, 't', 0
+    USB_DESC_BYTE(56),                    /* bLength.                         */
+    USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
+    'C', 0, 'h', 0, 'i', 0, 'b', 0, 'i', 0, 'O', 0, 'S', 0, '/', 0,
+    'R', 0, 'T', 0, ' ', 0, 'V', 0, 'i', 0, 'r', 0, 't', 0, 'u', 0,
+    'a', 0, 'l', 0, ' ', 0, 'C', 0, 'O', 0, 'M', 0, ' ', 0, 'P', 0,
+    'o', 0, 'r', 0, 't', 0
 };
 
 /*
@@ -198,12 +198,12 @@ static const USBDescriptor *get_descriptor(USBDriver *usbp,
     (void)lang;
     switch (dtype) {
     case USB_DESCRIPTOR_DEVICE:
-      return &vcom_device_descriptor;
+	return &vcom_device_descriptor;
     case USB_DESCRIPTOR_CONFIGURATION:
-      return &vcom_configuration_descriptor;
+	return &vcom_configuration_descriptor;
     case USB_DESCRIPTOR_STRING:
-      if (dindex < 4)
-        return &vcom_strings[dindex];
+	if (dindex < 4)
+	    return &vcom_strings[dindex];
     }
     return NULL;
 }
@@ -262,29 +262,29 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
 
     switch (event) {
     case USB_EVENT_RESET:
-      return;
+	return;
     case USB_EVENT_ADDRESS:
-      return;
+	return;
     case USB_EVENT_CONFIGURED:
-      chSysLockFromIsr();
+	chSysLockFromIsr();
 
-      /* Enables the endpoints specified into the configuration.
-         Note, this callback is invoked from an ISR so I-Class functions
-         must be used.*/
-      usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
-      usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
+	/* Enables the endpoints specified into the configuration.
+	   Note, this callback is invoked from an ISR so I-Class functions
+	   must be used.*/
+	usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
+	usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
 
-      /* Resetting the state of the CDC subsystem.*/
-      sduConfigureHookI(&SDU1);
+	/* Resetting the state of the CDC subsystem.*/
+	sduConfigureHookI(&SDU1);
 
-      chSysUnlockFromIsr();
-      return;
+	chSysUnlockFromIsr();
+	return;
     case USB_EVENT_SUSPEND:
-      return;
+	return;
     case USB_EVENT_WAKEUP:
-      return;
+	return;
     case USB_EVENT_STALLED:
-      return;
+	return;
     }
     return;
 }
@@ -327,10 +327,11 @@ void readSerial(uint8_t * buffer, int size){
 }
 
 void writeSerial(const char * fmt,...){
-  va_list ap;
-  
-  va_start(ap, fmt);
-  chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
-  va_end(ap);
-  
+    va_list ap;
+
+    va_start(ap, fmt);
+    chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
+    va_end(ap);
+         
+
 }

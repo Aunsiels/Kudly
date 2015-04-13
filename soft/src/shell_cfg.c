@@ -10,6 +10,11 @@
 #include "sccb.h"
 #include "wifi.h"
 #include "wifi_manager.h"
+#include "hug_sensors.h"
+#include "hand_sensors.h"
+#include "codec.h"
+#include "camera.h"
+#include "websocket.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -30,25 +35,32 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-    {"sccbwrite" , cmdWrite   },
-    {"sccbread"  , cmdRead    },
-    {"testSD"    , testSd     },
-    {"mv"        , cmdMv      },
-    {"rm"        , cmdRm      },
-    {"touch"     , cmdTouch   },
-    {"mkdir"     , cmdMkdir   },
-    {"cat"       , cmdCat     },
-    {"pwd"       , cmdPwd     },
-    {"cd"        , cmdCd      },
-    {"ls"        , cmdLs      },
-    {"test"      , cmdTest    },
-    {"tree"      , cmdTree    },
-    {"wifi"      , cmdWifi    },
-    {"led"       , cmdLed     },
-    {"ledtest"   , cmdLedtest },
-    {"getwifi"   , cmdWifiGet },
-    {"postwifi"  , cmdWifiPost},
-    {NULL        , NULL       }
+    {"camera"      , cmdCamera     },
+    {"sccbwrite"   , cmdWrite      },
+    {"sccbread"    , cmdRead       },
+    {"testSD"      , testSd        },
+    {"mv"          , cmdMv         },
+    {"rm"          , cmdRm         },
+    {"touch"       , cmdTouch      },
+    {"mkdir"       , cmdMkdir      },
+    {"cat"         , cmdCat        },
+    {"pwd"         , cmdPwd        },
+    {"cd"          , cmdCd         },
+    {"ls"          , cmdLs         },
+    {"test"        , cmdTest       },
+    {"tree"        , cmdTree       },
+    {"wifi"        , cmdWifi       },
+    {"webSocketInit", cmdWebSocInit},
+    {"ws"          , cmdWebSoc     },
+    {"led"         , cmdLed        },
+    {"ledtest"     , cmdLedtest    },
+    {"hugsensors"  , cmdHugSensors },
+    {"handsensors" , cmdHandSensors},
+    {"play"        , cmdPlay       },
+    {"encode"      , cmdEncode     },
+    {"getwifi"     , cmdWifiGet    },
+    {"postwifi"    , cmdWifiPost   },
+    {NULL          , NULL          }
 };
 
 /* Config of the shell */

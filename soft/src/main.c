@@ -7,6 +7,10 @@
 #include "sd_perso.h"
 #include "sccb.h"
 #include "wifi_manager.h"
+#include "hug_sensors.h"
+#include "hand_sensors.h"
+#include "codec.h"
+#include "camera.h"
 
 int main(void) {
 
@@ -26,38 +30,28 @@ int main(void) {
     /* Led initialization */
     ledInit();
 
-    /* XCLK */
-    palSetPadMode(GPIOA, GPIOA_CAMERA_XCLK, PAL_MODE_ALTERNATE(0));
-
-    /* Camera pins PWDN */
-    palSetPadMode(GPIOC, GPIOC_CAMERA_ENABLE, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPad(GPIOC, GPIOC_CAMERA_ENABLE);
-
-    /* Camera pin */
-    palSetPadMode(GPIOA, GPIOA_CAMERA_HSYNC, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOA, GPIOA_CAMERA_PIXCLK, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D0, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D1, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOC, GPIOC_CAMERA_D4, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D5, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_VSYNC, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D6, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOB, GPIOB_CAMERA_D7, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13));
-    palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13));
-
-    chThdSleepMilliseconds(100);
-    palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
-
+    
     /* Init sccb */
     sccbInit();
     
     /* Read wifi by usart */
     usartRead();
 
-    /* Init Wifi */
+    /* DCMI init */
+    cameraInit();
+
+    /* Initialize wifi */
     wifiInitByUsart();
-    
+
+    /* Init ADC hug sensors */
+    initHugSensors();
+
+    /* Init ADC hand sensors */
+    initHandSensors();
+
+    /* Init codec */
+    codecInit();
+
     chThdSleepMilliseconds(TIME_INFINITE);
 
     return 0;

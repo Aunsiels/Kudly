@@ -56,7 +56,7 @@ void writeSerial(const char * fmt,...);
  *
  */
 
-void readRerial(uint8_t * buffer, int size);
+void readSerial(uint8_t * buffer, int size);
 
 /**
  * \def SerialUSBDriver SDU1
