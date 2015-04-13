@@ -46,7 +46,8 @@ static const ShellCommand commands[] = {
     {"wifi"      , cmdWifi    },
     {"led"       , cmdLed     },
     {"ledtest"   , cmdLedtest },
-    {"webwifi"   , cmdWifiWeb },
+    {"getwifi"   , cmdWifiGet },
+    {"postwifi"  , cmdWifiPost},
     {NULL        , NULL       }
 };
 

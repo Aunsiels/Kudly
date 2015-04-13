@@ -30,6 +30,8 @@ void usartRead(void);
  *
  * Send http request, read the web page and saves it on specified file
  */
-void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]);
+void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]);
+
+void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]);
 
 #endif
