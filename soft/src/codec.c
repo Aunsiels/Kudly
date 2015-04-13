@@ -228,31 +228,16 @@ static msg_t threadEncode(void *arg){
         chSysUnlock();   
       
         while(playerState){
-            int n;
-            uint16_t level=0;
+            int n,i;
             /* See if there is some data available */
             if((n = readRegister(SCI_RECWORDS)) > 0) {
-                int i,j, cptVol=0;
                 uint8_t *rbp = recBuf;
-	    
                 n = min(n, REC_BUFFER_SIZE/2);
                 for (i=0; i<n; i++) {
                     data = readRegister(SCI_RECDATA);
                     *rbp++ = (uint8_t)(data >> 8);
                     *rbp++ = (uint8_t)(data & 0xFF);
-                    soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
                     writeRam(PAR_ENC_CHANNEL_MAX,0);
-                    if(cptVol==9){
-                        cptVol=0;
-                        level=0;
-                        for(j=0; j<10; j++)
-                            level=level + (soundAverage[j]/10);
-                    }
-                    if(level > 200){
-                        ledSetColorRGB(2,level/30,0,0);
-                    }
-                    cptVol++;
-                    /* Measures the volume on 10 data */
                 }
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
@@ -265,7 +250,7 @@ static msg_t threadEncode(void *arg){
         }
         
         endFillByte = readRam(PAR_END_FILL_BYTE);
-    
+        
         /* If it's odd lenght, endFillByte should be added */
         if(endFillByte & (1 << 15))
             f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
@@ -487,6 +472,20 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     chSysUnlock();
 }
 
+void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void) argv;
+
+    if (argc != 1) {
+        chprintf(chp, "Enter the duration of recording for the volume test\r\n");
+        return;
+    }
+    duration  = strtol(argv[0],NULL,10);
+    chSysLock();
+    chEvtBroadcastI(&eventSourceVolume);
+    chSysUnlock();
+}
+
+
 void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
@@ -549,6 +548,7 @@ void codecInit(){
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
+    chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
     chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
 }
 
