@@ -22,10 +22,8 @@ static char codecOutBuffer[16];
 EventSource streamOutSrc, streamInSrc;
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
-static char streamWrite[] = "write 0 163\r\n";
-
-static char webSocketHeader[] =
-"GET /echo HTTP/1.1\r\n\
+static char streamWriteHeader[] = "write 0 163\r\n\
+GET /echo HTTP/1.1\r\n\
 Host: kudly.herokuapp.com\r\n\
 Upgrade: websocket\r\n\
 Connection: Upgrade\r\n\
@@ -67,6 +65,8 @@ static msg_t streamingOut(void * args) {
                     */
                 }
 
+                chThdSleepMilliseconds(500);
+
                 sendToWS(codecOutBuffer);
             }
         }
@@ -93,8 +93,9 @@ void streamInit(void){
 
     /* Websocket init sequence */
     wifiWriteByUsart(tcpc, sizeof(tcpc));
-    wifiWriteByUsart(streamWrite, sizeof(streamWrite));
-    wifiWriteByUsart(webSocketHeader, sizeof(webSocketHeader));
+    writeSerial("-\n\r", 5);
+    wifiWriteByUsart(streamWriteHeader, sizeof(streamWriteHeader));
+    writeSerial("--\n\r", 5);
 
     // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
@@ -122,17 +123,22 @@ void streamInit(void){
 }
 
 void sendToWS(char * str) {
+    (void)str;
+    /*
+    static char webSocketMsg[] = "write 0 22\r\n......dddddddddddddddd";
     static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
 
+    strcpy(&webSocketMsg[12], webSocketDataHeader);
+    strcpy(&webSocketMsg[18], str);
+
     // Sending message header + 16 bytes = 22 bytes
-    wifiWriteByUsart("write 0 22\r\n", 12);
-    wifiWriteByUsart(webSocketDataHeader, 6);
-    wifiWriteByUsart(str, 16);
+    wifiWriteByUsart(webSocketMsg, sizeof(webSocketMsg));
 
     // TODO : really necessary ??
     chThdSleepMilliseconds(500);
 
     wifiWriteByUsart("read 0 10\r\n", 11);
+    */
 }
 
 /*
