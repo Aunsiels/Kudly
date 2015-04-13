@@ -69,6 +69,15 @@ void cmdEncode(BaseSequentialStream *, int, char *[]);
 
 /**
  *
+ * \brief Shell command for testing volume
+ *
+ * This function enables the TestVolume function in a shell command  
+ */
+
+void cmdTestVolume(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
  * \brief Shell command for encoding and decoding sounds at the same time
  *
  * This function enables the Codec (Fullduplex) function in a shell command 
