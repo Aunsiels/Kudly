@@ -16,10 +16,10 @@ enum wifiReadState {
 };
 
 static char stream_poll[] = "stream_poll 0\r\n";
-static char stream_close[] = "stream_close 0\r\n";
+static char stream_close[] = "stream_close all\r\n";
 
 /* Some strings used by http_request and stream reading */
-static char stream_read[] = "stream_read 0 200\r\n";
+static char stream_read[] = "stream_read 0 1440\r\n";
 static char http_get[] ="http_get ";
 static char endLine[] ="\r\n";
 
@@ -39,7 +39,7 @@ static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-static char stream_buffer[203];
+static char stream_buffer[1443];
 
 /* Event source to signal whan all data are received */
 EVENTSOURCE_DECL(srcEndToReadUsart);
@@ -143,16 +143,32 @@ void usartRead(void) {
 	NORMALPRIO, usartRead_thd, NULL);
 }
  
-static int polling(void){
+static void polling_request(void){
     wifiWriteByUsart(stream_poll, sizeof(stream_poll));
-    while(NULL != strstr(stream_buffer, "0") || NULL != strstr(stream_buffer, "2")){
-	if (NULL == strstr(stream_buffer, "Command failed")){
-	    wifiWriteByUsart(stream_close, sizeof(stream_close));
-	    return 1;
+    while(TRUE){
+	if(NULL != strstr(stream_buffer, "Command failed"))
+	    return;
+	else {
+	    if(NULL != strstr(stream_buffer, "1"))
+		return;
+	    else{
+		wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+	    }
 	}
-	wifiWriteByUsart(stream_poll, sizeof(stream_poll));
     }
-    return 0;
+}
+
+static void polling_post(void){
+    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    if(NULL != strstr(stream_buffer, "Command failed"))
+	return;
+    else {
+	if(NULL != strstr(stream_buffer, "1"))
+	    return;
+	else{
+	    wifiWriteByUsart(stream_close, sizeof(stream_close));
+	}
+    }
 }
 
 /* Function that sends hhtp_request and save th page in file */
@@ -170,12 +186,12 @@ static void saveWebPage( char * address , char * file){
 	save = TRUE;
 	print = FALSE;
 	/* Read the first stream */
+	polling_request();
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
 	/* Read until stream is not closed */
 	while (NULL == strstr(stream_buffer, "Command failed")){
 	    f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
-	    if (polling())
-		break;
+	    polling_request();
 	    wifiWriteByUsart(stream_read, sizeof(stream_read));	    
 	}
 	save = FALSE;
@@ -206,12 +222,12 @@ static void postAndRead( char * postMessage){
     /* Read the first stream */
     print = FALSE;
     save = TRUE;
+    polling_post();
     wifiWriteByUsart(stream_read, sizeof(stream_read));
     /* Read until stream is not closed */
     while (NULL == strstr(stream_buffer, "Command failed")){
 	writeSerial(stream_buffer);
-	if (polling())
-	    break;
+	polling_post();
    	wifiWriteByUsart(stream_read, sizeof(stream_read));
     }
     save = FALSE;
