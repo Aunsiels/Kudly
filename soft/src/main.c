@@ -11,6 +11,7 @@
 #include "codec.h"
 #include "camera.h"
 #include "wifi_manager.h"
+#include "imu.h"
 
 int main(void) {
 
@@ -20,13 +21,13 @@ int main(void) {
     /* Clear pad to break wifi factory reset */
     palClearPad(GPIOB, GPIOB_SPI2_MISO);
     chThdSleepMilliseconds(100);
-
+    
     /* Initialize the serial over usb */
     initUsbSerial();
-
+    
     /* Initialize shell */
     shellPersoInit();
-
+    
     /* Initialize SD card */
     sdPersoInit();
 
@@ -53,6 +54,9 @@ int main(void) {
 
     /* Init codec */
     codecInit();
+
+    /* IMU init */
+    imuInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 

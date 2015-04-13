@@ -15,6 +15,7 @@
 #include "codec.h"
 #include "wifi.h"
 #include "wifi_manager.h"
+#include "imu.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -57,6 +58,7 @@ static const ShellCommand commands[] = {
     {"play"        , cmdPlay       },
     {"encode"      , cmdEncode     },
     {"webwifi"     , cmdWifiWeb    },
+    {"imu"         , cmdImu        },
     {NULL          , NULL          }
 };
 
