@@ -15,6 +15,9 @@ static msg_t mbCodecIn_buf[32];
 MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 32);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 32);
 
+/* Buffer to send in a websocket */ 
+static char codecOutBuffer[16];
+
 /* Streaming event sources */
 EventSource streamOutSrc, streamInSrc;
 
@@ -36,9 +39,6 @@ static msg_t streamingIn(void * args) {
     EventListener streamInLst;
     chEvtRegisterMask(&streamInSrc, &streamInLst, (eventmask_t)1);
 
-    while(true) {
-
-    }
 
     return 0;
 }
@@ -47,16 +47,43 @@ static msg_t streamingIn(void * args) {
 static msg_t streamingOut(void * args) {
     (void)args;
 
+    //static msg_t msgCodec;
+
     EventListener streamOutLst;
     chEvtRegisterMask(&streamOutSrc, &streamOutLst, (eventmask_t)1);
     
     while(true) {
+        /*
+         * Starting streaming
+         */
         if(chEvtWaitAny(1)) {
-            
+            while(true) {
+                for(int i = 0 ; i < 16 ; i++) {
+                    codecOutBuffer[i] = (char)(41 + i);
+                    /*
+                    if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE)) {
+                        codecOutBuffer[i] = (char)msgCodec;
+                    }
+                    */
+                }
+
+                sendToWS(codecOutBuffer);
+            }
         }
     }
 
+    chThdSleep(TIME_INFINITE);
+
     return 0;
+}
+
+void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    streamInit();
+    chEvtBroadcast(&streamOutSrc);
 }
 
 /*
@@ -106,7 +133,6 @@ void sendToWS(char * str) {
     chThdSleepMilliseconds(500);
 
     wifiWriteByUsart("read 0 10\r\n", 11);
-
 }
 
 /*
@@ -164,7 +190,7 @@ void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)argc;
     (void)argv;
 
-    websocketInit();
+    streamInit();
 
 }
 

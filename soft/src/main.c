@@ -24,7 +24,7 @@ int main(void) {
     shellPersoInit();
 
     /* Initialize SD card */
-    //sdPersoInit();
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();

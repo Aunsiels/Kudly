@@ -50,6 +50,7 @@ static const ShellCommand commands[] = {
     {"test"        , cmdTest       },
     {"tree"        , cmdTree       },
     {"wifi"        , cmdWifi       },
+    {"wifiStream"  , streamLaunch  },
     {"webSocketInit", cmdWebSocInit},
     {"ws"          , cmdWebSoc     },
     {"led"         , cmdLed        },
