@@ -60,6 +60,7 @@ static const ShellCommand commands[] = {
     {"encode"      , cmdEncode     },
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
+    {"uploadwifi"  , cmdWifiUpload },
     {NULL          , NULL          }
 };
 
