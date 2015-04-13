@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "ff.h"
 #include "wifi_manager.h"
+#include "websocket.h"
 
 /* Different states for usart reading */
 enum wifiReadState {
@@ -14,6 +15,9 @@ enum wifiReadState {
     RECEIVE_HEADER,
     RECEIVE_RESPONSE
 };
+
+/* Boolean to set streaming to on */
+bool_t streaming = 0;
 
 /* Some strings used by http_request and stream reading */
 static char stream_read[] = "stream_read 0 200\r\n";
@@ -28,8 +32,8 @@ static char urlencoded[]=" x-www-form-urlencoded\r\n";
 static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
-static bool_t print = TRUE;
-static bool_t save = FALSE;
+bool_t print = TRUE;
+bool_t save = FALSE;
 
 /* For system file */
 static FIL fil;
@@ -90,14 +94,14 @@ static msg_t usartRead_thd(void * arg){
 		    break;
 		case 7: 
 		    /* After receiving \n\r */
-		    if(rcvType == 'R') {
-			if(headerSize !=0)
-			    wifiReadState = RECEIVE_RESPONSE;
-			else{
-			    chEvtBroadcast(&srcEndToReadUsart);
-			    wifiReadState = IDLE;
-			}
-		    } 
+            if(rcvType == 'R') {
+                if(headerSize !=0)
+                    wifiReadState = RECEIVE_RESPONSE;
+                else{
+                    chEvtBroadcast(&srcEndToReadUsart);
+                    wifiReadState = IDLE;
+                }
+            } 
 		    break;
 		}		
 		h++;
@@ -111,6 +115,9 @@ static msg_t usartRead_thd(void * arg){
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
+        if(streaming) {
+            parseStreamData(c);
+        }
 
 		dataCpt++;
 

@@ -7,8 +7,9 @@
 /* Main receiving mailbox */
 extern Mailbox * mb;
 
-/* Codec sending buffer */
-extern char codecBuffer[16];
+//Boolean values, both defined in wifi_manager.c
+extern bool_t streaming;
+extern bool_t print;
 
 /**
  * \brief Initializes a websocket connection
@@ -25,5 +26,7 @@ void cmdWebSoc(BaseSequentialStream * chp, int argc, char * argv[]);
 void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]);
 void streamInit(void);
 void sendToWS(char * str);
+
+void parseStreamData(msg_t c);
 
 #endif
