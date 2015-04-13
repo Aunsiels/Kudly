@@ -62,7 +62,11 @@ static const ShellCommand commands[] = {
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
     {"wifiStream"  , streamLaunch  },
-    {NULL          , NULL          }
+    {"codec"  , cmdFullDuplex},
+    {"stop"   , cmdStop    },
+    {"volume" , cmdVolume  },
+    {"c"      , cmdControl },
+    {NULL     , NULL       }
 };
 
 /* Config of the shell */

@@ -49,10 +49,17 @@ int main(void) {
     /* Init ADC hand sensors */
     initHandSensors();
 
+    ledInit();
+
     /* Init codec */
     codecInit();
 
-    chThdSleepMilliseconds(TIME_INFINITE);
+    while(TRUE){
+	ledSetColorRGB(1,0,0,0);
+	chThdSleepMilliseconds(500);
+	ledSetColorRGB(1,0,255,0);
+	chThdSleepMilliseconds(500);
+    }
 
     return 0;
 }
