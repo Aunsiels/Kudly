@@ -299,8 +299,8 @@ static msg_t threadFullDuplex(void *arg){
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
-        /* Set the samplerate at 16kHz */ //See with Dim for the samplerate
-        writeRegister(SCI_AICTRL0,16000);
+        /* Set the samplerate at 8kHz */ 
+        writeRegister(SCI_AICTRL0,8000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x40 */
