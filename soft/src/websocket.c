@@ -22,7 +22,7 @@ static char codecOutBuffer[16];
 EventSource streamOutSrc, streamInSrc;
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
-static char streamWriteHeader[] = "write 0 163\r\n\
+static char streamWriteHeader[] = "write 0 162\r\n\
 GET /echo HTTP/1.1\r\n\
 Host: kudly.herokuapp.com\r\n\
 Upgrade: websocket\r\n\
@@ -30,6 +30,8 @@ Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
+static char webSocketMsg[] = "write 0 14\r\nhhhhhhdddddddd";
+static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
 
 msg_t streamingIn(void * args) {
     (void)args;
@@ -93,14 +95,12 @@ void streamInit(void){
 
     /* Websocket init sequence */
     wifiWriteByUsart(tcpc, sizeof(tcpc));
-    writeSerial("-\n\r", 5);
     wifiWriteByUsart(streamWriteHeader, sizeof(streamWriteHeader));
-    writeSerial("--\n\r", 5);
 
     // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
 
-    wifiWriteByUsart("read 0 200\r\n", 11);
+    wifiWriteByUsart("read 0 400\r\n", 12);
 
     // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
@@ -109,7 +109,7 @@ void streamInit(void){
     static WORKING_AREA(streamingOut_wa, 128);
     static WORKING_AREA(streamingIn_wa, 128);
 
-    // Events init
+    // Events init 
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);
 
@@ -125,26 +125,18 @@ void streamInit(void){
 
 void sendToWS(char * str) {
     (void)str;
-    // Message to send to the server, space for header and data
-    static char webSocketMsg[] = "write 0 14\r\nhhhhhhdddddddd";
-    // Message size
-    static int size = sizeof(webSocketMsg);
-    static unsigned char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
     static char data[] = "01234567";
 
-    // Setting message header & data
-    strncpy(&webSocketMsg[12], (char *)webSocketDataHeader, sizeof(webSocketDataHeader));
-    //strcpy(&webSocketMsg[18], str);
-    strncpy(&webSocketMsg[18], data, 6);
+    memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
+    memcpy(&webSocketMsg[18], data, 8);
 
-    //writeSerial(webSocketMsg);
+    wifiWriteByUsart(webSocketMsg, 26);
 
-    // Sending message
-    wifiWriteByUsart(webSocketMsg, size);
+    // TODO : really necessary ??
+    chThdSleepMilliseconds(1000);
 
-    //Reading message after a while
-    chThdSleepMilliseconds(500);
-    wifiWriteByUsart("read 0 10\r\n", 11);
+    writeSerial("Reading....\r\n");
+    wifiWriteByUsart("read 0 40\r\n", 11);
 }
 
 /*
@@ -210,11 +202,6 @@ void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
-
-    if(argc == 0) {
-        chprintf(chp, "Écrit 8 chars après la commande steuplai\r\n");
-        return;
-    }
 
     sendToWS(argv[0]);
 }

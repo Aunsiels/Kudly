@@ -10,6 +10,7 @@
 #include "wifi_manager.h"
 
 /* Event listener for the end of reading by usart */ 
+static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
 static msg_t mb_buf[32];
@@ -31,7 +32,7 @@ static char save[] = "save\r\n";
 
 /* http request on Kudly website */
 static char cfg_echoOff[] = "set system.cmd.echo off\r\n";
-static char cfg_printLevel0[] = "set system.print_level 3\r\n";
+static char cfg_printLevel0[] = "set system.print_level 0\r\n";
 static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\r\n";
 static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 
@@ -58,7 +59,10 @@ static msg_t usartReadInMB_thd(void * args) {
 
 /* Sends data by wifi */
 void wifiWriteByUsart(char * message, int length){
+    chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
     sdWrite(&SD3, (uint8_t*)message, length);
+    chEvtWaitOne(1);
+    chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 
 /*  Launches the wifi reading */
@@ -100,7 +104,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(4000);
+    chThdSleepMilliseconds(8000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
     /*
