@@ -126,17 +126,16 @@ void streamInit(void){
 void sendToWS(char * str) {
     (void)str;
     // Message to send to the server, space for header and data
-    static char webSocketMsg[] = "write 0 22\r\nhhhhhhdddddddddddddddd";
+    static char webSocketMsg[] = "write 0 14\r\nhhhhhhdddddddd";
     // Message size
     static int size = sizeof(webSocketMsg);
-    static char webSocketDataHeader[] = {0x81, 0x90, 0x00, 0x00, 0x00, 0x00};
-    static char data[] = "0123456789ABCDEF";
-
+    static unsigned char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
+    static char data[] = "01234567";
 
     // Setting message header & data
-    strncpy(&webSocketMsg[12], webSocketDataHeader, sizeof(webSocketDataHeader));
+    strncpy(&webSocketMsg[12], (char *)webSocketDataHeader, sizeof(webSocketDataHeader));
     //strcpy(&webSocketMsg[18], str);
-    strncpy(&webSocketMsg[18], data, 16);
+    strncpy(&webSocketMsg[18], data, 6);
 
     //writeSerial(webSocketMsg);
 
