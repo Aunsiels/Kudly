@@ -31,7 +31,7 @@ Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
 
-static msg_t streamingIn(void * args) {
+msg_t streamingIn(void * args) {
     (void)args;
 
     EventListener streamInLst;
@@ -42,7 +42,7 @@ static msg_t streamingIn(void * args) {
 }
 
 
-static msg_t streamingOut(void * args) {
+msg_t streamingOut(void * args) {
     (void)args;
 
     //static msg_t msgCodec;
@@ -105,10 +105,11 @@ void streamInit(void){
     // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
 
+    /*
     static WORKING_AREA(streamingOut_wa, 128);
     static WORKING_AREA(streamingIn_wa, 128);
 
-    /* Events init */
+    // Events init
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);
 
@@ -119,23 +120,31 @@ void streamInit(void){
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
             NORMALPRIO, streamingOut, NULL);
-
+    */
 }
 
 void sendToWS(char * str) {
     (void)str;
-    static char webSocketMsg[] = "write 0 22\r\n......dddddddddddddddd";
-    static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
+    // Message to send to the server, space for header and data
+    static char webSocketMsg[] = "write 0 22\r\nhhhhhhdddddddddddddddd";
+    // Message size
+    static int size = sizeof(webSocketMsg);
+    static char webSocketDataHeader[] = {0x81, 0x90, 0x00, 0x00, 0x00, 0x00};
+    static char data[] = "0123456789ABCDEF";
 
-    strcpy(&webSocketMsg[12], webSocketDataHeader);
-    strcpy(&webSocketMsg[18], str);
 
-    // Sending message header + 16 bytes = 22 bytes
-    wifiWriteByUsart(webSocketMsg, sizeof(webSocketMsg));
+    // Setting message header & data
+    strncpy(&webSocketMsg[12], webSocketDataHeader, sizeof(webSocketDataHeader));
+    //strcpy(&webSocketMsg[18], str);
+    strncpy(&webSocketMsg[18], data, 16);
 
-    // TODO : really necessary ??
+    //writeSerial(webSocketMsg);
+
+    // Sending message
+    wifiWriteByUsart(webSocketMsg, size);
+
+    //Reading message after a while
     chThdSleepMilliseconds(500);
-
     wifiWriteByUsart("read 0 10\r\n", 11);
 }
 

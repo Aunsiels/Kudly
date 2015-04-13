@@ -32,7 +32,7 @@ static char save[] = "save\r\n";
 
 /* http request on Kudly website */
 static char cfg_echoOff[] = "set system.cmd.echo off\r\n";
-static char cfg_printLevel0[] = "set system.print_level 0\r\n";
+static char cfg_printLevel0[] = "set system.print_level 3\r\n";
 static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\r\n";
 static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 
@@ -104,7 +104,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(8000);
+    chThdSleepMilliseconds(4000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
     /*

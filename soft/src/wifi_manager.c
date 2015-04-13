@@ -58,6 +58,7 @@ static msg_t usartRead_thd(void * arg){
 
     while(TRUE) {
 	if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
+        writeSerial("%c", (char)c);
 	    /* Parsing headers & data */
 	    switch(wifiReadState) {	    
 	    case IDLE:
@@ -106,8 +107,9 @@ static msg_t usartRead_thd(void * arg){
 	    case RECEIVE_RESPONSE:
 		/* Response beginning */
 		/* Printing on shell */
-		if(print)
-		    writeSerial("%c",(char)c);
+		if(print) {
+		    //writeSerial("%c",(char)c);
+        }
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
