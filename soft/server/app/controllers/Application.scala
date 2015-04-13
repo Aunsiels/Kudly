@@ -222,13 +222,16 @@ object Application extends Controller {
             picture.ref.moveTo(new File(s"/tmp/$filename"))
             var image = new FileInputStream(s"/tmp/$filename")
 
-            /* Write in the database */
-            var id = gridfs(image) { f =>
-                f.filename = filename
-                f.contentType = contentType.getOrElse("image/jpg")
+            try {
+                /* Write in the database */
+                var id = gridfs(image) { f =>
+                    f.filename = filename
+                    f.contentType = contentType.getOrElse("image/jpg")
+                }
+                Ok("File uploaded")
+            }catch {
+                case _ : Throwable => Ok("May be uploaded")
             }
-            
-            Ok("File uploaded")
         }.getOrElse {
             Ok("Problem while upload")
         }
