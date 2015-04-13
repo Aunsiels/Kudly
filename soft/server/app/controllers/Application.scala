@@ -240,4 +240,20 @@ object Application extends Controller {
     def sendimage = Action {
         Ok(views.html.image())
     }
+
+    /*
+     * Reads an image
+     */
+    def image (name : String) = Action {
+        var imageReceived = gridfs.findOne(name)
+        imageReceived match {
+            case Some(im) => {
+                var filename = im.filename.getOrElse("image")
+                var file = new File(filename)
+                im writeTo file
+                Ok.sendFile(file)}
+            case None     => 
+                Ok("No such image")
+        }
+    }
 }

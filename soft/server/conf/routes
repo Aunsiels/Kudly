@@ -26,3 +26,5 @@ POST   /temp                        controllers.Application.temp
 POST   /sendimage                   controllers.Application.upload
 
 GET    /sendimage                   controllers.Application.sendimage
+
+GET    /image                       controllers.Application.image(name : String)
