@@ -16,15 +16,18 @@
 /* Event and working area for playback and encoding threads */
 EVENTSOURCE_DECL(eventSourcePlay);
 EVENTSOURCE_DECL(eventSourceEncode);
+EVENTSOURCE_DECL(eventSourceVolume);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
 EVENTSOURCE_DECL(eventSourceFullDuplex);
 EventSource eventSourcePlay;
 EventSource eventSourceEncode;
+EventSource eventSourceVolume;
 EventSource eventSourceWaitEncoding;
 EventSource eventSourceFullDuplex;
 
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
+static WORKING_AREA(waVolume, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
 static WORKING_AREA(waFullDuplex, 2048);
 
@@ -217,7 +220,7 @@ static msg_t threadEncode(void *arg){
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
-  
+
         f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
         chSysLock();
@@ -238,27 +241,29 @@ static msg_t threadEncode(void *arg){
                     *rbp++ = (uint8_t)(data >> 8);
                     *rbp++ = (uint8_t)(data & 0xFF);
                     soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
+                    writeRam(PAR_ENC_CHANNEL_MAX,0);
                     if(cptVol==9){
                         cptVol=0;
                         level=0;
                         for(j=0; j<10; j++)
-                            level=level + (soundAverage[j]/20);
+                            level=level + (soundAverage[j]/10);
                     }
                     if(level > 200){
                         ledSetColorRGB(2,level/30,0,0);
                     }
                     cptVol++;
-                    /* Measures the volume on 200 data */
+                    /* Measures the volume on 10 data */
                 }
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
             else{
                 if(stopRecord && !readRegister(SCI_RECWORDS)){
                     playerState = 0;
+                    ledSetColorRGB(2,0,0,0);        
                 }
             }
         }
-	
+        
         endFillByte = readRam(PAR_END_FILL_BYTE);
     
         /* If it's odd lenght, endFillByte should be added */
@@ -281,6 +286,99 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
+static msg_t threadTestVolume(void *arg){
+    (void) arg;
+
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
+
+    /* Thread to count the duration of recording */
+    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
+
+    uint16_t data;
+    UINT bw;
+    uint16_t endFillByte;
+    
+    while(1){
+        /* Wait for the thread to be called */
+        chEvtWaitOne(1);
+        /* Can't encode if SPI is not ready (typicaly when playback) */
+        if(SPID4.state != 2){
+            writeSerial("SPI not ready\r\n");
+            goto endEncoding;
+        }
+        /* Set volume at maximum (for now micro is not pre-amplified) */
+        codecVolume(100);
+        /* Set the samplerate at 16kHz */
+        writeRegister(SCI_AICTRL0,16000);
+        /* Automatic gain control */
+        writeRegister(SCI_AICTRL1,0);
+        /* Maximum gain amplification at x40 */
+        writeRegister(SCI_AICTRL2,40000);
+        /* Set in mono mode, and in format OGG Vorbis */
+        writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
+        /* Set quality mode to 5 */
+        writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+	
+        /* Start encoding procedure */
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+        writeRegister(SCI_AIADDR,0x50);
+
+        chSysLock();
+        chEvtBroadcastI(&eventSourceWaitEncoding);
+        chSysUnlock();   
+      
+        while(playerState){
+            int n;
+            uint16_t level=0;
+            /* See if there is some data available */
+            if((n = readRegister(SCI_RECWORDS)) > 0) {
+                int i,j, cptVol=0;
+                uint8_t *rbp = recBuf;
+	    
+                n = min(n, REC_BUFFER_SIZE/2);
+                for (i=0; i<n; i++) {
+                    data = readRegister(SCI_RECDATA);
+                    *rbp++ = (uint8_t)(data >> 8);
+                    *rbp++ = (uint8_t)(data & 0xFF);
+                    soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
+                    writeRam(PAR_ENC_CHANNEL_MAX,0);
+                    if(cptVol==9){
+                        cptVol=0;
+                        level=0;
+                        for(j=0; j<10; j++)
+                            level=level + (soundAverage[j]/10);
+                    }
+                    if(level > 200){
+                        ledSetColorRGB(2,level/30,0,0);
+                    }
+                    cptVol++;
+                    /* Measures the volume on 10 data */
+                }
+            }   	    
+            else{
+                if(stopRecord && !readRegister(SCI_RECWORDS)){
+                    playerState = 0;        
+                }
+            }
+        }
+        
+        endFillByte = readRam(PAR_END_FILL_BYTE);
+    
+        writeRam(PAR_END_FILL_BYTE,0);
+    
+        /* Wait until the codec exit the encoding mode */
+        while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
+
+        codecReset();
+
+        playerState = 1;
+        stopRecord = 0;
+	endEncoding:
+        chThdSleepMilliseconds(1);
+    }
+    return 0;
+}
 //static uint16_t codecBuf[16];
 
 static msg_t threadFullDuplex(void *arg){
