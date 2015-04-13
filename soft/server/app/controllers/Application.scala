@@ -215,7 +215,7 @@ object Application extends Controller {
      * Uploads a file in the database
      */
     def upload = Action(parse.multipartFormData) { request =>
-        request.body.file("picture").map { picture =>
+        request.body.file("file").map { picture =>
             val filename = picture.filename 
             val contentType = picture.contentType
 
@@ -233,7 +233,7 @@ object Application extends Controller {
                 case _ : Throwable => Ok("May be uploaded")
             }
         }.getOrElse {
-            Ok("Problem while upload")
+            BadRequest("Problem while upload")
         }
     }
 
