@@ -30,6 +30,17 @@ void usartRead(void);
  *
  * Send http request, read the web page and saves it on specified file
  */
-void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]);
+void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]);
+
+/**
+ *
+ * \brief Save web page in file
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ * Send http post, send data and wait for response
+ */
+void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]);
 
 #endif

@@ -56,7 +56,8 @@ static const ShellCommand commands[] = {
     {"handsensors" , cmdHandSensors},
     {"play"        , cmdPlay       },
     {"encode"      , cmdEncode     },
-    {"webwifi"     , cmdWifiWeb    },
+    {"getwifi"     , cmdWifiGet    },
+    {"postwifi"    , cmdWifiPost   },
     {NULL          , NULL          }
 };
 

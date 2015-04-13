@@ -15,10 +15,18 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
-/* Some strings used by http_request and stream reding */
-static char stream_read[] = "stream_read 0 200\r\n";
+/* Some string for polling functions */
+static char stream_poll[] = "stream_poll 0\r\n";
+static char stream_close[] = "stream_close all\r\n";
+
+/* Some strings used by http_request and stream reading */
+static char stream_read[] = "stream_read 0 1440\r\n";
 static char http_get[] ="http_get ";
 static char endLine[] ="\r\n";
+
+/* Some strings used by http_post */
+static char http_post[]="http_post ";
+static char urlencoded[]=" x-www-form-urlencoded\r\n";
 
 /* String used to build http request request */
 static char msgWifi[120];
@@ -32,7 +40,7 @@ static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-static char stream_buffer[203];
+static char stream_buffer[1443];
 
 /* Event source to signal whan all data are received */
 EVENTSOURCE_DECL(srcEndToReadUsart);
@@ -62,6 +70,8 @@ static msg_t usartRead_thd(void * arg){
 		    wifiReadState = RECEIVE_HEADER;
 		    rcvType = (char)c;
 		    h = 0;
+		    dataCpt = 0;
+		    stream_buffer[0]= '\0';
 		}
 		break;
 
@@ -82,7 +92,6 @@ static msg_t usartRead_thd(void * arg){
 		    header[h-1] = (char)c;
 		    header[h] = '\0';
 		    headerSize = strtol(header, (char **)NULL, 10);
-		    dataCpt = 0;
 		    break;
 		case 7: 
 		    /* After receiving \n\r */
@@ -134,7 +143,23 @@ void usartRead(void) {
 	usartRead_wa, sizeof(usartRead_wa),
 	NORMALPRIO, usartRead_thd, NULL);
 }
- 
+
+/* Polling for http_get command */ 
+static void polling_request(void){
+    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    while(TRUE){
+	if(NULL != strstr(stream_buffer, "Command failed"))
+	    return;
+	else {
+	    if(NULL != strstr(stream_buffer, "1"))
+		return;
+	    else{
+		wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+	    }
+	}
+    }
+}
+
 /* Function that sends hhtp_request and save th page in file */
 static void saveWebPage( char * address , char * file){
     
@@ -150,11 +175,13 @@ static void saveWebPage( char * address , char * file){
 	save = TRUE;
 	print = FALSE;
 	/* Read the first stream */
+	polling_request();
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
 	/* Read until stream is not closed */
 	while (NULL == strstr(stream_buffer, "Command failed")){
 	    f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
-	    wifiWriteByUsart(stream_read, sizeof(stream_read));
+	    polling_request();
+	    wifiWriteByUsart(stream_read, sizeof(stream_read));	    
 	}
 	save = FALSE;
 	print =TRUE;
@@ -164,15 +191,66 @@ static void saveWebPage( char * address , char * file){
 }
 
 /* Function that sends hhtp_request and save th page in file */
-void cmdWifiWeb(BaseSequentialStream *chp, int argc, char * argv[]){
+void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
     (void)chp;
     if (argc != 2) {
-        writeSerial( "Usage: wifiweb WebAddress SaveLocation\r\n");
+        writeSerial( "Usage: getwifi WebAddress SaveLocation\r\n");
         return;
     }
     strcat(msgWifi ,http_get);
     strcat(msgWifi , argv[0]);
     strcat(msgWifi , endLine);
     saveWebPage(msgWifi, argv[1]);
+    msgWifi[0] ='\0';
+}
+
+/* Polling for http_post command */ 
+static void polling_post(void){
+    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    if(NULL != strstr(stream_buffer, "Command failed"))
+	return;
+    else {
+	if(NULL != strstr(stream_buffer, "1"))
+	    return;
+	else{
+	    wifiWriteByUsart(stream_close, sizeof(stream_close));
+	}
+    }
+}
+
+/* Function that sends hhtp_request and save th page in file */
+static void postAndRead( char * postMessage){
+    /* Send http_post */
+    wifiWriteByUsart(postMessage, strlen(postMessage));
+    /* Read the first stream */
+    print = FALSE;
+    save = TRUE;
+    polling_post();
+    wifiWriteByUsart(stream_read, sizeof(stream_read));
+    /* Read until stream is not closed */
+    while (NULL == strstr(stream_buffer, "Command failed")){
+	writeSerial(stream_buffer);
+	polling_post();
+   	wifiWriteByUsart(stream_read, sizeof(stream_read));
+    }
+    save = FALSE;
+    print = TRUE;
+    writeSerial("Response received\r\n");
+}
+
+/* Function that sends hhtp_post and save th page in file */
+void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
+    (void)chp;
+    if (argc != 2) {
+        writeSerial( "Usage: postwifi WebAddress data\r\n");
+        return;
+    }
+    strcat(msgWifi ,http_post);
+    strcat(msgWifi , argv[0]);
+    strcat(msgWifi , "?");
+    strcat(msgWifi, argv[1]);
+    strcat(msgWifi , urlencoded);
+    writeSerial( msgWifi);
+    postAndRead(msgWifi);
     msgWifi[0] ='\0';
 }

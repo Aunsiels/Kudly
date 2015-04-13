@@ -19,6 +19,7 @@ MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
 /* Special strings to print */
 static char crlf[] ="\r\n";
 static char space[] =" ";
+static char cmdMessage[120];
 
 /* Char and buffer used by wifi receive */
 static char wifi_buffer;
@@ -77,13 +78,13 @@ static void wifiReadByUsart(void) {
 void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
     (void)chp;
     int i;
-    char message[120];
     for(i = 0; i < argc; i++){
-	strcat(message ,argv[i]);
-	strcat(message ,space);
+	strcat(cmdMessage ,argv[i]);
+	strcat(cmdMessage ,space);
     }
-    strcat(message ,crlf);
-    wifiWriteByUsart(message, strlen(message));
+    strcat(cmdMessage ,crlf);
+    wifiWriteByUsart(cmdMessage, strlen(cmdMessage));
+    cmdMessage[0]='\0';
 }
 
 /* Initialization of wifi network */

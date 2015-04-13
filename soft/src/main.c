@@ -6,11 +6,11 @@
 #include "shell_cfg.h"
 #include "sd_perso.h"
 #include "sccb.h"
+#include "wifi_manager.h"
 #include "hug_sensors.h"
 #include "hand_sensors.h"
 #include "codec.h"
 #include "camera.h"
-#include "wifi_manager.h"
 
 int main(void) {
 
@@ -44,7 +44,7 @@ int main(void) {
 
     /* Initialize wifi */
     wifiInitByUsart();
-    
+
     /* Init ADC hug sensors */
     initHugSensors();
 
