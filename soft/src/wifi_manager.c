@@ -186,12 +186,16 @@ static void postAndRead( char * postMessage){
     /* Send http_post */
     wifiWriteByUsart(postMessage, strlen(postMessage));
     /* Read the first stream */
+    print = FALSE;
+    save = TRUE;
     wifiWriteByUsart(stream_read, sizeof(stream_read));
     /* Read until stream is not closed */
     while (NULL == strstr(stream_buffer, "Command failed")){
-	f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
+	writeSerial(stream_buffer);
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
     }
+    save = FALSE;
+    print = TRUE;
     writeSerial("Response received\r\n");
 }
 

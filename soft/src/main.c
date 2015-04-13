@@ -29,7 +29,6 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-
     
     /* Init sccb */
     sccbInit();
