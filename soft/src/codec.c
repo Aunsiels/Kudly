@@ -297,8 +297,8 @@ static msg_t threadFullDuplex(void *arg){
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
-        /* Set the samplerate at 16kHz */ //See with Dim for the samplerate
-        writeRegister(SCI_AICTRL0,16000);
+        /* Set the samplerate at 8kHz */ 
+        writeRegister(SCI_AICTRL0,8000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x40 */
@@ -331,8 +331,7 @@ static msg_t threadFullDuplex(void *arg){
                 for(i = 0 ; i < 16 ; i++){
                     if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
                 }
-                // TODO Talk with Dim about the buffers used
-                sendData(playBuf,32);
+		sendData(codeBuf,32);
             }
         }
     
