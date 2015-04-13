@@ -22,6 +22,9 @@
 /* Thread of the shell */
 static Thread *shelltp = NULL;
 
+/* Working area of the shell controler */
+static WORKING_AREA(waShellController, 256);
+
 /* Command to test the shell */
 static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
@@ -67,14 +70,30 @@ static const ShellConfig shell_cfg1 = {
   commands
 };
 
-/* Initialization */
-void shellPersoInit(){
+/*
+ * Initializes and controls the shell
+ */
+static msg_t shellController (void *arg){
+    (void) arg;
+
     /* Initialization of the thread */
     shellInit();
     /* Start the shell */
-    while (!(!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)))
+    while (TRUE){
+        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)){
+            shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+        } else if (chThdTerminated(shelltp)){
+            chThdRelease(shelltp);
+            shelltp = NULL;
+        }
         chThdSleepMilliseconds(1000);
-    if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)){
-        shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
     }
+    return 0;
+}
+
+/* Initialization */
+void shellPersoInit(){
+    /* Begins the shell controller thread */
+    chThdCreateStatic(waShellController, sizeof(waShellController), NORMALPRIO,
+        shellController, NULL);
 }
