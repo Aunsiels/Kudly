@@ -15,6 +15,7 @@
 #include "codec.h"
 #include "camera.h"
 #include "websocket.h"
+#include "wifi_manager.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -60,6 +61,10 @@ static const ShellCommand commands[] = {
     {"encode"      , cmdEncode     },
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
+    {"wifiStream"  , streamLaunch  },
+    {"webSocketInit", cmdWebSocInit},
+    {"ws"          , cmdWebSoc     },
+    {"led"         , cmdLed        },
     {NULL          , NULL          }
 };
 

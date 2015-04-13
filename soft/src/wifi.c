@@ -79,8 +79,8 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
     (void)chp;
     int i;
     for(i = 0; i < argc; i++){
-	strcat(cmdMessage ,argv[i]);
-	strcat(cmdMessage ,space);
+	strcat(message ,argv[i]);
+	strcat(message ,space);
     }
     strcat(cmdMessage ,crlf);
     wifiWriteByUsart(cmdMessage, strlen(cmdMessage));

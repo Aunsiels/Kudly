@@ -15,6 +15,12 @@ static msg_t mbCodecIn_buf[32];
 MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 32);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 32);
 
+/* Buffer to send in a websocket */ 
+static char codecOutBuffer[16];
+
+/* Streaming event sources */
+EventSource streamOutSrc, streamInSrc;
+
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
 static char streamWrite[] = "write 0 163\r\n";
 
@@ -30,6 +36,10 @@ Sec-WebSocket-Version: 13\r\n\
 static msg_t streamingIn(void * args) {
     (void)args;
 
+    EventListener streamInLst;
+    chEvtRegisterMask(&streamInSrc, &streamInLst, (eventmask_t)1);
+
+
     return 0;
 }
 
@@ -37,24 +47,69 @@ static msg_t streamingIn(void * args) {
 static msg_t streamingOut(void * args) {
     (void)args;
 
+    //static msg_t msgCodec;
+
+    EventListener streamOutLst;
+    chEvtRegisterMask(&streamOutSrc, &streamOutLst, (eventmask_t)1);
+    
+    while(true) {
+        /*
+         * Starting streaming
+         */
+        if(chEvtWaitAny(1)) {
+            while(true) {
+                for(int i = 0 ; i < 16 ; i++) {
+                    codecOutBuffer[i] = (char)(41 + i);
+                    /*
+                    if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE)) {
+                        codecOutBuffer[i] = (char)msgCodec;
+                    }
+                    */
+                }
+
+                sendToWS(codecOutBuffer);
+            }
+        }
+    }
+
+    chThdSleep(TIME_INFINITE);
+
     return 0;
+}
+
+void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    streamInit();
+    chEvtBroadcast(&streamOutSrc);
 }
 
 /*
  * Initializes a websocket connection
  */
-void websocketInit(void){
-    /* Init sequence */
+void streamInit(void){
+
+    /* Websocket init sequence */
     wifiWriteByUsart(tcpc, sizeof(tcpc));
     wifiWriteByUsart(streamWrite, sizeof(streamWrite));
     wifiWriteByUsart(webSocketHeader, sizeof(webSocketHeader));
+
+    // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
 
     wifiWriteByUsart("read 0 200\r\n", 11);
+
+    // TODO : wait for an event when receiving all data
     chThdSleepMilliseconds(500);
 
     static WORKING_AREA(streamingOut_wa, 128);
     static WORKING_AREA(streamingIn_wa, 128);
+
+    /* Events init */
+    chEvtInit(&streamOutSrc);
+    chEvtInit(&streamInSrc);
 
     chThdCreateStatic(
             streamingIn_wa, sizeof(streamingIn_wa),
@@ -67,15 +122,17 @@ void websocketInit(void){
 }
 
 void sendToWS(char * str) {
-    static char webSocketData[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
+    static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
 
-    wifiWriteByUsart("write 0 14\r\n", 12);
-    wifiWriteByUsart(webSocketData, 6);
-    wifiWriteByUsart(str, 8);
+    // Sending message header + 16 bytes = 22 bytes
+    wifiWriteByUsart("write 0 22\r\n", 12);
+    wifiWriteByUsart(webSocketDataHeader, 6);
+    wifiWriteByUsart(str, 16);
 
+    // TODO : really necessary ??
     chThdSleepMilliseconds(500);
-    wifiWriteByUsart("read 0 10\r\n", 11);
 
+    wifiWriteByUsart("read 0 10\r\n", 11);
 }
 
 /*
@@ -133,7 +190,7 @@ void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)argc;
     (void)argv;
 
-    websocketInit();
+    streamInit();
 
 }
 

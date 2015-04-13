@@ -7,6 +7,9 @@
 /* Main receiving mailbox */
 extern Mailbox * mb;
 
+/* Codec sending buffer */
+extern char codecBuffer[16];
+
 /**
  * \brief Initializes a websocket connection
  */
@@ -19,7 +22,8 @@ void websocketInit(void);
 void websocketEncode(char * str);
 void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]);
 void cmdWebSoc(BaseSequentialStream * chp, int argc, char * argv[]);
-
+void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]);
+void streamInit(void);
 void sendToWS(char * str);
 
 #endif
