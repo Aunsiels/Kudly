@@ -43,6 +43,7 @@ static const ShellCommand commands[] = {
   {"codec"  , cmdFullDuplex},
   {"stop"   , cmdStop    },
   {"volume" , cmdVolume  },
+  {"testVolume", cmdTestVolume},
   {"c"      , cmdControl },
   {NULL     , NULL       }
 };

@@ -19,11 +19,6 @@ EVENTSOURCE_DECL(eventSourceEncode);
 EVENTSOURCE_DECL(eventSourceVolume);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
 EVENTSOURCE_DECL(eventSourceFullDuplex);
-EventSource eventSourcePlay;
-EventSource eventSourceEncode;
-EventSource eventSourceVolume;
-EventSource eventSourceWaitEncoding;
-EventSource eventSourceFullDuplex;
 
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
@@ -161,7 +156,6 @@ volatile int stopRecord = 0;
 volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
-static uint16_t soundAverage[10];
 
 static msg_t waitRecording(void *arg){
     (void) arg;
@@ -188,9 +182,6 @@ static msg_t threadEncode(void *arg){
 
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceEncode,&eventListener,1);
-
-    /* Thread to count the duration of recording */
-    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
 
     uint16_t data;
     UINT bw;
@@ -277,18 +268,14 @@ static msg_t threadTestVolume(void *arg){
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
 
-    /* Thread to count the duration of recording */
-    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
-
-    uint16_t data;
-    
     while(1){
+        ledSetColorRGB(2,0,0,0);
         /* Wait for the thread to be called */
         chEvtWaitOne(1);
         /* Can't encode if SPI is not ready (typicaly when playback) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endEncoding;
+            goto endEncoding2;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
@@ -312,32 +299,15 @@ static msg_t threadTestVolume(void *arg){
         chSysUnlock();   
       
         while(playerState){
-            int n;
             uint16_t level=0;
             /* See if there is some data available */
-            if((n = readRegister(SCI_RECWORDS)) > 0) {
-                int i,j, cptVol=0;
-                uint8_t *rbp = recBuf;
-	    
-                n = min(n, REC_BUFFER_SIZE/2);
-                for (i=0; i<n; i++) {
-                    data = readRegister(SCI_RECDATA);
-                    *rbp++ = (uint8_t)(data >> 8);
-                    *rbp++ = (uint8_t)(data & 0xFF);
-                    soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
+            if((readRegister(SCI_RECWORDS)) > 0) {
+                readRegister(SCI_RECDATA);
+                    while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
                     writeRam(PAR_ENC_CHANNEL_MAX,0);
-                    if(cptVol==9){
-                        cptVol=0;
-                        level=0;
-                        for(j=0; j<10; j++)
-                            level=level + (soundAverage[j]/10);
-                    }
-                    if(level > 200){
-                        ledSetColorRGB(2,level/30,0,0);
-                    }
-                    cptVol++;
-                    /* Measures the volume on 10 data */
-                }
+                writeSerial("Level : %d\r\n", level);
+                ledSetColorRGB(2,level,0,0);
+                chThdSleepMilliseconds(100);
             }   	    
             else{
                 if(stopRecord && !readRegister(SCI_RECWORDS)){
@@ -355,7 +325,7 @@ static msg_t threadTestVolume(void *arg){
 
         playerState = 1;
         stopRecord = 0;
-	endEncoding:
+	endEncoding2:
         chThdSleepMilliseconds(1);
     }
     return 0;
@@ -546,6 +516,9 @@ void codecInit(){
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
     chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
     chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
+
+    /* Thread to count the duration of recording */
+    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
 }
 
 void codecReset(void){
