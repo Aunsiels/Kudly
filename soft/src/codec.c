@@ -19,11 +19,6 @@ EVENTSOURCE_DECL(eventSourceEncode);
 EVENTSOURCE_DECL(eventSourceVolume);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
 EVENTSOURCE_DECL(eventSourceFullDuplex);
-EventSource eventSourcePlay;
-EventSource eventSourceEncode;
-EventSource eventSourceVolume;
-EventSource eventSourceWaitEncoding;
-EventSource eventSourceFullDuplex;
 
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
@@ -189,9 +184,6 @@ static msg_t threadEncode(void *arg){
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceEncode,&eventListener,1);
 
-    /* Thread to count the duration of recording */
-    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
-
     uint16_t data;
     UINT bw;
     uint16_t endFillByte;
@@ -277,20 +269,16 @@ static msg_t threadTestVolume(void *arg){
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
 
-    /* Thread to count the duration of recording */
-    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
-
     uint16_t data;
-    UINT bw;
-    uint16_t endFillByte;
     
     while(1){
+        ledSetColorRGB(2,0,0,0);
         /* Wait for the thread to be called */
         chEvtWaitOne(1);
         /* Can't encode if SPI is not ready (typicaly when playback) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endEncoding;
+            goto endEncoding2;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
@@ -331,14 +319,16 @@ static msg_t threadTestVolume(void *arg){
                     if(cptVol==9){
                         cptVol=0;
                         level=0;
+                        /* Measures the volume on 10 data */
                         for(j=0; j<10; j++)
-                            level=level + (soundAverage[j]/10);
+                            level += soundAverage[j];
                     }
-                    if(level > 200){
-                        ledSetColorRGB(2,level/30,0,0);
+                    level /= 10;
+                    if(level > 1){
+                        writeSerial("Level : %d\r\n", level);
+                        ledSetColorRGB(2,level,0,0);
                     }
                     cptVol++;
-                    /* Measures the volume on 10 data */
                 }
             }   	    
             else{
@@ -347,8 +337,6 @@ static msg_t threadTestVolume(void *arg){
                 }
             }
         }
-        
-        endFillByte = readRam(PAR_END_FILL_BYTE);
     
         writeRam(PAR_END_FILL_BYTE,0);
     
@@ -359,7 +347,7 @@ static msg_t threadTestVolume(void *arg){
 
         playerState = 1;
         stopRecord = 0;
-	endEncoding:
+	endEncoding2:
         chThdSleepMilliseconds(1);
     }
     return 0;
@@ -550,6 +538,9 @@ void codecInit(){
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
     chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
     chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
+
+    /* Thread to count the duration of recording */
+    chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
 }
 
 void codecReset(void){

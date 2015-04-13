@@ -104,4 +104,12 @@ void cmdVolume(BaseSequentialStream *, int, char *[]);
 
 void cmdControl(BaseSequentialStream *, int, char *[]);
 
+/**
+ * 
+ * \brief Shell command for testing the micro
+ *
+ * Takes a duration and change the intenity of a led
+ */
+void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]);
+
 #endif /* CODEC_H */
