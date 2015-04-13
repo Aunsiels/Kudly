@@ -13,6 +13,7 @@ import play.api.Play.current
 import akka.actor._
 
 import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.gridfs.Imports._
 
 object Application extends Controller {
 
@@ -184,5 +185,59 @@ object Application extends Controller {
                 Ok("Temperature received")
             }
         )
+    }
+
+    /* Gridfs reference */
+    val gridfs = GridFS(dataBase)
+
+    /*
+     * Test the writting/reading in the database
+     */
+    def testGridFS = {
+        gridfs remove "mongodb_test.ogg"
+
+        /* Save in the database */
+        var image = new FileInputStream("public/0233.ogg")
+        var id = gridfs(image) { f =>
+            f.filename = "mongodb_test.ogg"
+        }
+
+        var imageReceived = gridfs.findOne("mongodb_test.ogg")
+        imageReceived match {
+            case Some(im) => println(im.filename)
+            case None     => println("Nothing")
+        }
+
+        gridfs remove "mongodb_test.ogg"
+    }
+
+    /*
+     * Uploads a file in the database
+     */
+    def upload = Action(parse.multipartFormData) { request =>
+        request.body.file("picture").map { picture =>
+            val filename = picture.filename 
+            val contentType = picture.contentType
+
+            picture.ref.moveTo(new File(s"/tmp/$filename"))
+            var image = new FileInputStream(s"/tmp/$filename")
+
+            /* Write in the database */
+            var id = gridfs(image) { f =>
+                f.filename = filename
+                f.contentType = contentType.getOrElse("image/jpg")
+            }
+            
+            Ok("File uploaded")
+        }.getOrElse {
+            Ok("Problem while upload")
+        }
+    }
+
+    /*
+     * Page to send an image
+     */
+    def sendimage = Action {
+        Ok(views.html.image())
     }
 }
