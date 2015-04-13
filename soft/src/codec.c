@@ -392,7 +392,9 @@ static msg_t threadFullDuplex(void *arg){
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
-                //chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);	   
+                if(chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE)) {
+                   writeSerial("!"); 
+                }
             }
 	    
             else if(stopRecord){

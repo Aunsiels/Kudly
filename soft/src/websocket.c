@@ -70,8 +70,10 @@ msg_t streamingOut(void * args) {
          */
         if(chEvtWaitAny(1)) {
             while(true) {
+                writeSerial("Sending...\n\r");
                 for(int i = 0 ; i < 16 ; i++) {
                     if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE)) {
+                        writeSerial("c : %d\r\n", (short int)msgCodec);
                         codecOutBuffer[i] = (char)msgCodec;
                     }
                 }
@@ -129,8 +131,8 @@ void streamInit(void){
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);
 
-    streaming = 1;
-    print = 0;
+    //streaming = 1;
+    //print = 0;
     
     static WORKING_AREA(streamingOut_wa, 128);
     static WORKING_AREA(streamingIn_wa, 128);
