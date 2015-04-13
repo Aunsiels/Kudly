@@ -281,8 +281,6 @@ static msg_t threadTestVolume(void *arg){
     chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
 
     uint16_t data;
-    UINT bw;
-    uint16_t endFillByte;
     
     while(1){
         /* Wait for the thread to be called */
@@ -347,8 +345,6 @@ static msg_t threadTestVolume(void *arg){
                 }
             }
         }
-        
-        endFillByte = readRam(PAR_END_FILL_BYTE);
     
         writeRam(PAR_END_FILL_BYTE,0);
     

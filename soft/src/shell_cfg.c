@@ -39,6 +39,7 @@ static const ShellCommand commands[] = {
   {"tree"   , cmdTree    },
   {"play"   , cmdPlay    },
   {"encode" , cmdEncode  },
+  {"volumeTest" , cmdTestVolume},
   {"codec"  , cmdFullDuplex},
   {"stop"   , cmdStop    },
   {"volume" , cmdVolume  },
