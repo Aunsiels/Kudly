@@ -43,5 +43,4 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
  * This function connects the board to the a406 network  
  */
 void wifiInitByUsart(void);
-
 #endif
