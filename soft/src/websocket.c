@@ -125,10 +125,8 @@ void streamInit(void){
 
 void sendToWS(char * str) {
     (void)str;
-    static char data[] = "01234567";
-
     memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
-    memcpy(&webSocketMsg[18], data, 8);
+    memcpy(&webSocketMsg[18], str, 8);
 
     wifiWriteByUsart(webSocketMsg, 26);
 
@@ -202,6 +200,11 @@ void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
+
+    if(argc == 0) {
+        chprintf(chp, "Écrit 8 chars après la commande steuplai\n\r");
+        return;
+    }
 
     sendToWS(argv[0]);
 }
