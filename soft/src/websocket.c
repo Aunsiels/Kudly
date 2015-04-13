@@ -124,7 +124,6 @@ void streamInit(void){
 
 void sendToWS(char * str) {
     (void)str;
-    /*
     static char webSocketMsg[] = "write 0 22\r\n......dddddddddddddddd";
     static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
 
@@ -138,7 +137,6 @@ void sendToWS(char * str) {
     chThdSleepMilliseconds(500);
 
     wifiWriteByUsart("read 0 10\r\n", 11);
-    */
 }
 
 /*
