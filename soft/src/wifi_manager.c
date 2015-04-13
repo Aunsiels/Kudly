@@ -15,6 +15,9 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
+static char stream_poll[] = "stream_poll 0\r\n";
+static char stream_close[] = "stream_close 0\r\n";
+
 /* Some strings used by http_request and stream reading */
 static char stream_read[] = "stream_read 0 200\r\n";
 static char http_get[] ="http_get ";
@@ -66,6 +69,8 @@ static msg_t usartRead_thd(void * arg){
 		    wifiReadState = RECEIVE_HEADER;
 		    rcvType = (char)c;
 		    h = 0;
+		    dataCpt = 0;
+		    stream_buffer[0]= '\0';
 		}
 		break;
 
@@ -86,7 +91,6 @@ static msg_t usartRead_thd(void * arg){
 		    header[h-1] = (char)c;
 		    header[h] = '\0';
 		    headerSize = strtol(header, (char **)NULL, 10);
-		    dataCpt = 0;
 		    break;
 		case 7: 
 		    /* After receiving \n\r */
@@ -139,6 +143,18 @@ void usartRead(void) {
 	NORMALPRIO, usartRead_thd, NULL);
 }
  
+static int polling(void){
+    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    while(NULL != strstr(stream_buffer, "0") || NULL != strstr(stream_buffer, "2")){
+	if (NULL == strstr(stream_buffer, "Command failed")){
+	    wifiWriteByUsart(stream_close, sizeof(stream_close));
+	    return 1;
+	}
+	wifiWriteByUsart(stream_poll, sizeof(stream_poll));
+    }
+    return 0;
+}
+
 /* Function that sends hhtp_request and save th page in file */
 static void saveWebPage( char * address , char * file){
     
@@ -158,7 +174,9 @@ static void saveWebPage( char * address , char * file){
 	/* Read until stream is not closed */
 	while (NULL == strstr(stream_buffer, "Command failed")){
 	    f_write(&fil,stream_buffer,dataSize-2,(void*)NULL);
-	    wifiWriteByUsart(stream_read, sizeof(stream_read));
+	    if (polling())
+		break;
+	    wifiWriteByUsart(stream_read, sizeof(stream_read));	    
 	}
 	save = FALSE;
 	print =TRUE;
@@ -192,7 +210,9 @@ static void postAndRead( char * postMessage){
     /* Read until stream is not closed */
     while (NULL == strstr(stream_buffer, "Command failed")){
 	writeSerial(stream_buffer);
-	wifiWriteByUsart(stream_read, sizeof(stream_read));
+	if (polling())
+	    break;
+   	wifiWriteByUsart(stream_read, sizeof(stream_read));
     }
     save = FALSE;
     print = TRUE;
