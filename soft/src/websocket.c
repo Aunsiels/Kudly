@@ -30,8 +30,9 @@ Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
-static char webSocketMsg[] = "write 0 14\r\nhhhhhhdddddddd";
-static char webSocketDataHeader[] = {0x81, 0x88, 0x00, 0x00, 0x00, 0x00};
+static char webSocketMsg[] = "write 0 14\r\nhhhhhhdddddddddddddddd";
+static int webSocketMsgSize = sizeof(webSocketMsg);
+static char webSocketDataHeader[] = {0x81, 0x90, 0x00, 0x00, 0x00, 0x00};
 
 msg_t streamingIn(void * args) {
     (void)args;
@@ -125,16 +126,17 @@ void streamInit(void){
 
 void sendToWS(char * str) {
     (void)str;
+    static char data[] = "0123456789ABCDEF";
     memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
-    memcpy(&webSocketMsg[18], str, 8);
+    //memcpy(&webSocketMsg[18], str, 16);
+    memcpy(&webSocketMsg[18], data, 16);
 
-    wifiWriteByUsart(webSocketMsg, 26);
+    wifiWriteByUsart(webSocketMsg, webSocketMsgSize - 1);
 
-    // TODO : really necessary ??
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(500);
 
     writeSerial("Reading....\r\n");
-    wifiWriteByUsart("read 0 40\r\n", 11);
+    wifiWriteByUsart("read 0 18\r\n", 11);
 }
 
 /*
