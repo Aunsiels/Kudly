@@ -11,6 +11,8 @@
 #include "codec.h"
 #include "camera.h"
 #include "wifi_manager.h"
+#include "imu.h"
+#include "temperature.h"
 
 int main(void) {
 
@@ -18,8 +20,8 @@ int main(void) {
     chSysInit();
 
     /* Clear pad to break wifi factory reset */
-    palClearPad(GPIOB, GPIOB_SPI2_MISO);
-    chThdSleepMilliseconds(100);
+    /*palClearPad(GPIOB, GPIOB_SPI2_MISO);
+      chThdSleepMilliseconds(100);*/
 
     /* Initialize the serial over usb */
     initUsbSerial();
@@ -32,10 +34,10 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-    
+
     /* Init sccb */
     sccbInit();
-    
+
     /* DCMI init */
     cameraInit();
 
@@ -44,7 +46,7 @@ int main(void) {
 
     /* Initialize wifi */
     wifiInitByUsart();
-    
+
     /* Init ADC hug sensors */
     initHugSensors();
 
@@ -53,6 +55,12 @@ int main(void) {
 
     /* Init codec */
     codecInit();
+
+    /* IMU init */
+    imuInit();
+
+    /* Init temperature sensor */
+    temperatureInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
