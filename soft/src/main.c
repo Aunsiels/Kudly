@@ -59,7 +59,7 @@ int main(void) {
         readValues = getHandValues();
         /* Separate low and high */
         if (*low > 500){
-            ledTest();
+            cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
         }
         if (*high > 500){
             
