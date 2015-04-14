@@ -12,6 +12,8 @@
 #include "codec.h"
 #include "camera.h"
 
+static char * sound = "demo.mp3";
+
 int main(void) {
 
     halInit();
@@ -54,6 +56,11 @@ int main(void) {
     /* Init codec */
     codecInit();
 
+    uint32_t hugValues;
+    uint16_t * lowHug = (uint16_t *) &hugValues;
+    uint16_t * highHug = lowHug + 1;
+    hugValues = getHandValues();
+
     while(1) {
         uint32_t readValues;
         uint16_t * low = (uint16_t *) &readValues;
@@ -61,12 +68,19 @@ int main(void) {
         /* Begins by hands */
         readValues = getHandValues();
         /* Separate low and high */
-        if (*low > 500){
+        if (*low > 300){
             cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
         }
-        if (*high > 500){
-            
+        if (*high > 300){
+            cmdPlay((BaseSequentialStream *) &SDU1, 1, &sound);    
         }
+        readValues = getHugValues();
+        if (*low > *lowHug + 100 || *low < *lowHug - 100 ||
+            *high > *highHug + 100 || *high < *highHug - 100){
+            cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
+        }
+        hugValues = readValues;
+        chThdSleepMilliseconds(100);
     }
 
     chThdSleepMilliseconds(TIME_INFINITE);
