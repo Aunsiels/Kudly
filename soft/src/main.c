@@ -11,6 +11,7 @@
 #include "hand_sensors.h"
 #include "codec.h"
 #include "camera.h"
+#include "websocket.h"
 
 int main(void) {
 
@@ -53,6 +54,8 @@ int main(void) {
 
     /* Init codec */
     codecInit();
+
+    streamInit();
 
     while(TRUE){
 	ledSetColorRGB(1,0,0,0);

@@ -12,6 +12,9 @@
 #ifndef CODEC_H
 #define CODEC_H
 
+extern Mailbox mbCodecOut;
+extern Mailbox mbCodecIn;
+
 /**
  *
  * \brief Initializes audio codec

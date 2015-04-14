@@ -17,7 +17,7 @@ enum wifiReadState {
 };
 
 /* Boolean to set streaming to on */
-bool_t streaming = 0;
+bool_t streaming = FALSE;
 
 /* Some strings used by http_request and stream reading */
 static char stream_read[] = "stream_read 0 200\r\n";
@@ -33,14 +33,14 @@ static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
 bool_t print = TRUE;
-bool_t save = FALSE;
+bool_t save = TRUE;
 
 /* For system file */
 static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-static char stream_buffer[203];
+char stream_buffer[1000];
 
 /* Event source to signal whan all data are received */
 EVENTSOURCE_DECL(srcEndToReadUsart);
@@ -111,12 +111,12 @@ static msg_t usartRead_thd(void * arg){
 		/* Response beginning */
 		/* Printing on shell */
 		if(print)
-		    writeSerial("%c",(char)c);
+		    writeSerial("%c",(unsigned char)c);
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
         if(streaming) {
-            parseStreamData(c);
+            parseWebSocket(c);
         }
 
 		dataCpt++;
