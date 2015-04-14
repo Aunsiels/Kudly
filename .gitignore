@@ -2,4 +2,5 @@
 *.class
 *.o
 build*
+*.orig
 target*

@@ -12,6 +12,29 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
+extern Mailbox mbReceiveWifi;
+void externBroadcast(void);
+
+/**
+ *
+ * \brief Send data by wifi using usart3
+ * \param message The message to be sent
+ * \param length The length of this message
+ * Bloking function
+ */
+void wifiWriteByUsart(char * message, int length);
+void wifiWriteUnsigned(uint8_t * message, int length);
+
+
+/**
+ *
+ * \brief Send command to wifi module
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
+
 /**
  *
  * \brief Initializes the wifi communication
@@ -20,44 +43,4 @@
  */
 void wifiInitByUsart(void);
 
-/**
- *
- * \brief Launches the wifi reading
- *
- * This function starts two threads to read data from wifi and parses data to ligth LEDs
- */
-void wifiReadByUsart(void);
-
-/**
- *
- * \brief Send data by wifi using usart3
- *
- */
-void wifiWriteByUsart(char * message, int length);
-
-/**
- *
- * \brief Stops the wifi communication
- *
- */
-void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
-
-/**
- *
- * \brief Launches thread to interpret command from wifi
- *
- */
-void wifiCommands(void);
-
-/**
- *
- * \brief Test function for wifi
- * \param chp The stream where the strings will be written.
- * \param argc The number of arguments
- * \param argv The parameters
- *
- * This function reads the kudly website and lights LED with values written on it
- *
- */
-void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]);
 #endif
