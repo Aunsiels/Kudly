@@ -156,7 +156,6 @@ volatile int stopRecord = 0;
 volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
-static uint16_t soundAverage[10];
 
 static msg_t waitRecording(void *arg){
     (void) arg;
@@ -269,8 +268,6 @@ static msg_t threadTestVolume(void *arg){
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
 
-    uint16_t data;
-    
     while(1){
         ledSetColorRGB(2,0,0,0);
         /* Wait for the thread to be called */
@@ -302,34 +299,15 @@ static msg_t threadTestVolume(void *arg){
         chSysUnlock();   
       
         while(playerState){
-            int n;
             uint16_t level=0;
             /* See if there is some data available */
-            if((n = readRegister(SCI_RECWORDS)) > 0) {
-                int i,j, cptVol=0;
-                uint8_t *rbp = recBuf;
-	    
-                n = min(n, REC_BUFFER_SIZE/2);
-                for (i=0; i<n; i++) {
-                    data = readRegister(SCI_RECDATA);
-                    *rbp++ = (uint8_t)(data >> 8);
-                    *rbp++ = (uint8_t)(data & 0xFF);
-                    soundAverage[cptVol] = readRam(PAR_ENC_CHANNEL_MAX);
+            if((readRegister(SCI_RECWORDS)) > 0) {
+                readRegister(SCI_RECDATA);
+                    while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
                     writeRam(PAR_ENC_CHANNEL_MAX,0);
-                    if(cptVol==9){
-                        cptVol=0;
-                        level=0;
-                        /* Measures the volume on 10 data */
-                        for(j=0; j<10; j++)
-                            level += soundAverage[j];
-                    }
-                    level /= 10;
-                    if(level > 1){
-                        writeSerial("Level : %d\r\n", level);
-                        ledSetColorRGB(2,level,0,0);
-                    }
-                    cptVol++;
-                }
+                writeSerial("Level : %d\r\n", level);
+                ledSetColorRGB(2,level,0,0);
+                chThdSleepMilliseconds(100);
             }   	    
             else{
                 if(stopRecord && !readRegister(SCI_RECWORDS)){
