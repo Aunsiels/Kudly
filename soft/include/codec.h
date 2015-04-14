@@ -32,39 +32,22 @@ void codecLowPower(void);
 
 /**
  *
- * \brief Writes 16 bits data in the codec RAM
+ * \brief Software reset of the codec 
  *
- * This function writes in the registers SCI_WRAMADDR and SCI_WRAM in order to send 16 bits data   
+ * This function start the SPI bus, configures SCI_MODE, SCI_CLOCKF, SCI_AUDATA and SCI_VOL registers  
  */
 
-void writeRam(uint16_t,uint16_t);
+void codecReset(void);
 
 /**
  *
- * \brief Writes 32 bits data in the codec RAM
+ * \brief Set the volume (input and output)
  *
- * This function writes once in the register SCI_WRAMADDR and twice in the register SCI_WRAM in order to send 32 bits data   
+ * This function set the volume (can't be used during playbak or encoding)   
  */
 
-void writeRam32(uint16_t,uint32_t);
 
-/**
- *
- * \brief Reads 16 bits data in the codec RAM
- *
- * This function writes in the register SCI_WRAMADDR, the address of our data and then returns the contain of the register on 16 bits   
- */
-
-uint16_t readRam(uint16_t);
-
-/**
- *
- * \brief Reads 32 bits data in the codec RAM
- *
- * This function writes in the register SCI_WRAMADDR, the address and the address +1 of our data and then returns the contain of the registers on 32 bits  
- */
-
-uint32_t readRam32(uint16_t);
+void codecVolume(int);
 
 /**
  *
@@ -83,6 +66,32 @@ void cmdPlay(BaseSequentialStream *, int, char *[]);
  */
 
 void cmdEncode(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
+ * \brief Shell command for stop encoding a sound
+ *
+ * This function stop the encoding of a sound  
+ */
+
+void cmdStop(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
+ * \brief Shell command for volume control 
+ *
+ * This function control volume (may be set from 0 to 10)  
+ */
+
+void cmdVolume(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
+ * \brief Shell command for control of the sound during playback
+ *
+ * This function control volume and allow interrupt playback in a shell command  
+ */
+
 void cmdControl(BaseSequentialStream *, int, char *[]);
 
 #endif /* CODEC_H */
