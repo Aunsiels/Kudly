@@ -7,6 +7,9 @@
 #include "wifi.h"
 #include "usb_serial.h"
 
+static WORKING_AREA(streamingOut_wa, 128);
+static WORKING_AREA(streamingIn_wa, 128);
+
 /* Codec mailboxes */
 static msg_t mbCodecOut_buf[32];
 static msg_t mbCodecIn_buf[32];
@@ -37,19 +40,21 @@ msg_t streamingIn(void * args) {
 
     EventListener streamInLst;
     chEvtRegisterMask(&streamInSrc, &streamInLst, (eventmask_t)1);
-    writeSerial("Reading...\n\r");
+    writeSerial("Reading thread launched\n\r");
 
     while(true) {
-        /*
-         * Starting streaming
-         */
+        // Starting streaming
         if(chEvtWaitAny(1)) {
-            while(true) {
-                wifiWriteByUsart("read 0 18\n\r", 11);
+            //while(true) {
                 chThdSleepMilliseconds(2000);
-            }
+                writeSerial("Reading...\n\r");
+                wifiWriteByUsart("poll 0\n\r", 9);
+                wifiWriteByUsart("read 0 11\n\r", 12);
+            //}
         }
     }
+
+    chThdSleep(TIME_INFINITE);
 
     return 0;
 }
@@ -62,29 +67,24 @@ msg_t streamingOut(void * args) {
     EventListener streamOutLst;
     chEvtRegisterMask(&streamOutSrc, &streamOutLst, (eventmask_t)1);
 
-    chThdSleepMilliseconds(3000);
+    writeSerial("Sending thread launched\n\r");
     
     while(true) {
         /*
          * Starting streaming
          */
         if(chEvtWaitAny(1)) {
-            while(true) {
+            //while(true) {
                 for(int i = 0 ; i < 8 ; i++) {
                     if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-                        codecOutBuffer[i]     = (char)(msgCodec >> 8);
-                        codecOutBuffer[i + 1] = (char)msgCodec;
-                        writeSerial("%c%c",
-                                codecOutBuffer[i],
-                                codecOutBuffer[i+1]);
+                        codecOutBuffer[2 * i]     = (char)(msgCodec >> 8);
+                        codecOutBuffer[2 * i + 1] = (char)msgCodec;
                     }
                 }
-                writeSerial("\n\r");
                 sendToWS(codecOutBuffer);
 
-                //Counter for speedtest
                 chThdSleepMilliseconds(500);
-            }
+            //}
         }
     }
 
@@ -94,7 +94,7 @@ msg_t streamingOut(void * args) {
 }
 
 void parseStreamData(msg_t c) {
-    writeSerial("r:%c", (char)c);
+    writeSerial("%c", (char)c);
 
     /*
     if(cpt >= 2) {
@@ -117,30 +117,13 @@ void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
 }
 
 /*
- * Initializes a websocket connection
+ * Init reading & sending threads
  */
 void streamInit(void){
 
-    /* Websocket init sequence */
-    wifiWriteByUsart(tcpc, sizeof(tcpc));
-    wifiWriteByUsart(streamWriteHeader, sizeof(streamWriteHeader));
-
-    chThdSleepMilliseconds(500);
-
-    wifiWriteByUsart("read 0 400\r\n", 12);
-
-    chThdSleepMilliseconds(500);
 
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);
-
-    //streaming = 1;
-    //print = 0;
-    
-    static WORKING_AREA(streamingOut_wa, 128);
-    static WORKING_AREA(streamingIn_wa, 128);
-
-    // Events init 
 
     chThdCreateStatic(
             streamingIn_wa, sizeof(streamingIn_wa),
@@ -158,11 +141,17 @@ void sendToWS(char * str) {
      * Header length = 6
      * Data length   = 16
      */
+    //static char data[] = "0123456789ABCDEF";
     memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
-    memcpy(&webSocketMsg[18], str, 16);
 
-    wifiWriteByUsart(webSocketMsg, webSocketMsgSize);
-    wifiWriteByUsart("read 0 18\n\r", 11);
+    writeSerial("Sending : ");
+    for(int i = 0 ; i < 16 ; i++) {
+        writeSerial("%c", codecOutBuffer[i]);
+        webSocketMsg[18 + i] = (char)codecOutBuffer[i];
+    }
+    writeSerial("\r\n");
+
+    wifiWriteNoWait(webSocketMsg, webSocketMsgSize);
 }
 
 void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
@@ -170,8 +159,12 @@ void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)argc;
     (void)argv;
 
-    streamInit();
+    wifiWriteByUsart(tcpc, sizeof(tcpc));
+    wifiWriteByUsart(streamWriteHeader, sizeof(streamWriteHeader));
 
+    chThdSleepMilliseconds(500);
+
+    wifiWriteByUsart("read 0 400\r\n", 12);
 }
 
 void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
@@ -181,6 +174,7 @@ void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
 
     writeSerial("Broadcasting...\n\r");
     chEvtBroadcast(&streamOutSrc);
+    chEvtBroadcast(&streamInSrc);
     /*
     if(argc == 0) {
         chprintf(chp, "Écrit 8 chars après la commande steuplai\n\r");

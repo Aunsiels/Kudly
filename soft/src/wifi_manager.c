@@ -17,7 +17,7 @@ enum wifiReadState {
 };
 
 /* Boolean to set streaming to on */
-bool_t streaming = 0;
+bool_t streaming = TRUE;
 
 /* Some strings used by http_request and stream reading */
 static char stream_read[] = "stream_read 0 200\r\n";
@@ -32,7 +32,7 @@ static char urlencoded[]=" x-www-form-urlencoded\r\n";
 static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
-bool_t print = TRUE;
+bool_t print = FALSE;
 bool_t save = FALSE;
 
 /* For system file */
@@ -111,7 +111,7 @@ static msg_t usartRead_thd(void * arg){
 		/* Response beginning */
 		/* Printing on shell */
 		if(print)
-		    writeSerial("%c",(char)c);
+		    writeSerial("%c",(unsigned char)c);
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
