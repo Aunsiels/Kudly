@@ -74,6 +74,10 @@ int main(void) {
         if (*high > 300){
             cmdPlay((BaseSequentialStream *) &SDU1, 1, &sound);    
         }
+        while (*low > 300 || *high > 300){
+            readValues = getHandValues();
+            chThdSleepMilliseconds(100);
+        }
         readValues = getHugValues();
         if (*low > *lowHug + 100 || *low < *lowHug - 100 ||
             *high > *highHug + 100 || *high < *highHug - 100){
