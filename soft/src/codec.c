@@ -357,6 +357,8 @@ static msg_t threadTestVolume(void *arg){
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
 
+    msg_t readReg;
+
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,1);
     
@@ -392,9 +394,8 @@ static msg_t threadFullDuplex(void *arg){
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
-                if(chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE)) {
-                   writeSerial("!"); 
-                }
+                readReg = readRegister(SCI_RECDATA);
+                chMBPost(&mbCodecOut,readReg,TIME_INFINITE);
             }
 	    
             else if(stopRecord){

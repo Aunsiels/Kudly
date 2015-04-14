@@ -39,17 +39,17 @@ msg_t streamingIn(void * args) {
     chEvtRegisterMask(&streamInSrc, &streamInLst, (eventmask_t)1);
     writeSerial("Reading...\n\r");
 
-    //while(true) {
+    while(true) {
         /*
          * Starting streaming
          */
-        //if(chEvtWaitAny(1)) {
+        if(chEvtWaitAny(1)) {
             while(true) {
                 wifiWriteByUsart("read 0 18\n\r", 11);
                 chThdSleepMilliseconds(2000);
             }
-        //}
-    //}
+        }
+    }
 
     return 0;
 }
@@ -70,17 +70,20 @@ msg_t streamingOut(void * args) {
          */
         if(chEvtWaitAny(1)) {
             while(true) {
-                writeSerial("Sending...\n\r");
-                for(int i = 0 ; i < 16 ; i++) {
-                    if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE)) {
-                        writeSerial("c : %d\r\n", (short int)msgCodec);
-                        codecOutBuffer[i] = (char)msgCodec;
+                for(int i = 0 ; i < 8 ; i++) {
+                    if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
+                        codecOutBuffer[i]     = (char)(msgCodec >> 8);
+                        codecOutBuffer[i + 1] = (char)msgCodec;
+                        writeSerial("%c%c",
+                                codecOutBuffer[i],
+                                codecOutBuffer[i+1]);
                     }
                 }
+                writeSerial("\n\r");
                 sendToWS(codecOutBuffer);
 
                 //Counter for speedtest
-                chThdSleepMilliseconds(20);
+                chThdSleepMilliseconds(500);
             }
         }
     }
@@ -91,7 +94,7 @@ msg_t streamingOut(void * args) {
 }
 
 void parseStreamData(msg_t c) {
-    writeSerial("%c", (char)c);
+    writeSerial("r:%c", (char)c);
 
     /*
     if(cpt >= 2) {
@@ -158,7 +161,8 @@ void sendToWS(char * str) {
     memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
     memcpy(&webSocketMsg[18], str, 16);
 
-    wifiWriteNoWait(webSocketMsg, webSocketMsgSize);
+    wifiWriteByUsart(webSocketMsg, webSocketMsgSize);
+    wifiWriteByUsart("read 0 18\n\r", 11);
 }
 
 void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
