@@ -146,19 +146,7 @@ void initializeJPEG (void){
     chThdSleepMilliseconds(100);
 
     /* Define the size */
-#if JPEG_SIZE == 0
-    for(i=0; i<(sizeof(OV2640_160x120_JPEG)/2); i++){
-        sccbWrite(OV2640_160x120_JPEG[i][0], OV2640_160x120_JPEG[i][1]);
-    }
-#elif JPEG_SIZE == 1
-    for(i=0; i<(sizeof(OV2640_176x144_JPEG)/2); i++){
-        sccbWrite(OV2640_176x144_JPEG[i][0], OV2640_176x144_JPEG[i][1]);
-    }
-#elif JPEG_SIZE == 2
-    for(i=0; i<(sizeof(OV2640_320x240_JPEG)/2); i++){
-        sccbWrite(OV2640_320x240_JPEG[i][0], OV2640_320x240_JPEG[i][1]);
-    }
-#elif JPEG_SIZE == 3
+#if JPEG_SIZE == 3
     for(i=0; i<(sizeof(g_ov2640_jpeg_uxga_resolution)/2); i++){
         sccbWrite(g_ov2640_jpeg_uxga_resolution[i][0], g_ov2640_jpeg_uxga_resolution[i][1]);
     }
@@ -192,6 +180,7 @@ void cameraInit() {
     palSetPadMode(GPIOE, GPIOE_CAMERA_D2, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
     palSetPadMode(GPIOE, GPIOE_CAMERA_D3, PAL_MODE_ALTERNATE(13) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP);
 
+    /* Time before powerup */
     chThdSleepMilliseconds(100);
     /* Start camera */
     palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
@@ -223,13 +212,20 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
         return;
     }
 
+    photo(argv[0]);
+
+}
+
+/*
+ * Takes a photo
+ */
+
+void photo(char * photoName){
     if(!cameraReady){
-        chprintf(chp, "The camera is not ready\r\n");
         return;
     }
 
     if (!sdIsReady()) {
-        chprintf(chp, "The sd card is not ready\r\n");
         return;
     }
 
@@ -237,23 +233,16 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     FIL fil;
     FRESULT res;
 
-    res = f_open(&fil, argv[0], FA_WRITE | FA_OPEN_ALWAYS);
+    res = f_open(&fil, photoName, FA_WRITE | FA_OPEN_ALWAYS);
     if(res) {
-        chprintf(chp, "Problem while creating the file\r\n");
         return;
     }
 
-    chprintf(chp, "Begin photo\r\n");
-
+    /* Events to listen to the dma and end of frame events */
     chEvtRegisterMask(&dmaEvS, &dmaEvL, EVENT_MASK(1));
     chEvtRegisterMask(&frameEvS, &frameEvL, EVENT_MASK(2));
-    chprintf(chp, "Beginning transfer:\n\r");
 
-    /*
-     * using synchronous API for simplicity, single buffer.
-     * limits max image size to available SRAM. Note that max DMA transfers in one go is 65535.
-     * i.e. IMG_SIZE cannot be larger than 65535 here.
-     */
+    /* Takes a picture */
     dcmiStartReceiveOneShot(&DCMID1, IMG_SIZE/2, imgBuf0, imgBuf1);
 
     eventmask_t currentEv;
@@ -261,9 +250,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
 
     /* Receive all datas*/
     do {
-        chprintf(chp, "Wait for event\n\r");
         currentEv = chEvtWaitOne(EVENT_MASK(1) | EVENT_MASK(2));
-        chprintf(chp, "Got DMA interrupt, and DCMI interrupt.\n\r");
 
         /* Write the file */
         UINT written = 0;
@@ -275,9 +262,10 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
         /* Change buffer */
         currentBuf = !currentBuf;
         if (written != sizeof(imgBuf)/2) {
-            f_unlink(argv[0]);
-            chprintf(chp, "Problem while writting\r\n");
+            f_unlink(photoName);
             dmaStreamDisable(DCMID1.dmarx);
+            chEvtUnregister(&dmaEvS, &dmaEvL);
+            chEvtUnregister(&frameEvS, &frameEvL);
             return;
         }
 
@@ -291,9 +279,10 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     else
         f_write(&fil, (char *) imgBuf0, sizeof(imgBuf)/2, &written);
     if (written != sizeof(imgBuf)/2) {
-        f_unlink(argv[0]);
-        chprintf(chp, "Problem while writting\r\n");
+        f_unlink(photoName);
         dmaStreamDisable(DCMID1.dmarx);
+        chEvtUnregister(&dmaEvS, &dmaEvL);
+        chEvtUnregister(&frameEvS, &frameEvL);
         return;
     }
 
@@ -303,8 +292,7 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
 
     res = f_close(&fil);
     if (res) {
-        f_unlink(argv[0]);
-        chprintf(chp, "Problem while closing the file\r\n");
+        f_unlink(photoName);
         return;
     }
 }
