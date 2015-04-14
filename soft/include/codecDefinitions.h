@@ -149,15 +149,13 @@
 
 /* SCI_VOL bits */
 
-#define SV_LEFT_B  8
-#define SV_RIGHT_B 0
+#define VOL_MONO 0x24
+#define VOL_LOW_POWER 0xff
 
 #define SV_LEFT  (1<<8)
 #define SV_RIGHT (1<<0)
 
-#define SV_LEFT_BITS  8
 #define SV_LEFT_MASK  0xFF00
-#define SV_RIGHT_BITS 8
 #define SV_RIGHT_MASK 0x00FF
 
 
