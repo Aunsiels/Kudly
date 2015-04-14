@@ -45,12 +45,10 @@ msg_t streamingIn(void * args) {
     while(true) {
         // Starting streaming
         if(chEvtWaitAny(1)) {
-            //while(true) {
+            while(true) {
                 chThdSleepMilliseconds(2000);
-                writeSerial("Reading...\n\r");
-                wifiWriteByUsart("poll 0\n\r", 9);
                 wifiWriteByUsart("read 0 11\n\r", 12);
-            //}
+            }
         }
     }
 
@@ -74,7 +72,7 @@ msg_t streamingOut(void * args) {
          * Starting streaming
          */
         if(chEvtWaitAny(1)) {
-            //while(true) {
+            while(true) {
                 for(int i = 0 ; i < 8 ; i++) {
                     if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
                         codecOutBuffer[2 * i]     = (char)(msgCodec >> 8);
@@ -84,7 +82,7 @@ msg_t streamingOut(void * args) {
                 sendToWS(codecOutBuffer);
 
                 chThdSleepMilliseconds(500);
-            //}
+            }
         }
     }
 
@@ -141,13 +139,14 @@ void sendToWS(char * str) {
      * Header length = 6
      * Data length   = 16
      */
-    //static char data[] = "0123456789ABCDEF";
     memcpy(&webSocketMsg[12], webSocketDataHeader, 6);
 
     writeSerial("Sending : ");
     for(int i = 0 ; i < 16 ; i++) {
-        writeSerial("%c", codecOutBuffer[i]);
-        webSocketMsg[18 + i] = (char)codecOutBuffer[i];
+        writeSerial("%x", (unsigned char)(codecOutBuffer[i]));
+
+        // TODO removing "% 128" when server is ok !
+        webSocketMsg[18 + i] = (char)(codecOutBuffer[i] % 128);
     }
     writeSerial("\r\n");
 
