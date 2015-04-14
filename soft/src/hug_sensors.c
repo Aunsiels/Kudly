@@ -44,3 +44,20 @@ void cmdHugSensors(BaseSequentialStream *chp, int argc, char *argv[]) {
     writeSerial("new ADC sample :hug 1 = %d hug2= %d\r\n",samples1[0],samples1[1]);
     palClearPad(GPIOC, GPIOC_HUG_SENS_OUT);    
 }
+
+/* 
+ * Return the values of the samples, the first of the msb and the second on the
+ * lsb
+ */
+
+uint32_t getHugValues () {
+    uint32_t result = 0;
+    uint16_t * low = (uint16_t *) &result;
+    uint16_t * high = low + 1;
+    palSetPad(GPIOC, GPIOC_HUG_SENS_OUT);
+    adcConvert(&ADCD1, &adcgrpcfg1, samples1, ADC_GRP1_BUF_DEPTH);
+    *low = samples1[0];
+    *high = samples1[1];
+    palClearPad(GPIOC, GPIOC_HUG_SENS_OUT);    
+    return result;
+}
