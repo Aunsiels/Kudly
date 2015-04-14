@@ -51,7 +51,21 @@ int main(void) {
     /* Init codec */
     codecInit();
 
-    chThdSleepMilliseconds(TIME_INFINITE);
+    while(1) {
+        uint32_t readValues;
+        uint16_t * low = (uint16_t *) &readValues;
+        uint16_t * high = low + 1;
+        /* Begins by hands */
+        readValues = getHandValues();
+        /* Separate low and high */
+        if (*low > 500){
+            ledTest();
+        }
+        if (*high > 500){
+            
+        }
+    }
 
+    chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }
