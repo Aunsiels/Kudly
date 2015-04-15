@@ -5,4 +5,5 @@ void parseXML(char c);
 
 void wifiMsgParsing(char c);
 
+void wifiCommands(void);
 #endif
