@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "ff.h"
 #include "wifi_manager.h"
+#include "wifi_parsing.h"
 
 /* !!! dataRead (for stream_read command) must be greather than dataWrite (for stream_write command)*/
 #define dataRead 500
@@ -136,13 +137,13 @@ static msg_t usartRead_thd(void * arg){
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
-
 		dataCpt++;
 
 		/* End of stream_buffer - dataSize updating */
 		if(dataCpt == headerSize) {
 		    /* Add end string character to print */
-		    stream_buffer[dataCpt]='\0';
+		    if (save)
+			stream_buffer[dataCpt]='\0';
 		    dataSize = headerSize;
 		    chEvtBroadcast(&srcEndToReadUsart);
 		    wifiReadState = IDLE;
@@ -390,3 +391,50 @@ void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]){
     }
     uploadFile( argv[0] , argv[1] , argv[2]); 
 }
+
+/* Function that sends hhtp_request and send data to xml parsing */
+static void parsePage( char * address){
+
+    /* Build http request command */
+    strcat(msgWifi , http_get);
+    strcat(msgWifi , address);
+    strcat(msgWifi , endLine);
+
+    /* Send wifi command to get page */
+    wifiWriteByUsart(msgWifi, strlen(msgWifi));
+    msgWifi[0] ='\0';
+    
+    /* Read the first stream */
+    print = FALSE;
+    save = TRUE;
+
+    /* Read the first stream if available */
+    polling();
+    wifiWriteByUsart(stream_read, sizeof(stream_read));
+
+    /* Read until stream is not closed */
+    while (NULL == strstr(stream_buffer, command_failed)){
+	/* Send each character */
+	for (int i = 0 ; i < dataSize ; i++){
+	    parseXML(stream_buffer[i]);
+	}
+	polling();
+   	wifiWriteByUsart(stream_read, sizeof(stream_read));
+    }
+    save = FALSE;
+    print = TRUE;
+    
+    writeSerial("Page read\r\n");
+}
+
+/* Shell command to read a web xml page on server and execute actions */
+void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]){
+    (void)chp;
+    if (argc != 1) {
+        writeSerial("Usage: parsewifi <web address>\r\n");
+        return;
+    }
+    parsePage(argv[0]); 
+}
+
+

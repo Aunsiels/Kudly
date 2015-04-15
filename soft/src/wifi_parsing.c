@@ -7,16 +7,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define featureSize 25
+#define functionSize 2048
+
+/* Event for parsing end */
 static EVENTSOURCE_DECL(eventWifiSrc);
 
 /* Feature and function buffer used to launch functionnality by wifi */
-static char feature[25];
-static char function[2048];
+static char feature[featureSize];
+static char function[functionSize];
 
-static char http_get[] = "http_get kudly.herokuapp.com/pwm\r\n";
-static char stream_read[] = "stream_read 0 50\r\n";
-static char stream_close[] = "stream_close all\r\n";
-
+/* State for xml parsing */
 enum state {
     WAIT_FEATURE,
     WRITE_FEATURE,
@@ -24,71 +25,70 @@ enum state {
     WRITE_FUNCTION,
     END_FEATURE
 };
+static enum state state = WAIT_FEATURE;
 
-/* Command shell to send http request and read the stream */
-void cmdWifiTest(BaseSequentialStream *chp, int argc, char *argv[]) {
-    (void)chp;
-    (void)argc;
-    (void)argv;
-    wifiWriteByUsart(http_get, sizeof(http_get));
-    wifiWriteByUsart(stream_read, sizeof(stream_read));
-    wifiWriteByUsart(stream_close, sizeof(stream_close));
-
-}
+/* Parsing counter */
+static int parseFeature;
+static int parseFunction;
 
 void parseXML(char c) {
-    static int parse_feature = 0;
-    static int parse_function = 0;
-    static enum state state = WAIT_FEATURE;
 
     switch(state) {
-        case WAIT_FEATURE:
-            if (c == '<') {
-                parse_feature = 0;
-                state = WRITE_FEATURE;
-            }
-
-        case WRITE_FEATURE:
-            if (c == '>'){
-                state = WAIT_FUNCTION;
-                feature[parse_feature] = '\0';
-            }
-            feature[parse_feature] = c;
-            parse_feature++;
-
-        case WAIT_FUNCTION:
-            if (c == '<'){
-                state = WRITE_FUNCTION;
-                parse_function = 0;
-            } 
-
-        case WRITE_FUNCTION:
-            if (c == '>'){
-                state = END_FEATURE;
-                function[parse_function-1] = '\0';
-                chSysLock();
-                chEvtBroadcastI(&eventWifiSrc);
-                chSysUnlock();
-            }
-            function[parse_function]=c;
-            parse_function++;
-
-        case END_FEATURE:
-            if (c == '>'){
-                state = WAIT_FEATURE;
-            }
+    case WAIT_FEATURE:
+	/* Wait feature beginning */
+	if (c == '<') {
+	    parseFeature = 0;
+	    state = WRITE_FEATURE;
+	}
+	break;
+    case WRITE_FEATURE:
+	/* Save feature name */
+	if (c == '>'){
+	    state = WAIT_FUNCTION;
+	    feature[parseFeature] = '\0';
+	}
+	feature[parseFeature] = c;
+	parseFeature++;
+	break;
+    case WAIT_FUNCTION:
+	/* Wait function beginning */
+	if (c == '<'){
+	    state = WRITE_FUNCTION;
+	    parseFunction = 0;
+	} 
+	break;
+    case WRITE_FUNCTION:
+	/* Save function name */
+	if (c == '>'){
+	    state = END_FEATURE;
+	    function[parseFunction-1] = '\0';
+	    chEvtBroadcast(&eventWifiSrc);
+	}
+	function[parseFunction]=c;
+	parseFunction++;
+	break;
+    case END_FEATURE:
+	/* Wait feature ending */
+	if (c == '>'){
+	    state = WAIT_FEATURE;
+	}
+	break;
     }
 }
 
+static EventListener eventWifiLst;
 
 /* Thread waits an wifi event and parse feature and function to launch the rigth function */
 static msg_t wifiCommands_thd(void * args) {
     (void)args;  
-    EventListener eventWifiLst;
     chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
     char* ptr;  
+
     while(1) {
+	/* Wait for xml ending */
         chEvtWaitOne(1);
+	
+	/* Led feature */
         if( NULL != strstr(feature,"led")){
             if ( NULL != strstr(function,"rgb_set")){
                 int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
@@ -98,7 +98,7 @@ static msg_t wifiCommands_thd(void * args) {
                 ledSetColorRGB(n, r, g, b);
                 continue;
             }
-
+	    
             if ( NULL != strstr(function,"hsv_set")){	
                 int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
                 int h = strtol(strstr(function,"h=\"") +3,&ptr,10);

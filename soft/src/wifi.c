@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "wifi_manager.h"
+#include "wifi_parsing.h"
 
 /* Event listener for the end of reading by usart */ 
 static EventListener lstEndToReadUsart;
@@ -106,6 +107,8 @@ void wifiInitByUsart(void) {
     chThdSleepMilliseconds(8000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
+    wifiCommands();
+
     /*
      * Configuring wifi module in machine friendly command mode
      * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
