@@ -7,6 +7,15 @@
 #include "wifi.h"
 #include "usb_serial.h"
 
+#define WS_DATA_SIZE   64
+#define PACKET_SIZE    70 // WS_DATA_SIZE + 6
+#define READ_RESP      66 // WS_DATA_SIZE + 2
+
+#define STR(x) #x
+#define STR_(x) STR(x)
+#define WEB_SOCKET_MSG "write 0 "STR_(PACKET_SIZE)"\r\n"
+#define HEADER_2ND_BYTE 0x80 + WS_DATA_SIZE
+
 static WORKING_AREA(streamingOut_wa, 128);
 static WORKING_AREA(streamingIn_wa, 128);
 
@@ -17,7 +26,7 @@ MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 128);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 128);
 
 /* Buffer to send in a websocket */ 
-static char codecOutBuffer[16];
+static char codecOutBuffer[WS_DATA_SIZE];
 
 /* Streaming event sources */
 EventSource streamOutSrc, streamInSrc;
@@ -31,10 +40,11 @@ Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
+static char read400[] = "read 0 400\r\n";
 
 // Sending 64 bytes
-static char webSocketMsg[] = "write 0 22\r\n";
-static char webSocketDataHeader[] = {0x82, 0x90, 0x00, 0x00, 0x00, 0x00};
+static char webSocketMsg[] = WEB_SOCKET_MSG;
+static char webSocketDataHeader[] = {0x82, HEADER_2ND_BYTE, 0x00, 0x00, 0x00, 0x00};
 
 msg_t streamingIn(void * args) {
     (void)args;
@@ -48,7 +58,7 @@ msg_t streamingIn(void * args) {
         if(chEvtWaitAny(1)) {
             for(int j = 0 ; j < 100 ; j++) {
                 chThdSleepMilliseconds(60);
-                wifiWriteByUsart("read 0 66\n\r", 12);
+                wifiWriteByUsart("read 0 "STR_(READ_RESP)"\n\r", 12);
             }
         }
     }
@@ -74,10 +84,10 @@ msg_t streamingOut(void * args) {
          */
         if(chEvtWaitAny(1)) {
             for(int j = 0 ; j < 100 ; j++) {
-                for(int i = 0 ; i < 8 ; i++) {
+                for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
                     if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-                        codecOutBuffer[2 * i]     = (char)(msgCodec >> 8);
-                        codecOutBuffer[2 * i + 1] = (char)msgCodec;
+                        codecOutBuffer[i]     = (char)(msgCodec >> 8);
+                        codecOutBuffer[i + 1] = (char)msgCodec;
                     }
                 }
                 sendToWS(codecOutBuffer);
@@ -93,6 +103,8 @@ msg_t streamingOut(void * args) {
 }
 
 void parseStreamData(msg_t data) {
+    (void)data;
+
     writeSerial("%c", (char)data);
 }
 
@@ -133,7 +145,7 @@ void sendToWS(char * str) {
      */
     wifiWriteNoWait(webSocketMsg, sizeof(webSocketMsg) - 1);
     wifiWriteNoWait(webSocketDataHeader, 6);
-    wifiWriteNoWait(codecOutBuffer, 16);
+    wifiWriteNoWait(codecOutBuffer, WS_DATA_SIZE);
 }
 
 void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
@@ -146,7 +158,7 @@ void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
 
     chThdSleepMilliseconds(500);
 
-    wifiWriteByUsart("read 0 400\r\n", 12);
+    wifiWriteByUsart(read400, sizeof(read400));
 }
 
 void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
