@@ -216,8 +216,6 @@ static void saveWebPage( char * address , char * file){
 	/* Read the first stream if available */
 	polling();
 	wifiWriteByUsart(stream_read, sizeof(stream_read));
-	if(dataSize == 0)
-	    writeSerial("after polling data = 0\r\n");
 
 	/* Read until stream is not closed */
 	while (NULL == strstr(stream_buffer, command_failed)){
@@ -258,7 +256,7 @@ static void postAndRead( char * address , char * data){
     msgWifi[0] ='\0';
 
     /* Read the first stream */
-    print = TRUE;
+    print = FALSE;
     save = TRUE;
     
     /* Read the first stream if available */

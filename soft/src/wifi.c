@@ -65,16 +65,6 @@ void wifiWriteByUsart(char * message, int length){
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 
-/* Sends data by wifi */
-eventmask_t wifiWriteByUsartTimeout(char * message, int length , systime_t timeout){
-    eventmask_t maskReturn;
-    chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
-    sdWrite(&SD3, (uint8_t*)message, length);
-    maskReturn = chEvtWaitOneTimeout(1, timeout);
-    chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
-    return maskReturn;
-}
-
 /*  Launches the wifi reading */
 static void wifiReadByUsart(void) {
     static WORKING_AREA(usartReadInMB_wa, 2048);
