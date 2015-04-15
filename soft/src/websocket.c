@@ -20,8 +20,8 @@ static WORKING_AREA(streamingOut_wa, 128);
 static WORKING_AREA(streamingIn_wa, 128);
 
 /* Codec mailboxes */
-static msg_t mbCodecOut_buf[128];
-static msg_t mbCodecIn_buf[128];
+static msg_t mbCodecOut_buf[256];
+static msg_t mbCodecIn_buf[256];
 MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 128);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 128);
 
@@ -56,7 +56,7 @@ msg_t streamingIn(void * args) {
     while(true) {
         // Starting streaming
         if(chEvtWaitAny(1)) {
-            for(int j = 0 ; j < 100 ; j++) {
+            for(int j = 0 ; j < 200 ; j++) {
                 chThdSleepMilliseconds(60);
                 wifiWriteByUsart("read 0 "STR_(READ_RESP)"\n\r", 12);
             }
