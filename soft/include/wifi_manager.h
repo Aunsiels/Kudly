@@ -11,6 +11,11 @@
 #ifndef _WIFI_MANAGER_H_
 #define _WIFI_MANAGER_H_
 
+/**
+ *
+ * \brief Envent source when data is received
+ *
+ */
 extern EventSource srcEndToReadUsart;
 
 /**

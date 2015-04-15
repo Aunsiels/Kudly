@@ -9,7 +9,7 @@
 #include "wifi_manager.h"
 #include "websocket.h"
 
-/* !!! dataRead must be greather than dataWrite */
+/* !!! dataRead (for stream_read command) must be greather than dataWrite (for stream_write command)*/
 #define dataRead 500
 #define dataWrite 32 
 
@@ -186,20 +186,18 @@ static void polling(void){
 	    writeSerial( "Timeout : buffer is empty\r\n");
 	    break;
 	}
-
+	
 	if(NULL != strstr(stream_buffer, command_failed) || NULL != strstr(stream_buffer, "1"))
 	    break;
 	else {
-	    writeSerial("5\r\n");
 	    wifiWriteByUsart(stream_poll, sizeof(stream_poll));
-	    writeSerial("6\r\n");
 	}
     }
 }
 
 /* Function that sends hhtp_request and save th page in file */
 static void saveWebPage( char * address , char * file){
-        
+    
     /* Build http request command */
     strcat(msgWifi , http_get);
     strcat(msgWifi , address);
@@ -311,8 +309,7 @@ static void uploadFile( char *address , char * localFile , char * remoteFile){
     itoa(dword , itoaBuff,10);
     strcat(msgWifi ,itoaBuff);
     strcat(msgWifi ,endLine);
-    writeSerial(msgWifi);
-
+   
     /* Send command to create a file */
     wifiWriteByUsart(msgWifi, strlen(msgWifi));
     msgWifi[0] ='\0';
@@ -370,17 +367,13 @@ static void uploadFile( char *address , char * localFile , char * remoteFile){
 
     /* Send wifi command to write in file */
     wifiWriteByUsart(msgWifi, strlen(msgWifi));
+
+    msgWifi[0] ='\0';
     
-    if(NULL == strstr(stream_buffer, "Success")){
-	writeSerial("File didn't sent correctly\r\n");	
-    } 
-    else
-	writeSerial("File sent correctly\r\n");
+    writeSerial("File sent correctly\r\n");
     
     print = TRUE;
     save = FALSE;
-
-    msgWifi[0] ='\0';
     
     /* Build string to delete file in wifi module flash */
     strcat(msgWifi,file_delete);
@@ -393,6 +386,7 @@ static void uploadFile( char *address , char * localFile , char * remoteFile){
     
     writeSerial("File deleted in wifi module flash\r\n");
 }
+
 /* Shell command to upload a file in SD card on server */
 void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]){
     (void)chp;
