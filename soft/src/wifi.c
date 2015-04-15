@@ -60,7 +60,7 @@ static msg_t usartReadInMB_thd(void * args) {
 void wifiWriteByUsart(char * message, int length){
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
     sdWrite(&SD3, (uint8_t*)message, length);
-//    chEvtWaitOne(1);
+    chEvtWaitOne(1);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 
