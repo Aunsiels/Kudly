@@ -33,14 +33,14 @@ static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
 bool_t print = FALSE;
-bool_t save = FALSE;
+bool_t save = TRUE;
 
 /* For system file */
 static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-static char stream_buffer[203];
+char stream_buffer[203];
 
 /* Event source to signal whan all data are received */
 EVENTSOURCE_DECL(srcEndToReadUsart);
@@ -116,7 +116,7 @@ static msg_t usartRead_thd(void * arg){
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
         if(streaming) {
-            parseStreamData(c);
+            parseWebSocket(c);
         }
 
 		dataCpt++;
