@@ -52,7 +52,7 @@ static char file_create[] = "file_create -o ";
 static DWORD dword;
 static char itoaBuff[10];
 static char stream_write[] ="stream_write 0 ";
-static char writeBuff[33];
+static char writeBuff[dataWrite + 1];
 static char http_upload[] = "http_upload ";
 static char file_delete [] = "file_delete ";
 
@@ -289,7 +289,7 @@ static void uploadFile( char *address , char * localFile , char * remoteFile){
     res = f_open(&fil,localFile,FA_OPEN_EXISTING | FA_READ);
     if (res) {
         writeSerial("Cannot read this file %d\r\n",res);
-	f_close(&fil);
+        f_close(&fil);
 	return;
     }
 
