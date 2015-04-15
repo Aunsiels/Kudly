@@ -25,8 +25,8 @@ static char cmdMessage[120];
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
-static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
+static char ssid[] = "set wlan.ssid \"chezmoi\"\r\n";
+static char passkey[] = "set wlan.passkey \"azertyuiop\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -61,7 +61,7 @@ static msg_t usartReadInMB_thd(void * args) {
 void wifiWriteByUsart(char * message, int length){
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
     sdWrite(&SD3, (uint8_t*)message, length);
-//    chEvtWaitOne(1);
+    chEvtWaitOne(1);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 

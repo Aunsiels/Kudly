@@ -352,7 +352,7 @@ static msg_t threadTestVolume(void *arg){
     }
     return 0;
 }
-static uint8_t codecBuf[32];
+//static uint16_t codecBuf[16];
 
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
@@ -404,15 +404,11 @@ static msg_t threadFullDuplex(void *arg){
 	   
             else{
                 int i;
-                msg_t mbMsg;
                 for(i = 0 ; i < 16 ; i++){
-                    if(chMBFetch(&mbCodecIn, &mbMsg, TIME_INFINITE) == RDY_OK){
-                        codecBuf[2*i] = (uint8_t)(mbMsg >> 8);
-                        codecBuf[2*i+1] = (uint8_t)(mbMsg);
-                    };
+                    //if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
                 }
                 // TODO Talk with Dim about the buffers used
-                sendData(codecBuf,32);
+                //              sendData(codecBuf,32);
             }
         }
     

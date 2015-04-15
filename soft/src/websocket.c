@@ -33,8 +33,8 @@ Sec-WebSocket-Version: 13\r\n\
 \r\n";
 
 // Sending 64 bytes
-static char webSocketMsg[] = "write 0 70\r\n";
-static char webSocketDataHeader[] = {0x82, 0xC0, 0x00, 0x00, 0x00, 0x00};
+static char webSocketMsg[] = "write 0 22\r\n";
+static char webSocketDataHeader[] = {0x82, 0x90, 0x00, 0x00, 0x00, 0x00};
 
 msg_t streamingIn(void * args) {
     (void)args;
@@ -93,21 +93,7 @@ msg_t streamingOut(void * args) {
 }
 
 void parseStreamData(msg_t data) {
-    unsigned char c = (unsigned char)data;
-    static int cpt = 0;
-
-    if(c == 0x82 && cpt == 0) {
-        cpt = 1;
-    } else if(c == 0x10 && cpt == 1) {
-        cpt = 2;
-    } else if(c >= 2) {
-        cpt++;
-        if(cpt == 66) {
-            cpt = 0;
-        }
-        chMBPost(&mbCodecIn, data, TIME_INFINITE);
-    }
-
+    writeSerial("%c", (char)data);
 }
 
 void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
