@@ -6,6 +6,7 @@
 #include "led.h"
 #include "ff.h"
 #include "chprintf.h"
+#include "websocket.h"
 #include <stdlib.h>
 
 #define FILE_BUFFER_SIZE 32
@@ -19,16 +20,16 @@ EVENTSOURCE_DECL(eventSourceEncode);
 EVENTSOURCE_DECL(eventSourceVolume);
 EVENTSOURCE_DECL(eventSourceWaitEncoding);
 EVENTSOURCE_DECL(eventSourceFullDuplex);
+EVENTSOURCE_DECL(eventSourceSendData);
 
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
 static WORKING_AREA(waVolume, 2048);
 static WORKING_AREA(waWaitEncoding, 128);
 static WORKING_AREA(waFullDuplex, 2048);
+static WORKING_AREA(waSendData, 1024);
 
 volatile int volLevel = 5;
-/* Mutex used to control access of SPI bus */
-static Mutex mtx;
 
 /* Functions used to access registers and ram of the codec */
 static void writeRegister(uint8_t adress, uint16_t command);
@@ -39,6 +40,7 @@ static uint16_t readRam(uint16_t adress);
 uint32_t readRam32(uint16_t adress);
 /* Function used to send data to the codec (no more than 32 bytes) */
 static void sendData(const uint8_t * data, int size);
+static void sendData16(const uint16_t * data, int size);
 /* Function used to load a patch in the codec (called at each software register) */
 static void loadPatch(void);
 
@@ -72,7 +74,7 @@ static msg_t threadPlayback(void *arg){
         /* Can't playback if SPI is not ready (typicaly when encoding) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endPlayback;
+            continue;
         }
         /* Reset the control command */
         control = 0;
@@ -142,9 +144,6 @@ static msg_t threadPlayback(void *arg){
             writeSerial("Error transmiiting audio file\r\n");
             return 0;
         }
-     
-    endPlayback:
-        chThdSleepMilliseconds(1);
     }
     return 0;
 }
@@ -193,7 +192,7 @@ static msg_t threadEncode(void *arg){
         /* Can't encode if SPI is not ready (typicaly when playback) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endEncoding;
+            continue;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
@@ -228,8 +227,7 @@ static msg_t threadEncode(void *arg){
                     data = readRegister(SCI_RECDATA);
                     *rbp++ = (uint8_t)(data >> 8);
                     *rbp++ = (uint8_t)(data & 0xFF);
-                    writeRam(PAR_ENC_CHANNEL_MAX,0);
-                }
+		}
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
             else{
@@ -256,8 +254,6 @@ static msg_t threadEncode(void *arg){
 
         playerState = 1;
         stopRecord = 0;
-	endEncoding:
-        chThdSleepMilliseconds(1);
     }
     return 0;
 }
@@ -275,7 +271,7 @@ static msg_t threadTestVolume(void *arg){
         /* Can't encode if SPI is not ready (typicaly when playback) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endEncoding2;
+            continue;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
@@ -303,8 +299,8 @@ static msg_t threadTestVolume(void *arg){
             /* See if there is some data available */
             if((readRegister(SCI_RECWORDS)) > 0) {
                 readRegister(SCI_RECDATA);
-                    while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
-                    writeRam(PAR_ENC_CHANNEL_MAX,0);
+		while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
+		writeRam(PAR_ENC_CHANNEL_MAX,0);
                 writeSerial("Level : %d\r\n", level);
                 ledSetColorRGB(2,level,0,0);
                 chThdSleepMilliseconds(100);
@@ -325,12 +321,9 @@ static msg_t threadTestVolume(void *arg){
 
         playerState = 1;
         stopRecord = 0;
-	endEncoding2:
-        chThdSleepMilliseconds(1);
     }
     return 0;
 }
-//static uint16_t codecBuf[16];
 
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
@@ -344,7 +337,7 @@ static msg_t threadFullDuplex(void *arg){
         /* Can't encode if SPI is not ready (typicaly when playback or encoding) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
-            goto endFullDuplex;
+            continue;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(100);
@@ -355,38 +348,31 @@ static msg_t threadFullDuplex(void *arg){
         /* Maximum gain amplification at x40 */
         writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, in format PCM (non-compressed), full duplex mode, no header generated */
-        writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);
-        /* Set quality mode to 5 */
-        writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
+        writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);	
 
-
-        // TODO synchronization with the wifi streaming
-
-
+	/* Launch the streaming */
+	streamLaunch();
+	
+	/*Start the sending of datas to SDI (for playback during streaming */
+	chSysLock();
+	chEvtBroadcastI(&eventSourceSendData);
+	chSysUnlock();   
+    
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
-    
+	
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
-                //chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);	   
-            }
+                chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);
+	    }
 	    
             else if(stopRecord){
                 playerState = 0;
             }
-	   
-            else{
-                int i;
-                for(i = 0 ; i < 16 ; i++){
-                    //if(chMBFetch(&mbCodecIn,(msg_t *)&codecBuf[i], TIME_INFINITE) == RDY_OK){};
-                }
-                // TODO Talk with Dim about the buffers used
-                //              sendData(codecBuf,32);
-            }
-        }
-    
+	}
+       
         writeRam(PAR_END_FILL_BYTE,0);
     
         /* Wait until the codec exit the encoding mode */
@@ -396,10 +382,32 @@ static msg_t threadFullDuplex(void *arg){
 
         playerState = 1;
         stopRecord = 0;
-	endFullDuplex:
-        chThdSleepMilliseconds(1);
     }
     return 0;
+}
+
+static uint16_t streamBuf[16];
+
+static msg_t threadSendData(void *arg){
+    (void) arg;
+
+    static EventListener eventListener;
+    chEvtRegisterMask(&eventSourceSendData,&eventListener,1);
+
+    while(TRUE){
+	chEvtWaitOne(1);
+	
+	while(playerState){
+	    int i;
+	    /* Complete the buffer from the mail box*/
+	    for(i = 0 ; i < 16 ; i++){	
+		if(chMBFetch(&mbCodecIn,(msg_t *)&streamBuf[i],TIME_INFINITE));
+	    }
+	    /* Send the buffer to the codec */
+	    sendData16(streamBuf,16);
+	}
+    }
+    return(0);
 }
 
 void codecVolume(int volume) {
@@ -507,7 +515,6 @@ void codecInit(){
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     
     spiAcquireBus(&SPID4);
-    chMtxInit(&mtx);
     
     codecReset();
     
@@ -516,6 +523,7 @@ void codecInit(){
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
     chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
     chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
+    chThdCreateStatic(waSendData, sizeof(waSendData),NORMALPRIO, threadSendData,NULL);
 
     /* Thread to count the duration of recording */
     chThdCreateStatic(waWaitEncoding, sizeof(waWaitEncoding),NORMALPRIO, waitRecording,NULL);
@@ -574,9 +582,9 @@ static void writeRegister(uint8_t adress, uint16_t command){
     instruction[1] = adress;
     instruction[2] = (command >> 8);
     instruction[3] = command;
-    chMtxLock(&mtx);
+    spiAcquireBus(&SPID4);
     spiSend(&SPID4,sizeof(instruction),instruction);
-    chMtxUnlock();
+    spiReleaseBus(&SPID4);
 
     RESET_MODE;
 }
@@ -604,9 +612,9 @@ static uint16_t readRegister(uint8_t adress){
     /* Construction of instruction (Read opcode, adress) */
     instruction[0] = 0x03;
     instruction[1] = adress;
-    chMtxLock(&mtx);
+    spiAcquireBus(&SPID4);
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-    chMtxUnlock();
+    spiReleaseBus(&SPID4);
 
     RESET_MODE;
     
@@ -640,9 +648,27 @@ static void sendData(const uint8_t * data, int size){
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++){
-        chMtxLock(&mtx);
+        spiAcquireBus(&SPID4);
         spiSend(&SPID4,1,data++);
-        chMtxUnlock();
+        spiReleaseBus(&SPID4);
+    }
+    
+    RESET_MODE;
+}
+
+/* Function to send data (SDI) with a 16bits buffer, maximum of 32 bytes */
+static void sendData16(const uint16_t * data, int size){
+    int i;
+
+    /* Wait until it's possible to send data */
+    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
+
+    DATA_MODE;
+
+    for(i = 0 ; i < size ; i++){
+        spiAcquireBus(&SPID4);
+        spiSend(&SPID4,1,data++);
+        spiReleaseBus(&SPID4);
     }
     
     RESET_MODE;

@@ -26,26 +26,25 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-  {"testSD" , testSd     },
-  {"mv"     , cmdMv      },
-  {"rm"     , cmdRm      },
-  {"touch"  , cmdTouch   },
-  {"mkdir"  , cmdMkdir   },
-  {"cat"    , cmdCat     },
-  {"pwd"    , cmdPwd     },
-  {"cd"     , cmdCd      },
-  {"ls"     , cmdLs      },
-  {"test"   , cmdTest    },
-  {"tree"   , cmdTree    },
-  {"play"   , cmdPlay    },
-  {"encode" , cmdEncode  },
-  {"volumeTest" , cmdTestVolume},
-  {"codec"  , cmdFullDuplex},
-  {"stop"   , cmdStop    },
-  {"volume" , cmdVolume  },
+  {"testSD"    , testSd       },
+  {"mv"        , cmdMv        },
+  {"rm"        , cmdRm        },
+  {"touch"     , cmdTouch     },
+  {"mkdir"     , cmdMkdir     },
+  {"cat"       , cmdCat       },
+  {"pwd"       , cmdPwd       },
+  {"cd"        , cmdCd        },
+  {"ls"        , cmdLs        },
+  {"test"      , cmdTest      },
+  {"tree"      , cmdTree      },
+  {"play"      , cmdPlay      },
+  {"encode"    , cmdEncode    },
+  {"codec"     , cmdFullDuplex},
+  {"stop"      , cmdStop      },
+  {"volume"    , cmdVolume    },
   {"testVolume", cmdTestVolume},
-  {"c"      , cmdControl },
-  {NULL     , NULL       }
+  {"c"         , cmdControl   },
+  {NULL        , NULL         }
 };
 
 /* Config of the shell */
