@@ -13,6 +13,7 @@
 #define CODEC_H
 
 extern Mailbox mbCodecOut;
+extern Mailbox mbCodecIn;
 
 /**
  *
