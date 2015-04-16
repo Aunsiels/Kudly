@@ -94,9 +94,22 @@ CSRC = $(PORTSRC) \
        $(LWSRC) \
        $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
-       $(KUDLYSRC)/led.c codec.c usb_serial.c shell_cfg.c sd_perso.c  main.c \
+       $(KUDLYSRC)/main.c \
+       $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/wifi_manager.c \
+       $(KUDLYSRC)/wifi_parsing.c \
+       $(KUDLYSRC)/camera.c \
+       $(KUDLYSRC)/led.c \
+       $(KUDLYSRC)/usb_serial.c \
+       $(KUDLYSRC)/shell_cfg.c \
+       $(KUDLYSRC)/sd_perso.c \
+       $(KUDLYSRC)/hug_sensors.c \
+       $(KUDLYSRC)/hand_sensors.c \
+       $(KUDLYSRC)/codec.c \
        $(CHIBIOS)/os/various/shell.c \
-       $(CHIBIOS)/os/various/chprintf.c
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(KUDLYSRC)/sccb.c \
+       $(KUDLYSRC)/websocket.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -163,7 +176,7 @@ AOPT =
 TOPT = -mthumb -DTHUMB
 
 # Define C warning options here
-CWARN = -Wall -Wextra -Wstrict-prototypes -Werror
+CWARN = -Wall -Wextra -Wstrict-prototypes -Werror -std=gnu99
 
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra

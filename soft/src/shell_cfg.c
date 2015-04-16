@@ -4,11 +4,21 @@
 #include "chprintf.h"
 #include "usb_serial.h"
 #include "shell.h"
+#include "led.h"
 #include <stdlib.h>
 #include "sd_perso.h"
+#include "sccb.h"
+#include "wifi.h"
+#include "wifi_manager.h"
+#include "hug_sensors.h"
+#include "hand_sensors.h"
 #include "codec.h"
+#include "camera.h"
+#include "websocket.h"
+#include "wifi_manager.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define SHELL_MAX_ARGUMENTS 5
 
 /* Thread of the shell */
 static Thread *shelltp = NULL;
@@ -26,31 +36,45 @@ static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* List of commands */
 static const ShellCommand commands[] = {
-  {"testSD"    , testSd       },
-  {"mv"        , cmdMv        },
-  {"rm"        , cmdRm        },
-  {"touch"     , cmdTouch     },
-  {"mkdir"     , cmdMkdir     },
-  {"cat"       , cmdCat       },
-  {"pwd"       , cmdPwd       },
-  {"cd"        , cmdCd        },
-  {"ls"        , cmdLs        },
-  {"test"      , cmdTest      },
-  {"tree"      , cmdTree      },
-  {"play"      , cmdPlay      },
-  {"encode"    , cmdEncode    },
-  {"codec"     , cmdFullDuplex},
-  {"stop"      , cmdStop      },
-  {"volume"    , cmdVolume    },
-  {"testVolume", cmdTestVolume},
-  {"c"         , cmdControl   },
-  {NULL        , NULL         }
+    {"camera"      , cmdCamera     },
+    {"sccbwrite"   , cmdWrite      },
+    {"sccbread"    , cmdRead       },
+    {"testSD"      , testSd        },
+    {"mv"          , cmdMv         },
+    {"rm"          , cmdRm         },
+    {"touch"       , cmdTouch      },
+    {"mkdir"       , cmdMkdir      },
+    {"cat"         , cmdCat        },
+    {"pwd"         , cmdPwd        },
+    {"cd"          , cmdCd         },
+    {"ls"          , cmdLs         },
+    {"test"        , cmdTest       },
+    {"tree"        , cmdTree       },
+    {"wifi"        , cmdWifi       },
+    {"wsinit"      , cmdWebSocInit },
+    {"stream"      , cmdDlWave     },
+    {"ws"          , cmdWebSoc     },
+    {"led"         , cmdLed        },
+    {"ledtest"     , cmdLedtest    },
+    {"hugsensors"  , cmdHugSensors },
+    {"handsensors" , cmdHandSensors},
+    {"play"        , cmdPlay       },
+    {"encode"      , cmdEncode     },
+    {"getwifi"     , cmdWifiGet    },
+    {"postwifi"    , cmdWifiPost   },
+    {"wifiStream"  , streamLaunch  },
+    {"codec"       , cmdFullDuplex },
+    {"stop"        , cmdStop       },
+    {"volume"      , cmdVolume     },
+    {"testVolume"  , cmdTestVolume },
+    {"c"           , cmdControl    },
+    {NULL          , NULL          }
 };
 
 /* Config of the shell */
 static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU1,
-  commands
+    (BaseSequentialStream *)&SDU1,
+    commands
 };
 
 /* Initialization */

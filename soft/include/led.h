@@ -40,4 +40,21 @@ void ledSetColorHSV(int led, int h, int s, int v);
  */
 void ledTest(void);
 
+/**
+ * \brief Command led for shell
+ * \param chp The stream where the strings will be written
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief Command led test for shell
+ * \param chp The stream where the strings will be written
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdLedtest(BaseSequentialStream *chp, int argc, char *argv[]);
+
+
 #endif
