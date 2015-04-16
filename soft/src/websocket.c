@@ -134,10 +134,11 @@ msg_t pollRead_thd(void * args) {
  * It reads the whole buffer
  */
 void parseWebSocketBuffer(void) {
-    static int i = 0;
+    static int i;
     static int dataStart;
     static char data;
 
+    i = 0;
     while(i < BUFFER_SIZE) {
 
         // If new packet comming
