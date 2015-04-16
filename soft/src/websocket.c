@@ -91,8 +91,13 @@ int poll(void) {
     wifiWriteByUsart("poll 0\n\r", 8);
 
     if(stream_buffer[0] == '1') {
+        writeSerial("A");
         return 1;
+    } else if(stream_buffer[0] == 'C') {
+        writeSerial("C");
+        return 0;
     } else {
+        writeSerial("B");
         return 0;
     }
 }
@@ -108,16 +113,20 @@ msg_t pollRead_thd(void * args) {
             wifiWriteByUsart(tcpc, sizeof(tcpc));
 
             wifiWriteByUsart(downloadWave, sizeof(downloadWave));
-            chThdSleepMilliseconds(500);
-            wifiWriteByUsart(read400, sizeof(read400));
-            writeSerial("Websocket request sent\n\r");
+
+            while(poll() != 1) {
+                chThdSleepMilliseconds(500);
+            }
 
             pollRead = TRUE;
 
             // Next packet is the 1st one and starts with a websocket header
             wsHeader = 1;
 
-            while(poll()) {
+            while(true) {
+                while(poll() != 1) {
+                    chThdSleepMilliseconds(10);
+                }
                 wifiWriteByUsart(readBuffer, sizeof(readBuffer));
                 parseWebSocketBuffer();
             }

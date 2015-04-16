@@ -32,7 +32,7 @@ static char urlencoded[]=" x-www-form-urlencoded\r\n";
 static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
-bool_t print = FALSE;
+bool_t print = TRUE;
 bool_t save = TRUE;
 
 /* For system file */
@@ -40,7 +40,7 @@ static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-char stream_buffer[203];
+char stream_buffer[1000];
 
 /* Event source to signal whan all data are received */
 EVENTSOURCE_DECL(srcEndToReadUsart);
