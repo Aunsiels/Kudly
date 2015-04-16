@@ -29,7 +29,10 @@ static WORKING_AREA(waWaitEncoding, 128);
 static WORKING_AREA(waFullDuplex, 2048);
 static WORKING_AREA(waSendData, 1024);
 
-volatile int volLevel = 5;
+volatile int volLevel;
+/* Variable to stop recording / encoding */
+volatile bool_t stopSound = 0;
+volatile bool_t playerState = 1;
 
 /* Functions used to access registers and ram of the codec */
 static void writeRegister(uint8_t adress, uint16_t command);
@@ -78,19 +81,21 @@ static msg_t threadPlayback(void *arg){
         }
         /* Reset the control command */
         control = 0;
+	
+        /* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+	stopSound = 0;
+	
         /* Open a file in reading mode */
         f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
         /* Get the file contain and keep it in a buffer */
-        while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
+        while((!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))) & playerState){
             /* Send the whole file to VS1063 */
             t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
             sendData(playBuf,t);
             if(t != SDI_MAX_TRANSFER_SIZE)
                 break;
             switch(control){
-            case 'q' :
-                writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
-                break;
             case '+' :
                 if(volLevel == 100)
                     break;
@@ -107,15 +112,13 @@ static msg_t threadPlayback(void *arg){
                     codecVolume(volLevel);
                     break;
                 }
-		
-            default:
-                break;
-            }
-            if(control == 'q'){
-                control = 0;
+	    default:
                 break;
             }
             control = 0;
+
+	    if(stopSound)
+		playerState = 0;
         }
 
         f_close(&readFp);
@@ -138,8 +141,8 @@ static msg_t threadPlayback(void *arg){
                 codecReset();
                 break;
             }
-        } 
-      
+        }
+
         if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
             writeSerial("Error transmiiting audio file\r\n");
             return 0;
@@ -151,8 +154,6 @@ static msg_t threadPlayback(void *arg){
 
 static FIL encodeFp;
 static uint8_t recBuf[REC_BUFFER_SIZE];
-volatile int stopRecord = 0;
-volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
 
@@ -165,13 +166,12 @@ static msg_t waitRecording(void *arg){
     while(1){
         chEvtWaitOne(1);
         if(duration != 0){
-            /* Collect the data in HDAT0/1 */
+            /* Collect the data in HDAT0/1 during "duration" seconds */
             chThdSleepMilliseconds(duration*1000);
-	    
-            /* Stop the acquisition */
-            writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-            stopRecord = 1;
-        }
+
+	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+	    stopSound = 1;
+	}
     }
     return 0;
 }
@@ -194,22 +194,26 @@ static msg_t threadEncode(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
-        /* Set volume at maximum (for now micro is not pre-amplified) */
-        codecVolume(100);
+        /* Set desactive sound on the speaker */
+        codecVolume(75);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
-        /* Maximum gain amplification at x40 */
-        writeRegister(SCI_AICTRL2,40000);
+        /* Maximum gain amplification at x1 */
+        writeRegister(SCI_AICTRL2,1024);
         /* Set in mono mode, and in format OGG Vorbis */
-        writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
-        /* Set quality mode to 5 */
+        writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO );
+        /* Set quality mode to 9 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
 	
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
         writeRegister(SCI_AIADDR,0x50);
+
+	/* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
 
         f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
@@ -231,7 +235,7 @@ static msg_t threadEncode(void *arg){
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
             else{
-                if(stopRecord && !readRegister(SCI_RECWORDS)){
+                if(stopSound && !readRegister(SCI_RECWORDS)){
                     playerState = 0;
                     ledSetColorRGB(2,0,0,0);        
                 }
@@ -251,9 +255,6 @@ static msg_t threadEncode(void *arg){
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
         codecReset();
-
-        playerState = 1;
-        stopRecord = 0;
     }
     return 0;
 }
@@ -273,14 +274,14 @@ static msg_t threadTestVolume(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
-        /* Set volume at maximum (for now micro is not pre-amplified) */
-        codecVolume(100);
+        /* Disable sound on speakers */
+        codecVolume(1);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
-        writeRegister(SCI_AICTRL1,0);
+        writeRegister(SCI_AICTRL1,200);
         /* Maximum gain amplification at x40 */
-        writeRegister(SCI_AICTRL2,40000);
+        writeRegister(SCI_AICTRL2,1);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
@@ -289,6 +290,10 @@ static msg_t threadTestVolume(void *arg){
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
+
+	/* Reset the variables to control encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
 
         chSysLock();
         chEvtBroadcastI(&eventSourceWaitEncoding);
@@ -306,7 +311,7 @@ static msg_t threadTestVolume(void *arg){
                 chThdSleepMilliseconds(100);
             }   	    
             else{
-                if(stopRecord && !readRegister(SCI_RECWORDS)){
+                if(stopSound && !readRegister(SCI_RECWORDS)){
                     playerState = 0;        
                 }
             }
@@ -318,17 +323,12 @@ static msg_t threadTestVolume(void *arg){
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
         codecReset();
-
-        playerState = 1;
-        stopRecord = 0;
     }
     return 0;
 }
 
 static msg_t threadFullDuplex(void *arg){
     (void) arg;
-
-    msg_t readReg;
 
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,1);
@@ -352,8 +352,12 @@ static msg_t threadFullDuplex(void *arg){
         /* Set in mono mode, in format PCM (non-compressed), full duplex mode, no header generated */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);	
 
+	/* Reset variables to stop the encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+	
 	/* Launch the streaming */
-	streamLaunch();
+	streamLaunch(NULL,0,NULL);
 	
 	/*Start the sending of datas to SDI (for playback during streaming */
 	chSysLock();
@@ -369,7 +373,7 @@ static msg_t threadFullDuplex(void *arg){
             if(readRegister(SCI_RECWORDS) > 0){
                 chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);
 	    }
-            else if(stopRecord){
+            else if(stopSound){
                 playerState = 0;
             }
 	}
@@ -380,9 +384,6 @@ static msg_t threadFullDuplex(void *arg){
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
         codecReset();
-
-        playerState = 1;
-        stopRecord = 0;
     }
     return 0;
 }
@@ -402,7 +403,7 @@ static msg_t threadSendData(void *arg){
 	    int i;
 	    /* Complete the buffer from the mail box*/
 	    for(i = 0 ; i < 16 ; i++){	
-		if(chMBFetch(&mbCodecIn,(msg_t *)&streamBuf[i],TIME_INFINITE));
+		if(chMBFetch(&mbCodecIn,(msg_t *)&streamBuf[i],TIME_INFINITE)){};
 	    }
 	    /* Send the buffer to the codec */
 	    sendData16(streamBuf,16);
@@ -487,9 +488,9 @@ void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argc;
     (void) chp;
     
-    /* Stop the encoding (when duration is set to 0) */
+    /* Stop the encoding or decoding (useful when duration is set to 0) */
     writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-    stopRecord = 1;  
+    stopSound = 1;  
 }
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -501,8 +502,6 @@ void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     }
 
     control = (uint8_t)argv[0][0];
-        
-    return;
 }
 
 
@@ -514,9 +513,7 @@ void codecInit(){
     palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-    
-    spiAcquireBus(&SPID4);
-    
+  
     codecReset();
     
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
@@ -531,10 +528,12 @@ void codecInit(){
 }
 
 void codecReset(void){
-    /* Start of SPI bus */ 
+    /* Start of SPI bus */
+    spiAcquireBus(&SPID4);
     spiStart(&SPID4, &hs_spicfg);
     spiSelect(&SPID4);
-
+    spiReleaseBus(&SPID4);
+   
     RESET_MODE;
 
     /* Software reset of the codec */
@@ -550,9 +549,9 @@ void codecReset(void){
     /* Set Clock settings : x4.5 multiplier (+ x1 when needed, to encode in Ogg Vorbis)  */
     writeRegister(SCI_CLOCKF,SC_MULT_53_45X|SC_ADD_53_10X);
     /* Set encoding samplerate to 16000Hz, in mono mode */
-    writeRegister(SCI_AUDATA,0x3E80);
+    writeRegister(SCI_AUDATA,16000);
     /* Both left and right volumes are at middle (50 over 100) */
-    codecVolume(50);
+    codecVolume(80);
 }
 
 void codecLowPower(void){
