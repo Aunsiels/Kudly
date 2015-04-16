@@ -7,15 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define featureSize 25
-#define functionSize 2048
+#define FEATURE_SIZE 25
+#define FUNCTION_SIZE 2048
 
 /* Event for parsing end */
 static EVENTSOURCE_DECL(eventWifiSrc);
 
 /* Feature and function buffer used to launch functionnality by wifi */
-static char feature[featureSize];
-static char function[functionSize];
+static char feature[FEATURE_SIZE];
+static char function[FUNCTION_SIZE];
 
 /* State for xml parsing */
 enum state {
@@ -116,6 +116,6 @@ static msg_t wifiCommands_thd(void * args) {
 void wifiCommands(void) {
     static WORKING_AREA(wifiCommands_wa, 128);
     chThdCreateStatic(
-            wifiCommands_wa, sizeof(wifiCommands_wa),
-            NORMALPRIO, wifiCommands_thd, NULL);
+	wifiCommands_wa, sizeof(wifiCommands_wa),
+	NORMALPRIO, wifiCommands_thd, NULL);
 }
