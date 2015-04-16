@@ -21,6 +21,8 @@ POST   /echopost                    controllers.Application.postEcho
 
 POST   /setpwm                      controllers.Application.setPwm
 
+GET    /temp                        controllers.Application.printTemp
+
 POST   /temp                        controllers.Application.temp
 
 POST   /sendimage                   controllers.Application.upload
@@ -28,3 +30,7 @@ POST   /sendimage                   controllers.Application.upload
 GET    /sendimage                   controllers.Application.sendimage
 
 GET    /image                       controllers.Application.image(name : String)
+
+GET    /streaming                   controllers.Application.streaming
+
+GET    /parent                      controllers.Application.toParent

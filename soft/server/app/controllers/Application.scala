@@ -11,9 +11,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.mvc._
 import play.api.Play.current
 import akka.actor._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent._
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
+import scala.language.postfixOps
 
 object Application extends Controller {
 
@@ -94,32 +97,18 @@ object Application extends Controller {
      */
     def stream = Action {
         val file = new File("public/0233.ogg")
-        val data = new FileInputStream(file)
-        val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(data)
             
-        Ok.chunked(dataContent).
-            withHeaders( (CONTENT_TYPE, "audio/ogg"),
-                         (CACHE_CONTROL, "no-cache"))
-    }
-
-    /*
-     * Echo actor for websocket
-     */
-    object echoWSActor {
-        def props(out: ActorRef) = Props(new echoWSActor(out))
-    }
-
-    /* echo actor */
-    class echoWSActor(out: ActorRef) extends Actor {
-        def receive = {
-            case msg: String =>
-                      out ! (msg)
-        }
+        Ok.sendFile(file)
     }
 
     /* echo websocket */
-    def echo = WebSocket.acceptWithActor[String, String] { request => out =>
-        echoWSActor.props(out)
+    def echo = WebSocket.using[Array[Byte]] { request =>
+        /* Channel to communicate */
+        val (out, channel) = Concurrent.broadcast[Array[Byte]]
+        val in = Iteratee.foreach[Array[Byte]] {
+            msg => channel push msg
+        }
+        (in, out)
     }
 
     /* Echo Form */
@@ -163,11 +152,37 @@ object Application extends Controller {
     }
 
     /*
+     * Graph value representation
+     */
+    case class graphValue (date : java.util.Date,
+                           value : Int) {
+        /* Return a format Date */
+        def getDate : String = {
+            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH")
+            return formater.format(date)
+        }
+    }
+
+    /*
      * Graph data form
      */
     val graphForm : Form[Int] = Form(
          "value" -> number
     )
+
+    /*
+     * Print the chart of the temperatures
+     */
+    def printTemp = Action {
+        val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH")
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq "temp").foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list)
+        Ok(views.html.graph("Temperature",list))
+    }
 
     /* 
      * Set temp value
@@ -258,5 +273,87 @@ object Application extends Controller {
             case None     => 
                 Ok("No such image")
         }
+    }
+
+    /* Channel to communicate to Kudly */
+    val (enumKudly, channelKudly) = Concurrent.broadcast[Array[Byte]]
+
+    /* Channel to communicate to Kudly */
+    val (enumParent, channelParent) = Concurrent.broadcast[Array[Byte]]
+
+    /*
+     * Streaming function
+     */
+    def streaming = WebSocket.using[Array[Byte]] { request =>
+        /* Just print the received values */
+        val in = Iteratee.foreach[Array[Byte]] {
+            msg => channelParent push msg
+        }
+        /* File to send */
+        val file = new File("public/bell.wav")
+        val sound = new FileInputStream(file)
+        /* Enumerator to read sound */
+        val dataContent: Enumerator[Array[Byte]] = audioHeader >>> Enumerator.fromStream(sound)
+        /* An enumerator that push in kudly channel */
+        val pusher = Iteratee.foreach[Array[Byte]](
+            s => channelKudly push s )
+        val newIteratee: Future[Iteratee[Array[Byte],Unit]] =
+            dataContent(pusher) 
+
+        (in, enumKudly)
+    }
+
+    val samplesPerFrame: Int = 1
+    val frameRate: Int = 8000
+    val bitsPerSample: Int = 8
+
+    val bytesPerSamples = ((bitsPerSample+7)/8).toInt
+
+    /* Useful types for header */
+    private def IntLittleBytes(i: Int) = Array(
+      i     toByte,
+      i>>8  toByte,
+      i>>16 toByte,
+      i>>24 toByte
+    )
+
+    private def ShortLittleBytes(i: Short) = Array(
+      i    toByte,
+      i>>8 toByte
+    )
+
+    /* Header for the streaming */
+    lazy val header: Array[Byte] = {
+        val riff = "RIFF".toArray.map(_.toByte) ++
+                   /* Maximum chunk size (we are streaming here */
+                   IntLittleBytes(0x7fffffff) ++
+                   "WAVE".toArray.map(_.toByte);
+  
+        val fmt =  "fmt ".toArray.map(_.toByte) ++
+                   /* Subchunk1Size for PCM = 16 */
+                   IntLittleBytes(16) ++
+                   /* AudioFormat for PCM = 1 */
+                   ShortLittleBytes(1) ++
+                   ShortLittleBytes(samplesPerFrame toShort) ++
+                   IntLittleBytes(frameRate) ++
+                   IntLittleBytes(frameRate*samplesPerFrame*bytesPerSamples) ++
+                   ShortLittleBytes(samplesPerFrame*bytesPerSamples toShort) ++
+                   ShortLittleBytes(bitsPerSample toShort);
+  
+        val data = "data".toArray.map(_.toByte) ++
+                   IntLittleBytes(0x7fffffff);
+  
+        riff ++ fmt ++ data;
+    }
+
+    /* The enumerator of the Header */
+    val audioHeader = Enumerator(header)
+
+    /* Streams the sound to the parents */
+    def toParent = Action {
+        Ok.chunked(audioHeader >>> enumParent &>
+            Concurrent.dropInputIfNotReady(50)).
+            withHeaders( (CONTENT_TYPE, "audio/wav"),
+                         (CACHE_CONTROL, "no-cache"))
     }
 }
