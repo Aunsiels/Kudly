@@ -22,40 +22,37 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    /* Initialize shell */
-    shellPersoInit();
-
     /* Initialize SD card */
     sdPersoInit();
 
     /* Led initialization */
     ledInit();
 
-    
     /* Init sccb */
-    sccbInit();
+    //sccbInit();
     
     /* Read wifi by usart */
-    usartRead();
+    //usartRead();
 
     /* DCMI init */
-    cameraInit();
+    //cameraInit();
 
     /* Initialize wifi */
-    wifiInitByUsart();
+    //wifiInitByUsart();
 
     /* Init ADC hug sensors */
-    initHugSensors();
+    //initHugSensors();
 
     /* Init ADC hand sensors */
-    initHandSensors();
-
-    ledInit();
+    //initHandSensors();
 
     /* Init codec */
     codecInit();
 
-    streamInit();
+    //streamInit();
+    
+    /* Initialize shell */
+    shellPersoInit();
 
     while(TRUE){
 	ledSetColorRGB(1,0,0,0);
