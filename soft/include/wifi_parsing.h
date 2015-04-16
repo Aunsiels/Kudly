@@ -17,7 +17,7 @@
  *
  * \brief XML parsing to execute actions
  *
- * This function parses a wml page from serve and launches right 
+ * This function parses a xml page from serve and launches right 
  * functions  
  */
 void parseXML(char c);
