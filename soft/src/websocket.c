@@ -102,25 +102,28 @@ msg_t pollRead_thd(void * args) {
     EventListener pollReadLst;
     chEvtRegisterMask(&pollReadSrc, &pollReadLst, (eventmask_t)1);
 
-    while(chEvtWaitAny(1)) {
-        wifiWriteByUsart(tcpc, sizeof(tcpc));
+    while(TRUE) {
+        if(chEvtWaitAny(1)) {
+            writeSerial("Sending websocket request\n\r");
+            wifiWriteByUsart(tcpc, sizeof(tcpc));
 
-        wifiWriteByUsart(downloadWave, sizeof(downloadWave));
-        chThdSleepMilliseconds(500);
-        wifiWriteByUsart(read400, sizeof(read400));
+            wifiWriteByUsart(downloadWave, sizeof(downloadWave));
+            chThdSleepMilliseconds(500);
+            wifiWriteByUsart(read400, sizeof(read400));
+            writeSerial("Websocket request sent\n\r");
 
-        pollRead = TRUE;
-        writeSerial("Polling now !\n\r");
+            pollRead = TRUE;
 
-        // Next packet is the 1st one and starts with a websocket header
-        wsHeader = 1;
+            // Next packet is the 1st one and starts with a websocket header
+            wsHeader = 1;
 
-        while(poll()) {
-            wifiWriteByUsart(readBuffer, sizeof(readBuffer));
-            parseWebSocketBuffer();
+            while(poll()) {
+                wifiWriteByUsart(readBuffer, sizeof(readBuffer));
+                parseWebSocketBuffer();
+            }
+
+            pollRead = FALSE;
         }
-
-        pollRead = FALSE;
     }
 
     return 0;
@@ -149,7 +152,7 @@ void parseWebSocketBuffer(void) {
 
             // length & first data byte position can change...
             if(dataLen == 126) {
-                dataLen = (int)(((uint16_t)stream_buffer[i + 3] << 8) | stream_buffer[i + 2]);
+                dataLen = (int)(((uint16_t)stream_buffer[i + 2] << 8) | stream_buffer[i + 3]);
                 dataStart = i + 4;
             } else if(dataLen == 127) {
                 dataLen = (int)(((uint64_t)stream_buffer[i + 9] << 56) |

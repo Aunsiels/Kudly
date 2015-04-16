@@ -17,7 +17,7 @@ enum wifiReadState {
 };
 
 /* Boolean to set streaming to on */
-bool_t streaming = TRUE;
+bool_t streaming = FALSE;
 
 /* Some strings used by http_request and stream reading */
 static char stream_read[] = "stream_read 0 200\r\n";
