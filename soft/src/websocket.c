@@ -11,7 +11,7 @@
 #define PACKET_SIZE    70 // WS_DATA_SIZE + 6
 #define READ_RESP      66 // WS_DATA_SIZE + 2
 
-#define BUFFER_SIZE    64
+#define BUFFER_SIZE    1024
 
 #define STR(x) #x
 #define STR_(x) STR(x)
@@ -19,20 +19,20 @@
 #define HEADER_2ND_BYTE 0x80 + WS_DATA_SIZE
 
 static WORKING_AREA(streamingOut_wa, 128);
-static WORKING_AREA(streamingIn_wa, 128);
-static WORKING_AREA(stream_wa, 128);
+//static WORKING_AREA(streamingIn_wa, 128);
+static WORKING_AREA(stream_wa, 1024);
 
 /* Codec mailboxes */
-static msg_t mbCodecOut_buf[256];
-static msg_t mbCodecIn_buf[256];
-MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 128);
-MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 128);
+static msg_t mbCodecOut_buf[10000];
+static msg_t mbCodecIn_buf[10000];
+MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 10000);
+MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 10000);
 
 /* Buffer to send in a websocket */ 
-static char codecOutBuffer[WS_DATA_SIZE];
+static char codecOutBuffer[BUFFER_SIZE];
 
 /* Streaming event sources */
-EventSource streamOutSrc, streamInSrc, pollReadSrc;
+EventSource streamOutSrc, pollReadSrc;
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
 static char streamWriteHeader[] = "write 0 162\r\n\
@@ -65,87 +65,28 @@ static int dataLen;
 static int dataCpt;
 static int wsHeader;
 
-msg_t streamingIn(void * args) {
-    (void)args;
 
-    EventListener streamInLst;
-    chEvtRegisterMask(&streamInSrc, &streamInLst, (eventmask_t)1);
-    writeSerial("Reading thread launched\n\r");
+volatile int websocketSend = 1;
+volatile int websocketRecv = 1;
 
-    while(true) {
-        // Starting streaming
-        if(chEvtWaitAny(1)) {
-            for(int j = 0 ; j < 200 ; j++) {
-                chThdSleepMilliseconds(60);
-                wifiWriteByUsart("read 0 "STR_(READ_RESP)"\n\r", 12);
-            }
-        }
-    }
-
-    chThdSleep(TIME_INFINITE);
-
-    return 0;
-}
-
-int poll(void) {
+static int poll(void) {
     wifiWriteByUsart("poll 0\n\r", 8);
 
     if(stream_buffer[0] == '1') {
-        writeSerial("A");
         return 1;
-    } else if(stream_buffer[0] == 'C') {
-        writeSerial("C");
-        return 0;
     } else {
-        writeSerial("B");
         return 0;
     }
-}
-
-msg_t pollRead_thd(void * args) {
-    (void)args;
-    EventListener pollReadLst;
-    chEvtRegisterMask(&pollReadSrc, &pollReadLst, (eventmask_t)1);
-
-    while(TRUE) {
-        if(chEvtWaitAny(1)) {
-            writeSerial("Sending websocket request\n\r");
-            wifiWriteByUsart(tcpc, sizeof(tcpc));
-
-            wifiWriteByUsart(downloadWave, sizeof(downloadWave));
-
-            while(poll() != 1) {
-                chThdSleepMilliseconds(500);
-            }
-
-            pollRead = TRUE;
-
-            // Next packet is the 1st one and starts with a websocket header
-            wsHeader = 1;
-
-            while(true) {
-                while(poll() != 1) {
-                    chThdSleepMilliseconds(10);
-                }
-                wifiWriteByUsart(readBuffer, sizeof(readBuffer));
-                parseWebSocketBuffer();
-            }
-
-            pollRead = FALSE;
-        }
-    }
-
-    return 0;
 }
 
 /*
  * This function parses websocket data in the buffer
  * It reads the whole buffer
  */
-void parseWebSocketBuffer(void) {
+static void parseWebSocketBuffer(void) {
     static int i;
     static int dataStart;
-    static char data;
+    static uint16_t data;
 
     i = 0;
     while(i < BUFFER_SIZE) {
@@ -177,7 +118,6 @@ void parseWebSocketBuffer(void) {
             }
 
             wsHeader = false;
-
             dataCpt = 0;
 
             // Dropping the header now that we have all the informations
@@ -187,21 +127,60 @@ void parseWebSocketBuffer(void) {
             /*
              * TODO : Do something with the data...
              */
-            data = stream_buffer[i];
-
-            writeSerial("%c", data);
-
-            ++i;
+            data = ((uint16_t)(stream_buffer[i+1]) << 8) | (uint16_t)stream_buffer[i];
+            //writeSerial("%x", stream_buffer[i+1]);
+            //writeSerial("%x", stream_buffer[i]);
+            chMBPost(&mbCodecIn, (msg_t)data, TIME_INFINITE);
+            i += 2;
             ++dataCpt;
         }
 
-
     }
-
 }
 
+static msg_t pollRead_thd(void * args) {
+    (void)args;
+    EventListener pollReadLst;
+    chEvtRegisterMask(&pollReadSrc, &pollReadLst, (eventmask_t)1);
 
-msg_t streamingOut(void * args) {
+    while(TRUE) {
+        if(chEvtWaitAny(1)) {
+            writeSerial("Sending websocket request\n\r");
+            wifiWriteByUsart(tcpc, sizeof(tcpc));
+            writeSerial("Sending websocket request\n\r");
+
+            wifiWriteByUsart(downloadWave, sizeof(downloadWave));
+
+            while(poll() != 1) {
+                chThdSleepMilliseconds(500);
+            }
+            wifiWriteByUsart(read400, sizeof(read400));
+
+            pollRead = TRUE;
+
+            // Next packet is the 1st one and starts with a websocket header
+            wsHeader = 1;
+            writeSerial("Receiving data\n\r");
+
+            while(websocketRecv) {
+                while(poll() != 1) {
+                    chThdSleepMilliseconds(300);
+                }
+                wifiWriteByUsart(readBuffer, sizeof(readBuffer));
+                parseWebSocketBuffer();
+            }
+
+            pollRead = FALSE;
+        }
+    }
+
+    return 0;
+}
+
+/*
+ * Sending data from the codec
+ */
+static msg_t streamingOut(void * args) {
     (void)args;
 
     msg_t msgCodec;
@@ -216,16 +195,20 @@ msg_t streamingOut(void * args) {
          * Starting streaming
          */
         if(chEvtWaitAny(1)) {
-            for(int j = 0 ; j < 100 ; j++) {
-                for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
-                    if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-                        codecOutBuffer[i]     = (char)(msgCodec >> 8);
-                        codecOutBuffer[i + 1] = (char)msgCodec;
-                    }
+            for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
+                if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
+                    codecOutBuffer[i]     = (char)(msgCodec >> 8);
+                    codecOutBuffer[i + 1] = (char)msgCodec;
+                    writeSerial("%s", codecOutBuffer[i]);
                 }
-                sendToWS(codecOutBuffer);
+            }
+            sendToWS();
 
-                chThdSleepMilliseconds(50);
+            chThdSleepMilliseconds(50);
+
+            // stop sending data, waiting for another event
+            if(!websocketSend) {
+                continue;
             }
         }
     }
@@ -244,29 +227,15 @@ void parseWebSocket(msg_t data) {
 
 }
 
-void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
-    (void)chp;
-    (void)argc;
-    (void)argv;
-
-    streamInit();
-    chEvtBroadcast(&streamOutSrc);
-    chEvtBroadcast(&streamInSrc);
-}
-
 /*
  * Init reading & sending threads
  */
 void streamInit(void){
 
-
+    writeSerial("StreamInit...\n\r");
     chEvtInit(&streamOutSrc);
-    chEvtInit(&streamInSrc);
     chEvtInit(&pollReadSrc);
 
-    chThdCreateStatic(
-            streamingIn_wa, sizeof(streamingIn_wa),
-            NORMALPRIO, streamingIn, NULL);
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
@@ -277,17 +246,19 @@ void streamInit(void){
             NORMALPRIO, pollRead_thd, NULL);
 }
 
-void sendToWS(char * str) {
-    (void)str;
-    /*
-     * Header length = 6
-     * Data length   = 16
-     */
+/*
+ * Send buffer to wifi module
+ */
+void sendToWS(void) {
     wifiWriteNoWait(webSocketMsg, sizeof(webSocketMsg) - 1);
     wifiWriteNoWait(webSocketDataHeader, 6);
     wifiWriteNoWait(codecOutBuffer, WS_DATA_SIZE);
 }
 
+/*
+ * Open a websocket to kudly.herokuapp.com:80/echo
+ * Launched by wsinit command
+ */
 void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
@@ -301,22 +272,54 @@ void cmdWebSocInit(BaseSequentialStream* chp, int argc, char * argv[]) {
     wifiWriteByUsart(read400, sizeof(read400));
 }
 
+/*
+ * Unlocks both sending & receiving threads
+ * Launched by ws command
+ */
 void cmdWebSoc(BaseSequentialStream* chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
 
     writeSerial("Broadcasting...\n\r");
+    websocketRecv = 1;
+    websocketSend = 1;
     chEvtBroadcast(&streamOutSrc);
-    chEvtBroadcast(&streamInSrc);
+    chEvtBroadcast(&pollReadSrc);
 }
 
+/*
+ * Unlocks receiving thread
+ * Thread launched by "stream" command
+ */
 void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
 
     writeSerial("Downloading stream...\n\r");
+    websocketRecv = 1;
     chEvtBroadcast(&pollReadSrc);
 }
 
+/*
+ * Stop receiving
+ */
+void cmdStopRecv(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    websocketRecv = 0;
+}
+
+/*
+ * Stop sending
+ */
+void cmdStopSend(BaseSequentialStream * chp, int argc, char * argv[]) {
+    (void)chp;
+    (void)argc;
+    (void)argv;
+
+    websocketSend = 0;
+}
