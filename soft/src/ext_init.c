@@ -33,6 +33,7 @@ static EXTConfig extcfg = {
   }
 };
 
+
 void extPersoInit(){
     /* Just starts the ext with no interrupt */
     extStart(&EXTD1, &extcfg);
