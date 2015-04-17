@@ -49,7 +49,7 @@ int main(void) {
     usartRead();
 
     /* Initialize wifi */
-    wifiInitByUsart();
+    //wifiInitByUsart();
 
     /* Init ADC hug sensors */
     initHugSensors();

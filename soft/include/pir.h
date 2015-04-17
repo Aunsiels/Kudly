@@ -25,5 +25,4 @@ void pirInit(void);
  */
 void testPir(BaseSequentialStream *chp, int argc, char *argv[]);
 
-
 #endif
