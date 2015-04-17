@@ -456,9 +456,10 @@ object Application extends Controller {
      * Update file of configuration
      */
     def configFile = Action {
-        Ok("<config>\n<streaming state=\"" 
-                + streamingRequest+ "\"/>\n<photo state=\"" 
-                + photoRequest+ "\"/>\n</config>")
+        Ok(<config>
+            <stream state={streamingRequest.toString}/>
+            <photo state={photoRequest.toString}/>
+        </config>)
     }
 
     /*
