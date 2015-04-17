@@ -115,9 +115,9 @@ static msg_t usartRead_thd(void * arg){
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
-        if(streaming) {
-            parseWebSocket(c);
-        }
+		if(streaming) {
+		    parseWebSocket(c);
+		}
 
 		dataCpt++;
 

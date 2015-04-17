@@ -25,8 +25,8 @@ static char cmdMessage[120];
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"chezmoi\"\r\n";
-static char passkey[] = "set wlan.passkey \"azertyuiop\"\r\n";
+static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
+static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -39,10 +39,10 @@ static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
-    115200,
+    921600,
     0,
     0,
-    0
+    USART_CR3_CTSE | USART_CR3_RTSE
 };
 
 /* Thread that reads wifi data and puts it on Mailbox */
@@ -51,7 +51,6 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-	//writeSerial("%c",wifi_buffer);
         chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
     }
     return 0;
@@ -94,13 +93,19 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 
 /* Initialization of wifi network */
 void wifiInitByUsart(void) {
+ 
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
 
-    sdStart(&SD3, &uartCfg);
     wifiReadByUsart();
+
+    /* Read wifi by usart */
+    usartRead();
+  
+    sdStart(&SD3, &uartCfg);
+
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
@@ -109,11 +114,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(4000);
+    chThdSleepMilliseconds(5000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
-    /*
-     * Configuring wifi module in machine friendly command mode
-     * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
-     */
 }

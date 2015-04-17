@@ -35,9 +35,6 @@ int main(void) {
     /* Init sccb */
     sccbInit();
     
-    /* Read wifi by usart */
-    usartRead();
-
     /* DCMI init */
     cameraInit();
 
