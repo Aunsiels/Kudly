@@ -19,6 +19,7 @@ extern Mailbox * mb;
 
 /* Stream buffer */
 extern char stream_buffer[];
+extern int dataSize;
 
 /**
  * \brief Initializes a websocket connection
