@@ -11,9 +11,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.mvc._
 import play.api.Play.current
 import akka.actor._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import scala.concurrent._
+import play.api.libs.json._
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
+import scala.language.postfixOps
 
 object Application extends Controller {
 
@@ -48,6 +52,12 @@ object Application extends Controller {
             "b" -> number(min = 0, max = 255)
         )(Led.apply)(Led.unapply)
     )
+
+    /*
+     * Variables to ask for a photo or for streaming
+     */
+    var streamingRequest = 0;
+    var photoRequest = 0;
 
     /*
      * Welcome page
@@ -94,32 +104,18 @@ object Application extends Controller {
      */
     def stream = Action {
         val file = new File("public/0233.ogg")
-        val data = new FileInputStream(file)
-        val dataContent: Enumerator[Array[Byte]] = Enumerator.fromStream(data)
             
-        Ok.chunked(dataContent).
-            withHeaders( (CONTENT_TYPE, "audio/ogg"),
-                         (CACHE_CONTROL, "no-cache"))
-    }
-
-    /*
-     * Echo actor for websocket
-     */
-    object echoWSActor {
-        def props(out: ActorRef) = Props(new echoWSActor(out))
-    }
-
-    /* echo actor */
-    class echoWSActor(out: ActorRef) extends Actor {
-        def receive = {
-            case msg: String =>
-                      out ! (msg)
-        }
+        Ok.sendFile(file)
     }
 
     /* echo websocket */
-    def echo = WebSocket.acceptWithActor[String, String] { request => out =>
-        echoWSActor.props(out)
+    def echo = WebSocket.using[Array[Byte]] { request =>
+        /* Channel to communicate */
+        val (out, channel) = Concurrent.broadcast[Array[Byte]]
+        val in = Iteratee.foreach[Array[Byte]] {
+            msg => channel push msg
+        }
+        (in, out)
     }
 
     /* Echo Form */
@@ -163,11 +159,47 @@ object Application extends Controller {
     }
 
     /*
+     * Graph value representation
+     */
+    case class graphValue (date : java.util.Date,
+                           value : Int) {
+        /* Return a format Date */
+        def getDate : String = {
+            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH:mm")
+            return formater.format(date)
+        }
+
+    }
+
+    implicit val graphValueWrites = new Writes[graphValue] {
+      def writes(gv: graphValue) = Json.obj(
+          "column-1" -> gv.value,
+          "date"     -> gv.getDate
+          )
+    }
+
+    /*
+     * Graph value representation for the POST
+     */
+    case class graphPost (date : Option[java.util.Date],
+                           value : Int)   
+
+    /*
      * Graph data form
      */
-    val graphForm : Form[Int] = Form(
-         "value" -> number
+    val graphForm : Form[graphPost] = Form(
+        mapping(
+            "date"  -> optional(date("dd/MM/yyyy/HH/mm")),
+            "value" -> number
+        )(graphPost.apply)(graphPost.unapply)
     )
+
+    /*
+     * Print the chart of the temperatures
+     */
+    def printTemp = Action {
+        Ok(views.html.graph("/datajson?title=Temperature&db=temp"))
+    }
 
     /* 
      * Set temp value
@@ -178,13 +210,88 @@ object Application extends Controller {
             data  => {
                 var tempData = MongoDBObject(
                     "data"  -> "temp",
-                    "value" -> data,
-                    "date"  -> new java.util.Date()
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
                 )
                 rawCollection += tempData
                 Ok("Temperature received")
             }
         )
+    }
+
+    /*
+     * Receive a post for a cry
+     */
+    def cryPost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "cry",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Cry received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the cries
+     */
+    def cryGet = Action {
+        Ok(views.html.graph("/datajson?title=Cries&db=cry"))
+    }
+
+    /*
+     * Receive a post for an activity
+     */
+    def activityPost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "activity",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Activity received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the activities
+     */
+    def activityGet = Action {
+        Ok(views.html.graph("/datajson?title=Activity&db=activity"))
+    }
+
+    /*
+     * Receive a post for an presence
+     */
+    def presencePost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "presence",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Presence received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the activities
+     */
+    def presenceGet = Action {
+        Ok(views.html.graph("/datajson?title=Presence&db=presence"))
     }
 
     /* Gridfs reference */
@@ -248,6 +355,7 @@ object Application extends Controller {
      * Reads an image
      */
     def image (name : String) = Action {
+        photoRequest = 0;
         var imageReceived = gridfs.findOne(name)
         imageReceived match {
             case Some(im) => {
@@ -258,5 +366,162 @@ object Application extends Controller {
             case None     => 
                 Ok("No such image")
         }
+    }
+
+    /* Channel to communicate to Kudly */
+    val (enumKudly, channelKudly) = Concurrent.broadcast[Array[Byte]]
+
+    /* Channel to communicate to Kudly */
+    val (enumParent, channelParent) = Concurrent.broadcast[Array[Byte]]
+
+    /*
+     * Streaming function
+     */
+    def streaming = WebSocket.using[Array[Byte]] { request =>
+        streamingRequest = 0;
+        /* Just print the received values */
+        val in = Iteratee.foreach[Array[Byte]] {
+            msg => channelParent push msg
+        }
+        /* File to send */
+        val file = new File("public/bell.wav")
+        val sound = new FileInputStream(file)
+        /* Enumerator to read sound */
+        val dataContent: Enumerator[Array[Byte]] =  audioHeader >>> Enumerator.fromStream(sound)
+        /* An enumerator that push in kudly channel */
+        val pusher = Iteratee.foreach[Array[Byte]](
+            s => channelKudly push s )
+        val newIteratee: Future[Iteratee[Array[Byte],Unit]] =
+            dataContent(pusher) 
+
+        (in, enumKudly)
+    }
+
+    val samplesPerFrame: Int = 1
+    val frameRate: Int = 8000
+    val bitsPerSample: Int = 8
+
+    val bytesPerSamples = ((bitsPerSample+7)/8).toInt
+
+    /* Useful types for header */
+    private def IntLittleBytes(i: Int) = Array(
+      i     toByte,
+      i>>8  toByte,
+      i>>16 toByte,
+      i>>24 toByte
+    )
+
+    private def ShortLittleBytes(i: Short) = Array(
+      i    toByte,
+      i>>8 toByte
+    )
+
+    /* Header for the streaming */
+    lazy val header: Array[Byte] = {
+        val riff = "RIFF".getBytes ++
+                   /* Maximum chunk size (we are streaming here */
+                   IntLittleBytes(0x7fffffff) ++
+                   "WAVE".getBytes
+  
+        val fmt =  "fmt ".getBytes ++
+                   /* Subchunk1Size for PCM = 16 */
+                   IntLittleBytes(16) ++
+                   /* AudioFormat for PCM = 1 */
+                   ShortLittleBytes(1) ++
+                   ShortLittleBytes(samplesPerFrame toShort) ++
+                   IntLittleBytes(frameRate) ++
+                   IntLittleBytes(frameRate*samplesPerFrame*bytesPerSamples) ++
+                   ShortLittleBytes(samplesPerFrame*bytesPerSamples toShort) ++
+                   ShortLittleBytes(bitsPerSample toShort);
+  
+        val data = "data".getBytes ++
+                   IntLittleBytes(0x7fffffff);
+  
+        riff ++ fmt ++ data;
+    }
+
+    /* The enumerator of the Header */
+    val audioHeader = Enumerator(header)
+
+    /* Streams the sound to the parents */
+    def toParent = Action {
+        streamingRequest = 1;
+        Ok.chunked(audioHeader >>> enumParent &>
+            Concurrent.dropInputIfNotReady(50)).
+            withHeaders( (CONTENT_TYPE, "audio/wav"),
+                         (CACHE_CONTROL, "no-cache"))
+    }
+
+    /* 
+     * Update file of configuration
+     */
+    def configFile = Action {
+        Ok("<config>\n<streaming state=\"" 
+                + streamingRequest+ "\"/>\n<photo state=\"" 
+                + photoRequest+ "\"/>\n</config>")
+    }
+
+    /*
+     * Asks for a photo
+     */
+    def cameraRequest = Action {
+        photoRequest = 1;
+        Ok("Photo requested")
+    }
+
+    /*
+     * Return a JSON
+     */
+
+    def dataJSON (name : String, db : String) = Action {
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq db).foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list )
+        val json : JsValue = Json.obj(
+            "type" -> "serial",
+            "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
+            "categoryField" -> "date",
+            "dataDateFormat" -> "YYYY-MM-DD HH ->NN",
+            "categoryAxis" -> Json.obj(
+                "minPeriod" -> "mm",
+                "parseDates" -> true),
+            "chartCursor" -> Json.obj(
+                "categoryBalloonDateFormat" -> "JJ ->NN"
+            ),
+            "chartScrollbar" -> Json.obj(),
+            "trendLines" -> Json.arr(),
+            "graphs" -> Json.arr(
+                Json.obj(
+                    "bullet" -> "square",
+                    "id" -> "AmGraph-2",
+                    "title" -> name,
+                    "valueField" -> "column-1"
+                    )
+            ),
+            "guides" -> Json.arr(),
+            "valueAxes" -> Json.arr(
+                Json.obj(
+                    "id" -> "ValueAxis-1",
+                    "title" -> name
+                    )
+                ),
+            "allLabels" -> Json.arr(),
+            "balloon" -> Json.obj(),
+            "legend" -> Json.obj(
+                "useGraphSettings" -> true
+                ),
+            "titles" -> Json.arr(
+                Json.obj( 
+                    "id" -> "Title-1",
+                    "size" -> 15,
+                    "text" -> name
+                )
+            ),
+            "dataProvider" -> list
+       )
+       Ok(json)
     }
 }
