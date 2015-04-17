@@ -158,23 +158,31 @@ object Application extends Controller {
                            value : Int) {
         /* Return a format Date */
         def getDate : String = {
-            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH")
+            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH:mm")
             return formater.format(date)
         }
     }
 
     /*
+     * Graph value representation for the POST
+     */
+    case class graphPost (date : Option[java.util.Date],
+                           value : Int)   
+
+    /*
      * Graph data form
      */
-    val graphForm : Form[Int] = Form(
-         "value" -> number
+    val graphForm : Form[graphPost] = Form(
+        mapping(
+            "date"  -> optional(date("dd/MM/yyyy/HH/mm")),
+            "value" -> number
+        )(graphPost.apply)(graphPost.unapply)
     )
 
     /*
      * Print the chart of the temperatures
      */
     def printTemp = Action {
-        val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH")
         var list : List[graphValue] = List()
         rawCollection.find("data" $eq "temp").foreach(
             data =>
@@ -193,13 +201,106 @@ object Application extends Controller {
             data  => {
                 var tempData = MongoDBObject(
                     "data"  -> "temp",
-                    "value" -> data,
-                    "date"  -> new java.util.Date()
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
                 )
                 rawCollection += tempData
                 Ok("Temperature received")
             }
         )
+    }
+
+    /*
+     * Receive a post for a cry
+     */
+    def cryPost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "cry",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Cry received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the cries
+     */
+    def cryGet = Action {
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq "cry").foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list)
+        Ok(views.html.graph("Cries",list))
+    }
+
+    /*
+     * Receive a post for an activity
+     */
+    def activityPost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "activity",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Activity received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the activities
+     */
+    def activityGet = Action {
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq "activity").foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list)
+        Ok(views.html.graph("Activity",list))
+    }
+
+    /*
+     * Receive a post for an presence
+     */
+    def presencePost = Action {implicit request =>
+        graphForm.bindFromRequest.fold(
+            error => BadRequest("Bad argument"),
+            data => {
+                var tempData = MongoDBObject(
+                    "data"  -> "presence",
+                    "value" -> data.value,
+                    "date"  -> data.date.getOrElse(new java.util.Date())
+                )
+                rawCollection += tempData
+                Ok("Presence received")
+            }
+        )
+    }
+
+    /*
+     * Print the chart of the activities
+     */
+    def presenceGet = Action {
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq "presence").foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list)
+        Ok(views.html.graph("Presence",list))
     }
 
     /* Gridfs reference */
@@ -293,7 +394,7 @@ object Application extends Controller {
         val file = new File("public/bell.wav")
         val sound = new FileInputStream(file)
         /* Enumerator to read sound */
-        val dataContent: Enumerator[Array[Byte]] = audioHeader >>> Enumerator.fromStream(sound)
+        val dataContent: Enumerator[Array[Byte]] =  Enumerator.fromStream(sound)
         /* An enumerator that push in kudly channel */
         val pusher = Iteratee.foreach[Array[Byte]](
             s => channelKudly push s )

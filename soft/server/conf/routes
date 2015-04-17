@@ -34,3 +34,15 @@ GET    /image                       controllers.Application.image(name : String)
 GET    /streaming                   controllers.Application.streaming
 
 GET    /parent                      controllers.Application.toParent
+
+POST   /cry                         controllers.Application.cryPost
+
+GET    /cry                         controllers.Application.cryGet
+
+GET    /activity                    controllers.Application.activityGet
+
+POST   /activity                    controllers.Application.activityPost
+
+GET    /presence                    controllers.Application.presenceGet
+
+POST   /presence                    controllers.Application.presencePost
