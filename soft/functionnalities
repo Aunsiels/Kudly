@@ -10,4 +10,4 @@ the registers of the camera
 CODEC : function play playback an audio file (OGG Vorbis for example) stocked on the SD card. The only one parameter is the name of the file.
         function encode stock a sound from the microphone in OGG Vorbis on the SD card. The first parameter is the name of the file, the second the duration (in seconds), of the recording) 
 CAMERA : To take a photo, just type camera
-WIFI : Functions get request and post request
+WIFI : Functions get request, post request, uplaod files and parsing xml
