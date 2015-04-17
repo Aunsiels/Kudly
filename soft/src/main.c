@@ -20,8 +20,8 @@ int main(void) {
     chSysInit();
 
     /* Clear pad to break wifi factory reset */
-    /*palClearPad(GPIOB, GPIOB_SPI2_MISO);
-      chThdSleepMilliseconds(100);*/
+    palClearPad(GPIOB, GPIOB_SPI2_MISO);
+    chThdSleepMilliseconds(100);
 
     /* Initialize the serial over usb */
     initUsbSerial();
