@@ -106,6 +106,7 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/hug_sensors.c \
        $(KUDLYSRC)/hand_sensors.c \
        $(KUDLYSRC)/codec.c \
+       $(KUDLYSRC)/imu.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(KUDLYSRC)/sccb.c \
