@@ -17,8 +17,7 @@ int main(void) {
 
     halInit();
     chSysInit();
-    palClearPad(GPIOB, GPIOB_SPI2_MISO);
-    chThdSleepMilliseconds(100);
+
     /* Initialize the serial over usb */
     initUsbSerial();
 
@@ -30,7 +29,6 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-
     
     /* Init sccb */
     sccbInit();

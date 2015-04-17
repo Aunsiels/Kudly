@@ -11,6 +11,11 @@
 #ifndef _WIFI_MANAGER_H_
 #define _WIFI_MANAGER_H_
 
+/**
+ *
+ * \brief Envent source when data is received
+ *
+ */
 extern EventSource srcEndToReadUsart;
 
 /**
@@ -32,6 +37,38 @@ void usartRead(void);
  */
 void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]);
 
+/**
+ *
+ * \brief Save web page in file
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ * Send http post, send data and wait for response
+ */
 void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]);
+
+/**
+ *
+ * \brief Upload file on server
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ * Load file in wifi module flash, upload it on server and delete 
+ * in wifi module flash
+ */
+void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]);
+
+/**
+ *
+ * \brief Execute command on server
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ * Read a web page and execute the command written on it
+ */
+void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]);
 
 #endif
