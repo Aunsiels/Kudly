@@ -49,8 +49,8 @@ uint8_t readRegister(uint8_t addr){
     status = i2cMasterTransmit(&I2CD2, imuAddr, &addr, 1, &data, 1);
     i2cReleaseBus(&I2CD2);
     if (status != RDY_OK){
-	errors = i2cGetErrors(&I2CD2);
-	writeSerial("Error : %u\r\n",errors);
+        errors = i2cGetErrors(&I2CD2);
+        writeSerial("Error : %u\r\n",errors);
     }
     return data;
 }
@@ -61,15 +61,16 @@ int16_t readRegister16(uint8_t addr){
     int16_t data;
     uint8_t * lsb = (uint8_t *)&data;
     uint8_t * msb = lsb + 1;
-
     *msb = readRegister(addr);
     addr++;
     *lsb = readRegister(addr);
 
     return data;
 }
+
 msg_t writeRegister(uint8_t addr, uint8_t data){
     static msg_t status = RDY_OK;
+
     uint8_t command[2];
     command[1] = data;
     command[0] = addr;
@@ -78,11 +79,11 @@ msg_t writeRegister(uint8_t addr, uint8_t data){
     status = i2cMasterTransmit(&I2CD2, imuAddr,command, 2, NULL, 0);
     i2cReleaseBus(&I2CD2);
     if (status != RDY_OK){
-	errors = i2cGetErrors(&I2CD2);
-	writeSerial("Error : %u\r\n",errors);
-	return status;
+        errors = i2cGetErrors(&I2CD2);
+        writeSerial("Error : %u\r\n",errors);
+        return status;
     }
-    return status;   
+    return status;
 }
 
 
@@ -90,7 +91,7 @@ void imuInit(void){
     /* Set the I2C pin in I2C mode and open drain */
     palSetPadMode(GPIOB, GPIOB_I2C_SCL, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
     palSetPadMode(GPIOB, GPIOB_I2C_SDA, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
- 	
+
     /* Wait for the IMU to start */
     chThdSleepMilliseconds(100);
 
@@ -103,20 +104,20 @@ void imuInit(void){
 
 static msg_t threadImu(void *arg){
     (void) arg;
-    
+
     int16_t accel_x;
     int16_t accel_y;
     int16_t accel_z;
-    
+
     while(1){
-	accel_x = ABS(readRegister16(ACCEL_X));
-	accel_y = ABS(readRegister16(ACCEL_Y));
-	accel_z = ABS(readRegister16(ACCEL_Z));
-	chThdSleepMilliseconds(1250);
-	if(((accel_x - ABS(readRegister16(ACCEL_X))) > 1000) |
-	   ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
-	   ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
-	    writeSerial("Tu as bougé !\r\n");
+        accel_x = ABS(readRegister16(ACCEL_X));
+        accel_y = ABS(readRegister16(ACCEL_Y));
+        accel_z = ABS(readRegister16(ACCEL_Z));
+        chThdSleepMilliseconds(1250);
+        if(((accel_x - ABS(readRegister16(ACCEL_X))) > 1000) |
+           ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
+           ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
+            writeSerial("Tu as bougé !\r\n");
     }
 
     return(0);
@@ -130,9 +131,6 @@ void cmdImu(BaseSequentialStream *chp, int argc, char *argv[]){
     static int first = 1;
 
     if (first)
-	chThdCreateStatic(waImu, sizeof(waImu),NORMALPRIO, threadImu,NULL);
+        chThdCreateStatic(waImu, sizeof(waImu),NORMALPRIO, threadImu,NULL);
     first = 0;
 }
-
-
-

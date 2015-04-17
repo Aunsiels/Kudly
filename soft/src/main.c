@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "wifi_manager.h"
 #include "imu.h"
+#include "temperature.h"
 
 static char * sound = "demo.mp3";
 
@@ -24,22 +25,22 @@ int main(void) {
     /* Clear pad to break wifi factory reset */
     palClearPad(GPIOB, GPIOB_SPI2_MISO);
     chThdSleepMilliseconds(100);
-    
+
     /* Initialize the serial over usb */
     initUsbSerial();
-    
+
     /* Initialize shell */
     shellPersoInit();
-    
+
     /* Initialize SD card */
     sdPersoInit();
 
     /* Led initialization */
     ledInit();
-    
+
     /* Init sccb */
     sccbInit();
-    
+
     /* DCMI init */
     cameraInit();
 
@@ -60,12 +61,14 @@ int main(void) {
 
     /* IMU init */
     imuInit();
-    
+
+    /* Init temperature sensor */
+    temperatureInit();
+
     uint32_t hugValues;
     uint16_t * lowHug = (uint16_t *) &hugValues;
     uint16_t * highHug = lowHug + 1;
     hugValues = getHandValues();
-
 
     while(1) {
         uint32_t readValues;
@@ -78,7 +81,7 @@ int main(void) {
             cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
         }
         if (*high > 300){
-            cmdPlay((BaseSequentialStream *) &SDU1, 1, &sound);    
+            cmdPlay((BaseSequentialStream *) &SDU1, 1, &sound);
         }
         while (*low > 300 || *high > 300){
             readValues = getHandValues();
