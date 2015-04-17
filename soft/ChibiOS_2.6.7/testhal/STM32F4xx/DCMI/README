@@ -1,0 +1,5 @@
+This project is a demonstration of the STM32F2xx/STM32F4xx DCMI peripheral driver, written by Ewan Coldicott. It is a work in progress - for example only, NOT WORKING YET.
+
+The demonstration targets a custom board with STM32F407xG (LQFP100 package), Toshiba TCM8230MD camera module and an external 8MHz oscillator. It will most likely not work with any off-the-shelf development boards - the user will need to change the targeted board to their board. However, it shows the DCMI driver in use. It also includes some code to output images as a BMP file which should open in image editors.
+
+TODO: lots - not actually working yet (as of 15 Apr 2013). I get the first half of an image out the UART, with a whole lot of zeros to begin with. Second half of the image is all black - which indicates the DMA double buffering isn't working correctly. Should just get a BMP image dumped out the serial line every 10s.

@@ -1,1 +1,6 @@
 *.swp
+*.class
+*.o
+build*
+*.orig
+target*

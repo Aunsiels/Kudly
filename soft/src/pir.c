@@ -3,6 +3,9 @@
 #include "pir.h"
 #include "chprintf.h"
 
+/* Event for the pir */
+static EVENTSOURCE_DECL(pirEvent);
+
 /*
  * Callback function for the pir
  */
@@ -25,9 +28,7 @@ static EXTChannelConfig config[] =
  */
 void pirInit(){
     palSetPadMode(GPIOD,14,PAL_MODE_INPUT_PULLDOWN);
-    chSysLock();
-    extSetChannelModeI(&EXTD1,14, config);
-    chSysUnlock();
+    extSetChannelMode(&EXTD1,14, config);
 }
 
 /*
@@ -36,24 +37,30 @@ void pirInit(){
 void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
     if (argc > 0){
-        chprintf(chp, "Usage : testpir\r\n");
+        chprintf(chp, "Usage : pir\r\n");
         return;
     }
     /* Event listener for change */
-    struct EventListener el;
+    EventListener el;
     eventmask_t check;
     /* Register event */
-    chEvtRegister(&pirEvent, &el,0);
+    chEvtRegisterMask(&pirEvent, &el,0);
     int i;
     for(i = 0; i <10 ; ++i){
         /* Wait for a change for 10 seconds */
+        int res = palReadPad(GPIOD,14);
+        if (res){
+            chprintf(chp, "Current : mouvement detected\r\n");
+        } else {
+            chprintf(chp, "Current : mouvement stopped\r\n");
+        }
         chprintf(chp, "Please change state");
         check = chEvtWaitOneTimeout(0,MS2ST(10000));
         if (check == 0) {
             chprintf(chp, "The operation timed out\r\n");
             break;
         } else {
-            int res = palReadPad(GPIOD,14);
+            res = palReadPad(GPIOD,14);
             if (res){
                 chprintf(chp, "Mouvement detected\r\n");
             } else {

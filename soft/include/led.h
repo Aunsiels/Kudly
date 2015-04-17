@@ -14,34 +14,47 @@
 void ledInit(void);
 
 /**
- * \brief Sets the color of led 1
+ * \brief RGB color
+ * \param led Led selector. If 0, both LED colors are changed
  * \param r   The amount of red, from 0 to 255
  * \param g   The amount of green, from 0 to 255
  * \param b   The amount of blue, from 0 to 255
+ *
+ * Sets the RGB color of LEDs
  */
-void ledSetColor1(uint8_t r, uint8_t g, uint8_t b);
+void ledSetColorRGB(int led, int r, int g, int b);
 
 /**
- * \brief Sets the color of led 2
- * \param r   The amount of red, from 0 to 255
- * \param g   The amount of green, from 0 to 255
- * \param b   The amount of blue, from 0 to 255
+ * \brief HSV color
+ * \param led Led selector. If 0, both LED colors are changed
+ * \param h   Hue, from 0 to 359
+ * \param s   Saturation, from 1 to 100
+ * \param v   Value, from 1 to 100
+ *
+ * Sets the Hue-Saturation-Value color of LEDs
  */
-void ledSetColor2(uint8_t r, uint8_t g, uint8_t b);
-
-/**
- * \brief Toggles led 1
- */
-void ledToggle1(void);
-
-/**
- * \brief Toggles led 2
- */
-void ledToggle2(void);
+void ledSetColorHSV(int led, int h, int s, int v);
 
 /**
  * \brief Testing leds thread
  */
 void ledTest(void);
+
+/**
+ * \brief Command led for shell
+ * \param chp The stream where the strings will be written
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ * \brief Command led test for shell
+ * \param chp The stream where the strings will be written
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdLedtest(BaseSequentialStream *chp, int argc, char *argv[]);
+
 
 #endif

@@ -403,6 +403,13 @@
 /* DAC attributes.*/
 #define STM32_HAS_DAC           FALSE
 
+/* DCMI attributes */
+#define STM32_HAS_DCMI          TRUE
+#define STM32_HAS_DCMI1         TRUE
+#define STM32_DCMI1_RX_DMA_MSK  (STM32_DMA_STREAM_ID_MSK(2, 1) | \
+                                 STM32_DMA_STREAM_ID_MSK(2, 7))
+#define STM32_DCMI1_RX_DMA_CHN  0x10000010
+
 /* DMA attributes.*/
 #define STM32_ADVANCED_DMA      TRUE
 #define STM32_HAS_DMA1          TRUE
