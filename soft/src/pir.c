@@ -47,6 +47,7 @@ void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
     int i;
     for(i = 0; i <10 ; ++i){
         /* Wait for a change for 10 seconds */
+        chprintf(chp, "Please change state");
         check = chEvtWaitOneTimeout(0,MS2ST(10000));
         if (check == 0) {
             chprintf(chp, "The operation timed out\r\n");
