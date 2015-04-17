@@ -32,7 +32,7 @@ static char urlencoded[]=" x-www-form-urlencoded\r\n";
 static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
-bool_t print = FALSE;
+bool_t print = TRUE;
 bool_t save = TRUE;
 
 /* For system file */
@@ -115,9 +115,9 @@ static msg_t usartRead_thd(void * arg){
 		/* Saving in stream_buffer */
 		if (save)
 		    stream_buffer[dataCpt]= (char)c;
-        if(streaming) {
-            parseWebSocket(c);
-        }
+		if(streaming) {
+		    parseWebSocket(c);
+		}
 
 		dataCpt++;
 

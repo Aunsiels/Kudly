@@ -406,9 +406,8 @@ static msg_t threadSendData(void *arg){
             int i;
             /* Complete the buffer from the mail box*/
             for(i = 0 ; i < 16 ; i++) {	
-                if(j > 500 && (chMBFetch(&mbCodecIn, &dataRecv, TIME_IMMEDIATE) == RDY_TIMEOUT)) {
-                    writeSerial("empty");
-                }
+		chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
+
                 streamBuf[2 * i]     = (uint8_t)(dataRecv);
                 streamBuf[2 * i + 1] = (uint8_t)(dataRecv >> 8);
             }
