@@ -11,3 +11,5 @@ CODEC : function play playback an audio file (OGG Vorbis for example) stocked on
         function encode stock a sound from the microphone in OGG Vorbis on the SD card. The first parameter is the name of the file, the second the duration (in seconds), of the recording) 
 CAMERA : To take a photo, just type camera
 WIFI : Functions get request, post request, uplaod files and parsing xml
+IMU : Function who gets back an acceleration and detect a variation.
+TEMPERATURE : Functions which returns the temperature processed or not
