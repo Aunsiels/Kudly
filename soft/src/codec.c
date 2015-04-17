@@ -339,7 +339,7 @@ static msg_t threadFullDuplex(void *arg){
             continue;
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
-        codecVolume(100);
+        codecVolume(75);
         /* Set the samplerate at 8kHz */ 
         writeRegister(SCI_AICTRL0,8000);
         /* Automatic gain control */
@@ -384,10 +384,13 @@ static msg_t threadFullDuplex(void *arg){
 
 static uint8_t streamBuf[32];
 static FIL testFp;
-static char testName[] = "winner.wav";
+static char testName[] = "winner2.wav";
 
 static msg_t threadSendData(void *arg){
     (void) arg;
+
+    UINT bw;
+    (void)bw;
 
     static msg_t dataRecv;
 
@@ -395,28 +398,35 @@ static msg_t threadSendData(void *arg){
     chEvtRegisterMask(&eventSourceSendData,&eventListener,1);
 
     while(TRUE){
-	chEvtWaitOne(1);
+        chEvtWaitOne(1);
 
-    f_open(&testFp, testName, FA_WRITE | FA_OPEN_ALWAYS);
-    
-    chThdSleepMilliseconds(500);
-	
-    while(true) {
-	    int i;
-	    /* Complete the buffer from the mail box*/
-	    for(i = 0 ; i < 16 ; i++){	
-            chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
-            streamBuf[2 * i + 1]     = (uint8_t)(dataRecv);
-            streamBuf[2 * i] = (uint8_t)(dataRecv >> 8);
-	    }
-	    /* Send the buffer to the codec */
-	    sendData(streamBuf,32);
-	}
+        f_open(&testFp, testName, FA_WRITE | FA_OPEN_ALWAYS);
 
-    if(!f_close(&testFp)) {
-        writeSerial("Ouais! #fête");
+        chThdSleepMilliseconds(1000);
+
+        writeSerial("-------");
+
+
+        for(int j = 0 ; j < 2000 ; j++) {
+            int i;
+            /* Complete the buffer from the mail box*/
+            for(i = 0 ; i < 16 ; i++){	
+                chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
+                streamBuf[2 * i]     = (uint8_t)(dataRecv);
+                streamBuf[2 * i + 1] = (uint8_t)(dataRecv >> 8);
+            }
+            /* Send the buffer to the codec */
+            sendData(streamBuf,32);
+            //f_write(&testFp, streamBuf, 32, &bw); 
+        }
+
+        if(!f_close(&testFp)) {
+            writeSerial("Ouais! #fete");
+        } else {
+            writeSerial("Nan");
+        }
     }
-    }
+
     return(0);
 }
 

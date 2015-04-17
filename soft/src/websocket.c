@@ -11,7 +11,7 @@
 #define PACKET_SIZE    70 // WS_DATA_SIZE + 6
 #define READ_RESP      66 // WS_DATA_SIZE + 2
 
-#define BUFFER_SIZE    1024
+#define BUFFER_SIZE    1440
 
 #define STR(x) #x
 #define STR_(x) STR(x)
@@ -89,7 +89,7 @@ static void parseWebSocketBuffer(void) {
     static uint16_t data;
 
     i = 0;
-    while(i < BUFFER_SIZE) {
+    while(i < dataSize - 2) {
 
         // If new packet comming
         if(wsHeader) {
@@ -132,7 +132,12 @@ static void parseWebSocketBuffer(void) {
             //writeSerial("%x", stream_buffer[i]);
             chMBPost(&mbCodecIn, (msg_t)data, TIME_INFINITE);
             i += 2;
-            ++dataCpt;
+            dataCpt += 2;
+
+            if(dataCpt >= dataLen) {
+                wsHeader = true;
+            }
+                
         }
 
     }
@@ -152,7 +157,7 @@ static msg_t pollRead_thd(void * args) {
             wifiWriteByUsart(downloadWave, sizeof(downloadWave));
 
             while(poll() != 1) {
-                chThdSleepMilliseconds(500);
+                chThdSleepMilliseconds(50);
             }
             wifiWriteByUsart(read400, sizeof(read400));
 
@@ -164,7 +169,7 @@ static msg_t pollRead_thd(void * args) {
 
             while(websocketRecv) {
                 while(poll() != 1) {
-                    chThdSleepMilliseconds(300);
+                    chThdSleepMicroseconds(1);
                 }
                 wifiWriteByUsart(readBuffer, sizeof(readBuffer));
                 parseWebSocketBuffer();

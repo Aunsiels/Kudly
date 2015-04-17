@@ -46,7 +46,7 @@ char stream_buffer[1000];
 EVENTSOURCE_DECL(srcEndToReadUsart);
 
 /* Data size to be used after broacast */
-static int dataSize;
+int dataSize;
 
 /* Thread that always reads wifi received data */
 static msg_t usartRead_thd(void * arg){
