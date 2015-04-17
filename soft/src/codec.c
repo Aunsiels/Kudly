@@ -382,9 +382,9 @@ static msg_t threadFullDuplex(void *arg){
     return 0;
 }
 
-static uint8_t streamBuf[32];
+uint8_t streamBuf[32];
 static FIL testFp;
-static char testName[] = "winner2.wav";
+static char testName[] = "winner.wav";
 
 static msg_t threadSendData(void *arg){
     (void) arg;
@@ -402,22 +402,19 @@ static msg_t threadSendData(void *arg){
 
         f_open(&testFp, testName, FA_WRITE | FA_OPEN_ALWAYS);
 
-        chThdSleepMilliseconds(1000);
-
-        writeSerial("-------");
-
-
         for(int j = 0 ; j < 2000 ; j++) {
             int i;
             /* Complete the buffer from the mail box*/
-            for(i = 0 ; i < 16 ; i++){	
-                chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
+            for(i = 0 ; i < 16 ; i++) {	
+                if(j > 500 && (chMBFetch(&mbCodecIn, &dataRecv, TIME_IMMEDIATE) == RDY_TIMEOUT)) {
+                    writeSerial("empty");
+                }
                 streamBuf[2 * i]     = (uint8_t)(dataRecv);
                 streamBuf[2 * i + 1] = (uint8_t)(dataRecv >> 8);
             }
             /* Send the buffer to the codec */
             sendData(streamBuf,32);
-            //f_write(&testFp, streamBuf, 32, &bw); 
+            f_write(&testFp, streamBuf, 32, &bw); 
         }
 
         if(!f_close(&testFp)) {

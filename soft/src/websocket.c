@@ -23,9 +23,9 @@ static WORKING_AREA(streamingOut_wa, 128);
 static WORKING_AREA(stream_wa, 1024);
 
 /* Codec mailboxes */
-static msg_t mbCodecOut_buf[10000];
+static msg_t mbCodecOut_buf[100];
 static msg_t mbCodecIn_buf[10000];
-MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 10000);
+MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 100);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 10000);
 
 /* Buffer to send in a websocket */ 

@@ -21,6 +21,9 @@ extern Mailbox * mb;
 extern char stream_buffer[];
 extern int dataSize;
 
+/* Buffer to the codec */
+extern uint8_t streamBuf[32];
+
 /**
  * \brief Initializes a websocket connection
  */
