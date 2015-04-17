@@ -37,6 +37,10 @@ static char cfg_printLevel0[] = "set system.print_level 0\r\n";
 static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\r\n";
 static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 
+/* String for lowpower mode */
+static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
+static char sleep[] ="sleep\r\n";
+
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
@@ -52,6 +56,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
+	 writeSerial("%c",(char)wifi_buffer);
         chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
     }
     return 0;
@@ -93,13 +98,16 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
-
+    palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
+    //palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);
+   
     sdStart(&SD3, &uartCfg);
     wifiReadByUsart();
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
     wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp));
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
@@ -113,4 +121,41 @@ void wifiInitByUsart(void) {
      * Configuring wifi module in machine friendly command mode
      * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
      */
+}
+
+
+static msg_t wifiSleep_thd(void *arg){
+    (void)arg;
+    writeSerial("Wifi is sleeping1\r\n");
+    wifiWriteByUsart(sleep, sizeof(sleep));
+    writeSerial("Wifi is sleeping\r\n");
+    return 0;
+}
+
+static void wifiWakeUp(void){
+    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);    
+    chThdSleepMilliseconds(100);
+    palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);    
+    writeSerial("Wifi is woke up\r\n");
+}
+
+static WORKING_AREA(wifiSleep_wa, 512);
+
+/* Command to sleep the wifi module */
+void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    
+    chThdCreateStatic(
+	wifiSleep_wa, sizeof(wifiSleep_wa),
+	NORMALPRIO, wifiSleep_thd, NULL);
+}
+
+/* Command to wake up the wifi module */
+void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    wifiWakeUp();
 }
