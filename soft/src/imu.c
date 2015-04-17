@@ -3,7 +3,7 @@
 #include "imu.h"
 #include "usb_serial.h"
 #include "led.h"
-
+#include "i2c_perso.h"
 static i2cflags_t errors = 0;
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
@@ -33,13 +33,6 @@ static i2cflags_t errors = 0;
 #define GYRO_DIS   0b111
 
 static WORKING_AREA(waImu, 128);
-
-/* I2C configuration (400kHz is the fastest speed of the imu)*/
-static const I2CConfig i2cfg = {
-    OPMODE_I2C,
-    200000,
-    FAST_DUTY_CYCLE_2,
-};
 
 uint8_t readRegister(uint8_t addr){
     static uint8_t data;
@@ -86,17 +79,7 @@ msg_t writeRegister(uint8_t addr, uint8_t data){
     return status;
 }
 
-
 void imuInit(void){
-    /* Set the I2C pin in I2C mode and open drain */
-    palSetPadMode(GPIOB, GPIOB_I2C_SCL, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
-    palSetPadMode(GPIOB, GPIOB_I2C_SDA, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);
-
-    /* Wait for the IMU to start */
-    chThdSleepMilliseconds(100);
-
-    i2cStart(&I2CD2, &i2cfg);
-
     /* Set Imu in low power mode */
     writeRegister(PWR_MGMT_1,CYCLE | TEMP_DIS);
     writeRegister(PWR_MGMT_2,F_1_25 | GYRO_DIS);

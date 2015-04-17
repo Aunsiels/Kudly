@@ -2,6 +2,7 @@
 #include "hal.h"
 #include "temperature.h"
 #include "usb_serial.h"
+#include "i2c_perso.h"
 
 /* Errors flags for I2C communication */
 static i2cflags_t errors1 = 0;
@@ -14,13 +15,6 @@ static i2cflags_t errors2 = 0;
 #define CONFIG 0x01
 #define AMB_TEMP 0x05
 #define RESOLUTION 0x08
-
-/* I2C configuration (400kHz is the fastest speed of the temperature sensor)*/
-static const I2CConfig i2cfg = {
-    OPMODE_I2C,
-    400000,
-    FAST_DUTY_CYCLE_2,
-};
 
 /* This function reads in a register of the sensor ( the parameter is the address of the register ) */
 uint16_t readRegisterT(uint8_t addr){
@@ -79,11 +73,6 @@ void writeRegisterT(uint8_t addr, uint16_t data, int size){
 
 
 void temperatureInit(void){
-    /* Set the I2C pin in I2C mode */
-    palSetPadMode(GPIOB, GPIOB_I2C_SCL, PAL_MODE_ALTERNATE(4)| PAL_STM32_OTYPE_OPENDRAIN);
-    palSetPadMode(GPIOB, GPIOB_I2C_SDA, PAL_MODE_ALTERNATE(4)| PAL_STM32_OTYPE_OPENDRAIN);
-
-    i2cStart(&I2CD2, &i2cfg);
     /* Set the power up default mode */
     writeRegisterT(CONFIG,0,3);
     /* Choose a resolution of 0.5°C */
@@ -129,6 +118,7 @@ void cmdTemperature(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argc;
     (void) chp;
     uint16_t temperatureHandled, temperatureNotHandled;
+    writeSerial("thread launched\r\n");
 
     /* Gets back the temperature value processed */
     temperatureHandled=getTemperatureHandled();

@@ -14,6 +14,7 @@
 #include "wifi_manager.h"
 #include "imu.h"
 #include "temperature.h"
+#include "i2c_perso.h"
 
 static char * sound = "demo.mp3";
 
@@ -59,6 +60,9 @@ int main(void) {
     /* Init codec */
     codecInit();
 
+    /* Init i2c bus */
+    i2cPersoInit();
+    
     /* IMU init */
     imuInit();
 
