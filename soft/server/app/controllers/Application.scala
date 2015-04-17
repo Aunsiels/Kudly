@@ -13,6 +13,7 @@ import play.api.Play.current
 import akka.actor._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent._
+import play.api.libs.json._
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.gridfs.Imports._
@@ -167,6 +168,14 @@ object Application extends Controller {
             val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH:mm")
             return formater.format(date)
         }
+
+    }
+
+    implicit val graphValueWrites = new Writes[graphValue] {
+      def writes(gv: graphValue) = Json.obj(
+          "column-1" -> gv.value,
+          "date"     -> gv.getDate
+          )
     }
 
     /*
@@ -189,13 +198,7 @@ object Application extends Controller {
      * Print the chart of the temperatures
      */
     def printTemp = Action {
-        var list : List[graphValue] = List()
-        rawCollection.find("data" $eq "temp").foreach(
-            data =>
-                list = graphValue(
-                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
-                    data.getAs[Int]("value").getOrElse(0)) :: list)
-        Ok(views.html.graph("Temperature",list))
+        Ok(views.html.graph("/datajson?title=Temperature&db=temp"))
     }
 
     /* 
@@ -238,13 +241,7 @@ object Application extends Controller {
      * Print the chart of the cries
      */
     def cryGet = Action {
-        var list : List[graphValue] = List()
-        rawCollection.find("data" $eq "cry").foreach(
-            data =>
-                list = graphValue(
-                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
-                    data.getAs[Int]("value").getOrElse(0)) :: list)
-        Ok(views.html.graph("Cries",list))
+        Ok(views.html.graph("/datajson?title=Cries&db=cry"))
     }
 
     /*
@@ -269,13 +266,7 @@ object Application extends Controller {
      * Print the chart of the activities
      */
     def activityGet = Action {
-        var list : List[graphValue] = List()
-        rawCollection.find("data" $eq "activity").foreach(
-            data =>
-                list = graphValue(
-                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
-                    data.getAs[Int]("value").getOrElse(0)) :: list)
-        Ok(views.html.graph("Activity",list))
+        Ok(views.html.graph("/datajson?title=Activity&db=activity"))
     }
 
     /*
@@ -300,13 +291,7 @@ object Application extends Controller {
      * Print the chart of the activities
      */
     def presenceGet = Action {
-        var list : List[graphValue] = List()
-        rawCollection.find("data" $eq "presence").foreach(
-            data =>
-                list = graphValue(
-                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
-                    data.getAs[Int]("value").getOrElse(0)) :: list)
-        Ok(views.html.graph("Presence",list))
+        Ok(views.html.graph("/datajson?title=Presence&db=presence"))
     }
 
     /* Gridfs reference */
@@ -402,7 +387,7 @@ object Application extends Controller {
         val file = new File("public/bell.wav")
         val sound = new FileInputStream(file)
         /* Enumerator to read sound */
-        val dataContent: Enumerator[Array[Byte]] =  Enumerator.fromStream(sound)
+        val dataContent: Enumerator[Array[Byte]] =  audioHeader >>> Enumerator.fromStream(sound)
         /* An enumerator that push in kudly channel */
         val pusher = Iteratee.foreach[Array[Byte]](
             s => channelKudly push s )
@@ -433,12 +418,12 @@ object Application extends Controller {
 
     /* Header for the streaming */
     lazy val header: Array[Byte] = {
-        val riff = "RIFF".toArray.map(_.toByte) ++
+        val riff = "RIFF".getBytes ++
                    /* Maximum chunk size (we are streaming here */
                    IntLittleBytes(0x7fffffff) ++
-                   "WAVE".toArray.map(_.toByte);
+                   "WAVE".getBytes
   
-        val fmt =  "fmt ".toArray.map(_.toByte) ++
+        val fmt =  "fmt ".getBytes ++
                    /* Subchunk1Size for PCM = 16 */
                    IntLittleBytes(16) ++
                    /* AudioFormat for PCM = 1 */
@@ -449,7 +434,7 @@ object Application extends Controller {
                    ShortLittleBytes(samplesPerFrame*bytesPerSamples toShort) ++
                    ShortLittleBytes(bitsPerSample toShort);
   
-        val data = "data".toArray.map(_.toByte) ++
+        val data = "data".getBytes ++
                    IntLittleBytes(0x7fffffff);
   
         riff ++ fmt ++ data;
@@ -482,5 +467,61 @@ object Application extends Controller {
     def cameraRequest = Action {
         photoRequest = 1;
         Ok("Photo requested")
+    }
+
+    /*
+     * Return a JSON
+     */
+
+    def dataJSON (name : String, db : String) = Action {
+        var list : List[graphValue] = List()
+        rawCollection.find("data" $eq db).foreach(
+            data =>
+                list = graphValue(
+                    data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                    data.getAs[Int]("value").getOrElse(0)) :: list )
+        val json : JsValue = Json.obj(
+            "type" -> "serial",
+            "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
+            "categoryField" -> "date",
+            "dataDateFormat" -> "YYYY-MM-DD HH ->NN",
+            "categoryAxis" -> Json.obj(
+                "minPeriod" -> "mm",
+                "parseDates" -> true),
+            "chartCursor" -> Json.obj(
+                "categoryBalloonDateFormat" -> "JJ ->NN"
+            ),
+            "chartScrollbar" -> Json.obj(),
+            "trendLines" -> Json.arr(),
+            "graphs" -> Json.arr(
+                Json.obj(
+                    "bullet" -> "square",
+                    "id" -> "AmGraph-2",
+                    "title" -> name,
+                    "valueField" -> "column-1"
+                    )
+            ),
+            "guides" -> Json.arr(),
+            "valueAxes" -> Json.arr(
+                Json.obj(
+                    "id" -> "ValueAxis-1",
+                    "title" -> name
+                    )
+                ),
+            "allLabels" -> Json.arr(),
+            "balloon" -> Json.obj(),
+            "legend" -> Json.obj(
+                "useGraphSettings" -> true
+                ),
+            "titles" -> Json.arr(
+                Json.obj( 
+                    "id" -> "Title-1",
+                    "size" -> 15,
+                    "text" -> name
+                )
+            ),
+            "dataProvider" -> list
+       )
+       Ok(json)
     }
 }

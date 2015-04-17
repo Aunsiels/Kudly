@@ -50,3 +50,5 @@ POST   /presence                    controllers.Application.presencePost
 GET    /config                      controllers.Application.configFile
 
 GET    /camera                      controllers.Application.cameraRequest
+
+GET    /datajson                    controllers.Application.dataJSON(title : String, db : String)

@@ -1,5 +1,5 @@
 @import controllers._
-@(graph : String, values : List[Application.graphValue])
+@(link : String)
 
 <!DOCTYPE html>
 <html>
@@ -9,62 +9,17 @@
 		<!-- amCharts javascript sources -->
 		<script type="text/javascript" src="http://cdn.amcharts.com/lib/3/amcharts.js"></script>
 		<script type="text/javascript" src="http://cdn.amcharts.com/lib/3/serial.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
 		<!-- amCharts javascript code -->
 		<script type="text/javascript">
-			AmCharts.makeChart("chartdiv",
-				{
-					"type": "serial",
-					"pathToImages": "http://cdn.amcharts.com/lib/3/images/",
-					"categoryField": "date",
-					"dataDateFormat": "YYYY-MM-DD HH:NN",
-					"categoryAxis": {
-						"minPeriod": "mm",
-						"parseDates": true
-					},
-					"chartCursor": {
-						"categoryBalloonDateFormat": "JJ:NN"
-					},
-					"chartScrollbar": {},
-					"trendLines": [],
-					"graphs": [
-						{
-							"bullet": "round",
-							"id": "AmGraph-1",
-							"title": "@graph",
-							"valueField": "column-1"
-						}
-					],
-					"guides": [],
-					"valueAxes": [
-						{
-							"id": "ValueAxis-1",
-							"title": "@graph"
-						}
-					],
-					"allLabels": [],
-					"balloon": {},
-					"legend": {
-						"useGraphSettings": true
-					},
-					"titles": [
-						{
-							"id": "Title-1",
-							"size": 15,
-							"text": "@graph"
-						}
-					],
-					"dataProvider": [
-                        @for(v <- values){
-						{
-							"column-1": @v.value,
-							"date": "@v.getDate"
-						},
-                        }
-                        {}
-					]
-				}
-			);
+            $(document).ready(function() {
+                    $.getJSON("@link", function(result){
+                            console.log("success");
+                            AmCharts.makeChart("chartdiv",result);
+                            console.log("done");
+                            });
+                    });
 		</script>
 	</head>
 	<body>
