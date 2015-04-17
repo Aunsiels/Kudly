@@ -53,6 +53,12 @@ object Application extends Controller {
     )
 
     /*
+     * Variables to ask for a photo or for streaming
+     */
+    var streamingRequest = 0;
+    var photoRequest = 0;
+
+    /*
      * Welcome page
      */
     def index = Action {
@@ -364,6 +370,7 @@ object Application extends Controller {
      * Reads an image
      */
     def image (name : String) = Action {
+        photoRequest = 0;
         var imageReceived = gridfs.findOne(name)
         imageReceived match {
             case Some(im) => {
@@ -386,6 +393,7 @@ object Application extends Controller {
      * Streaming function
      */
     def streaming = WebSocket.using[Array[Byte]] { request =>
+        streamingRequest = 0;
         /* Just print the received values */
         val in = Iteratee.foreach[Array[Byte]] {
             msg => channelParent push msg
@@ -452,9 +460,27 @@ object Application extends Controller {
 
     /* Streams the sound to the parents */
     def toParent = Action {
+        streamingRequest = 1;
         Ok.chunked(audioHeader >>> enumParent &>
             Concurrent.dropInputIfNotReady(50)).
             withHeaders( (CONTENT_TYPE, "audio/wav"),
                          (CACHE_CONTROL, "no-cache"))
+    }
+
+    /* 
+     * Update file of configuration
+     */
+    def configFile = Action {
+        Ok("<config>\n<streaming state=\"" 
+                + streamingRequest+ "\"/>\n<photo state=\"" 
+                + photoRequest+ "\"/>\n</config>")
+    }
+
+    /*
+     * Asks for a photo
+     */
+    def cameraRequest = Action {
+        photoRequest = 1;
+        Ok("Photo requested")
     }
 }

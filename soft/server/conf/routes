@@ -46,3 +46,7 @@ POST   /activity                    controllers.Application.activityPost
 GET    /presence                    controllers.Application.presenceGet
 
 POST   /presence                    controllers.Application.presencePost
+
+GET    /config                      controllers.Application.configFile
+
+GET    /camera                      controllers.Application.cameraRequest
