@@ -207,10 +207,14 @@ static void saveWebPage( char * address , char * file){
 
     /* Create file and open it with writing mode */ 
     res = f_open(&fil,file,FA_WRITE | FA_CREATE_NEW);
-    if (res == FR_EXIST)
+    if (res == FR_EXIST){
 	writeSerial("This file already exist\r\n");
-    else if (res) 
+        wifiWriteByUsart(stream_close, sizeof(stream_close));
+    }
+    else if (res){ 
         writeSerial("Cannot create this file\r\n");
+	wifiWriteByUsart(stream_close, sizeof(stream_close));
+    }
     else {
 	save = TRUE;
 	print = FALSE;
