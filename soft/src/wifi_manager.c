@@ -53,7 +53,7 @@ static FIL fil;
 static FRESULT res;
 
 /* Array where data received are saving */
-static char stream_buffer[DATA_READ + 4];
+char stream_buffer[DATA_READ + 4];
 
 /* Some string for uploading */
 static char file_create[] = "file_create -o ";

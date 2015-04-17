@@ -43,4 +43,23 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
  * This function connects the board to the a406 network  
  */
 void wifiInitByUsart(void);
+
+/**
+ *
+ * \brief Command to sleep wifi module
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ */
+void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]);
+
+/**
+ *
+ * \brief Command to wake up wifi module
+ * \param chp The stream where the strings will be written.
+ * \param argc The number of arguments
+ * \param argv The parameters
+ *
+ */
+void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]);
 #endif
