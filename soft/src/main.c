@@ -58,17 +58,14 @@ int main(void) {
     /* Init codec */
     codecInit();
 
-<<<<<<< HEAD
+    /* IMU init */
+    imuInit();
+    
     uint32_t hugValues;
     uint16_t * lowHug = (uint16_t *) &hugValues;
     uint16_t * highHug = lowHug + 1;
     hugValues = getHandValues();
-=======
-    /* IMU init */
-    imuInit();
 
-    chThdSleepMilliseconds(TIME_INFINITE);
->>>>>>> imu
 
     while(1) {
         uint32_t readValues;

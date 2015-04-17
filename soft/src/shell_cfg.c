@@ -67,7 +67,6 @@ static const ShellCommand commands[] = {
     {"postwifi"    , cmdWifiPost   },
     {"uploadwifi"  , cmdWifiUpload },
     {"parsewifi"   , cmdWifiXml    },
-    {"webwifi"     , cmdWifiWeb    },
     {"imu"         , cmdImu        },
     {NULL          , NULL          }
 };
