@@ -44,10 +44,10 @@ static char sleep[] ="sleep\r\n";
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
-    115200,
+    921600,
     0,
     0,
-    0
+    USART_CR3_CTSE | USART_CR3_RTSE
 };
 
 /* Thread that reads wifi data and puts it on Mailbox */
@@ -56,7 +56,6 @@ static msg_t usartReadInMB_thd(void * args) {
 
     while(1) {
         sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-	 writeSerial("%c",(char)wifi_buffer);
         chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
     }
     return 0;
