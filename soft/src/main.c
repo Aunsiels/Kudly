@@ -56,9 +56,6 @@ int main(void) {
     /* Init codec */
     codecInit();
 
-    /* IMU init */
-    imuInit();
-
     /* Init temperature sensor */
     temperatureInit();
 
