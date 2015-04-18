@@ -247,7 +247,7 @@ void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
 }
 
 /* Function that sends hhtp_request and save th page in file */
-static void postAndRead( char * address , char * data){
+void postAndRead( char * address , char * data){
 
     /* Build hhtp post request */
     strcat(msgWifi ,http_post);
