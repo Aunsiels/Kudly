@@ -291,7 +291,7 @@ void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
     postAndRead(argv[0],argv[1]);
 }
 
-static void uploadFile( char *address , char * localFile , char * remoteFile){
+void uploadFile( char *address , char * localFile , char * remoteFile){
    
     /* Open file in reading mode */
     res = f_open(&fil,localFile,FA_OPEN_EXISTING | FA_READ);
