@@ -1,5 +1,4 @@
-@import controllers._
-@(link : String)
+@(title: String, db: String)
 
 <!DOCTYPE html>
 <html>
@@ -14,10 +13,8 @@
 		<!-- amCharts javascript code -->
 		<script type="text/javascript">
             $(document).ready(function() {
-                    $.getJSON("@link", function(result){
-                            console.log("success");
+                    $.getJSON("@controllers.routes.Application.dataJSON(title, db)", function(result){
                             AmCharts.makeChart("chartdiv",result);
-                            console.log("done");
                             });
                     });
 		</script>

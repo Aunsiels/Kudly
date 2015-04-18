@@ -198,7 +198,7 @@ object Application extends Controller {
      * Print the chart of the temperatures
      */
     def printTemp = Action {
-        Ok(views.html.graph("/datajson?title=Temperature&db=temp"))
+        Ok(views.html.graph("Temperature", "temp"))
     }
 
     /* 
@@ -241,7 +241,7 @@ object Application extends Controller {
      * Print the chart of the cries
      */
     def cryGet = Action {
-        Ok(views.html.graph("/datajson?title=Cries&db=cry"))
+        Ok(views.html.graph("Cries", "cry"))
     }
 
     /*
@@ -266,7 +266,7 @@ object Application extends Controller {
      * Print the chart of the activities
      */
     def activityGet = Action {
-        Ok(views.html.graph("/datajson?title=Activity&db=activity"))
+        Ok(views.html.graph("Activity", "activity"))
     }
 
     /*
@@ -291,7 +291,7 @@ object Application extends Controller {
      * Print the chart of the activities
      */
     def presenceGet = Action {
-        Ok(views.html.graph("/datajson?title=Presence&db=presence"))
+        Ok(views.html.graph("Presence", "presence"))
     }
 
     /* Gridfs reference */
