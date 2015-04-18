@@ -202,7 +202,7 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
 /* Print a given file*/
 FRESULT cat(BaseSequentialStream *chp, char *path) {
     FRESULT res;
-    FIL fil;       /* File object */
+    static FIL fil;       /* File object */
 
     res = f_open(&fil, path, FA_READ);
     if (res) return res;
@@ -362,7 +362,7 @@ void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]) {
         return;
     }
     FRESULT res;
-    FIL* fil = NULL;
+    static FIL* fil = NULL;
     res = f_open(fil,argv[0],FA_CREATE_NEW);
     if (res == FR_EXIST) {
         chprintf(chp, "The file already exists\r\n");
@@ -608,7 +608,7 @@ FRESULT testMv(BaseSequentialStream *chp, char * from, char * to) {
 /* Test Write/read */
 FRESULT testWR(BaseSequentialStream *chp){
     /* File object */
-    FIL fil;
+    static FIL fil;
     FRESULT res;
 
     chprintf(chp, "Open a file in write mode\r\n");
@@ -711,7 +711,7 @@ FRESULT writeFile(char * filename, char * buf, UINT length){
     }
 
     /* File object */
-    FIL fil;
+    static FIL fil;
     FRESULT res;
 
     res = f_open(&fil, filename, FA_WRITE | FA_OPEN_ALWAYS);

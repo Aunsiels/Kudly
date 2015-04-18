@@ -7,14 +7,21 @@
 #include "led.h"
 #include "ff.h"
 #include "wifi_manager.h"
+#include "usb_serial.h"
 
 /* Working area hands */
-static WORKING_AREA(waHands, 512);
+static WORKING_AREA(waHands, 1024);
+
+int getSize(stkalign_t * buf, int size){
+    uint32_t * b = (uint32_t *) buf;
+    for(int i = 0; i < size; i++)
+        if (b[i] == 0x55555555) return i*4;
+    return -1;
+}
 
 /*
  * Thread for hands sensors
  */
-
 static msg_t handsThread(void * args) {
     (void) args;
     uint32_t readValues;
@@ -35,7 +42,11 @@ static msg_t handsThread(void * args) {
         if(chTimeNow() - timeBegin > 5000){
             /* Turn on led */
             ledSetColorRGB(0, 255, 255, 255);
+            writeSerial("Begin photo\r\n");
+            chThdSleepMilliseconds(100);
             photo("photo.jpg");
+            writeSerial("End photo\r\n");
+            chThdSleepMilliseconds(100);
             uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
                 "photo.jpg");
             f_unlink("photo.jpg");
