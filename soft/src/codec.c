@@ -6,7 +6,6 @@
 #include "led.h"
 #include "ff.h"
 #include "chprintf.h"
-#include "websocket.h"
 #include <stdlib.h>
 
 #define FILE_BUFFER_SIZE 32
@@ -43,7 +42,6 @@ static uint16_t readRam(uint16_t adress);
 uint32_t readRam32(uint16_t adress);
 /* Function used to send data to the codec (no more than 32 bytes) */
 static void sendData(const uint8_t * data, int size);
-static void sendData16(const uint16_t * data, int size);
 /* Function used to load a patch in the codec (called at each software register) */
 static void loadPatch(void);
 
@@ -388,7 +386,7 @@ static msg_t threadFullDuplex(void *arg){
     return 0;
 }
 
-static uint16_t streamBuf[16];
+static uint8_t streamBuf[32];
 
 static msg_t threadSendData(void *arg){
     (void) arg;
@@ -402,11 +400,11 @@ static msg_t threadSendData(void *arg){
 	while(playerState){
 	    int i;
 	    /* Complete the buffer from the mail box*/
-	    for(i = 0 ; i < 16 ; i++){	
+	    for(i = 0 ; i < 32 ; i++){	
 		// Wait for streaming : if(chMBFetch(&mbCodecIn,(msg_t *)&streamBuf[i],TIME_INFINITE)){};
 	    }
 	    /* Send the buffer to the codec */
-	    sendData16(streamBuf,16);
+	    sendData(streamBuf,32);
 	}
     }
     return(0);
@@ -574,7 +572,8 @@ static uint8_t registerContent[4];
 static void writeRegister(uint8_t adress, uint16_t command){
     /* Wait until it's possible to write in registers */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
-    
+
+    spiAcquireBus(&SPID4);
     COMMAND_MODE;
     
     /* Construction of instruction (Write opcode, adress, command) */
@@ -582,11 +581,10 @@ static void writeRegister(uint8_t adress, uint16_t command){
     instruction[1] = adress;
     instruction[2] = (command >> 8);
     instruction[3] = command;
-    spiAcquireBus(&SPID4);
     spiSend(&SPID4,sizeof(instruction),instruction);
-    spiReleaseBus(&SPID4);
 
     RESET_MODE;
+    spiReleaseBus(&SPID4);
 }
 
 /* Write a 16 bit data in the ram of the codec */
@@ -607,16 +605,16 @@ static uint16_t readRegister(uint8_t adress){
     /* Wait until it's possible to read from SCI */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 
+    spiAcquireBus(&SPID4);
     COMMAND_MODE;
 
     /* Construction of instruction (Read opcode, adress) */
     instruction[0] = 0x03;
     instruction[1] = adress;
-    spiAcquireBus(&SPID4);
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
-    spiReleaseBus(&SPID4);
 
     RESET_MODE;
+    spiReleaseBus(&SPID4);
     
     /* Return only the 2 last bytes (data from the register) */
     return ((registerContent[2]<<8) + registerContent[3]);
@@ -645,33 +643,15 @@ static void sendData(const uint8_t * data, int size){
     /* Wait until it's possible to send data */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 
+    spiAcquireBus(&SPID4);
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++){
-        spiAcquireBus(&SPID4);
         spiSend(&SPID4,1,data++);
-        spiReleaseBus(&SPID4);
+        
     }
-    
     RESET_MODE;
-}
-
-/* Function to send data (SDI) with a 16bits buffer, maximum of 32 bytes */
-static void sendData16(const uint16_t * data, int size){
-    int i;
-
-    /* Wait until it's possible to send data */
-    while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
-
-    DATA_MODE;
-
-    for(i = 0 ; i < size ; i++){
-        spiAcquireBus(&SPID4);
-        spiSend(&SPID4,1,data++);
-        spiReleaseBus(&SPID4);
-    }
-    
-    RESET_MODE;
+    spiReleaseBus(&SPID4);
 }
 
 /* Function to load the patch in the codec */
