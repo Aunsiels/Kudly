@@ -9,6 +9,7 @@
 #include "wifi_manager.h"
 #include "usb_serial.h"
 #include "codec.h"
+#include "wifi_parsing.h"
 #include <string.h>
 #include "temperature.h"
 #include <stdlib.h>
@@ -18,6 +19,8 @@
 static WORKING_AREA(waHands, 1024);
 /* Working area hug */
 static WORKING_AREA(waHug, 128);
+/* Working area hug */
+static WORKING_AREA(waPhoto, 1024);
 /* Working area temperature */
 static WORKING_AREA(waTemp, 128);
 /* Working area pir */
@@ -137,12 +140,43 @@ static msg_t handsThread(void * args) {
     return 0;
 }
 
+static EventListener eventPhotoLst;
+static char * photoSong ="photo.ogg";
+
+static msg_t photoThread(void * args) {
+    (void) args;
+
+    chEvtRegisterMask(&eventPhotoSrc, &eventPhotoLst, EVENT_MASK(1));
+
+    while (1) {
+	chEvtWaitOne(EVENT_MASK(1));
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &photoSong);
+	chThdSleepMilliseconds(3000);
+
+        /* Turn on led */
+	ledSetColorRGB(0, 255, 255, 255);
+	writeSerial("Begin photo\r\n");
+	chThdSleepMilliseconds(100);
+	/* Take photo */
+	photo("photo.jpg");
+	writeSerial("End photo\r\n");
+	chThdSleepMilliseconds(100);
+	uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
+		   "photo.jpg");
+	f_unlink("photo.jpg");
+	/* Turn off led */
+	ledSetColorRGB(0, 0, 0, 0);
+    }
+    return 0;
+}
+
 /*
  * Initializes the threads
  */
 void applicationInit() {
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL); 
-    chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL); 
+    chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL);
+    chThdCreateStatic(waPhoto, sizeof(waPhoto), NORMALPRIO, photoThread, NULL); 
     chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL); 
     chThdCreateStatic(waPir, sizeof(waPir), NORMALPRIO, pirThread, NULL);
 }

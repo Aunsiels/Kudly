@@ -195,7 +195,7 @@ static void polling(void){
 
 /* Function that sends hhtp_request and save th page in file */
 static void saveWebPage( char * address , char * file){
-    
+    chMtxLock(&wifiAccessMtx);    
     /* Build http request command */
     strcat(msgWifi , http_get);
     strcat(msgWifi , address);
@@ -234,6 +234,7 @@ static void saveWebPage( char * address , char * file){
 	writeSerial("Webpage saved\r\n");
     }
     f_close(&fil);
+    chMtxUnlock();
 }
 
 /* Function that sends hhtp_request and save th page in file */
@@ -248,6 +249,7 @@ void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
 
 /* Function that sends hhtp_request and save th page in file */
 void postAndRead( char * address , char * data){
+    chMtxLock(&wifiAccessMtx);
 
     /* Build hhtp post request */
     strcat(msgWifi ,http_post);
@@ -279,6 +281,7 @@ void postAndRead( char * address , char * data){
     save = FALSE;
     print = TRUE;
     writeSerial("Response received\r\n");
+    chMtxUnlock();
 }
 
 /* Function that sends hhtp_post and save th page in file */
@@ -292,12 +295,13 @@ void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
 }
 
 void uploadFile( char *address , char * localFile , char * remoteFile){
-   
+    chMtxLock(&wifiAccessMtx);
     /* Open file in reading mode */
     res = f_open(&fil,localFile,FA_OPEN_EXISTING | FA_READ);
     if (res) {
         writeSerial("Cannot read this file %d\r\n",res);
         f_close(&fil);
+	chMtxUnlock();
 	return;
     }
 
@@ -387,6 +391,7 @@ void uploadFile( char *address , char * localFile , char * remoteFile){
     msgWifi[0] ='\0';   
     
     writeSerial("File deleted in wifi module flash\r\n");
+    chMtxUnlock();
 }
 
 /* Shell command to upload a file in SD card on server */

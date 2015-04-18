@@ -37,6 +37,8 @@ static char cfg_printLevel0[] = "set system.print_level 0\r\n";
 static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\r\n";
 static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 
+/* Mutex for wifi access */
+Mutex wifiAccessMtx;
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
@@ -93,9 +95,13 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
-
+    /* Init Mutex for wifi access */
+    chMtxInit(&wifiAccessMtx);
+    /* Start usart 3 */
     sdStart(&SD3, &uartCfg);
+    /* Fill mailbox with usart data */
     wifiReadByUsart();
+    /* Send commad to wifi module */
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
@@ -107,6 +113,7 @@ void wifiInitByUsart(void) {
     chThdSleepMilliseconds(8000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
+    /* Active Thread that wait xml command */
     wifiCommands();
 
     /*
