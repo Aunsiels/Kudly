@@ -12,6 +12,7 @@
 #include <string.h>
 #include "temperature.h"
 #include <stdlib.h>
+#include "pir.h"
 
 /* Working area hands */
 static WORKING_AREA(waHands, 1024);
@@ -19,11 +20,36 @@ static WORKING_AREA(waHands, 1024);
 static WORKING_AREA(waHug, 128);
 /* Working area temperature */
 static WORKING_AREA(waTemp, 128);
+/* Working area pir */
+static WORKING_AREA(waPir, 128);
 
 static char * kuddle = "kuddle.ogg";
+static char * pirSound = "pir.ogg";
 
 static char value[] = "value=";
 static char temperatureSend[12];
+
+static msg_t pirThread(void * args) {
+    (void) args;
+
+    /* Event listener for change */
+    EventListener el;
+
+    while(1){
+        int res = palReadPad(GPIOD,GPIOD_PIR);
+        if (res){
+            cmdPlay((BaseSequentialStream *) &SDU1, 1, &pirSound); 
+            postAndRead("/presence","value=1");
+            chThdSleepSeconds(60);
+        } else {
+            postAndRead("/presence","value=0");
+        }
+        chEvtRegisterMask(&pirEvent, &el,EVENT_MASK(1));
+        chEvtWaitOne(EVENT_MASK(1));
+        chEvtUnregister(&pirEvent, &el);
+    }
+    return 0;
+}
 
 /*
  * Thread for temperature
@@ -118,4 +144,5 @@ void applicationInit() {
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL); 
     chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL); 
     chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL); 
+    chThdCreateStatic(waPir, sizeof(waPir), NORMALPRIO, pirThread, NULL);
 }
