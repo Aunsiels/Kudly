@@ -11,7 +11,7 @@
 #define PACKET_SIZE    70 // WS_DATA_SIZE + 6
 #define READ_RESP      66 // WS_DATA_SIZE + 2
 
-#define BUFFER_SIZE    1440
+#define BUFFER_SIZE    64 
 
 #define STR(x) #x
 #define STR_(x) STR(x)
@@ -106,7 +106,7 @@ static void parseWebSocketBuffer(void) {
                 dataLen = (int)(((uint16_t)stream_buffer[i + 2] << 8) | stream_buffer[i + 3]);
                 dataStart = i + 4;
             } else if(dataLen == 127) {
-                dataLen = (int)(((uint64_t)stream_buffer[i + 9] << 56) |
+            dataLen = (int)(((uint64_t)stream_buffer[i + 9] << 56) |
                                 ((uint64_t)stream_buffer[i + 8] << 48) |
                                 ((uint64_t)stream_buffer[i + 7] << 40) |
                                 ((uint64_t)stream_buffer[i + 6] << 32) |
@@ -152,7 +152,6 @@ static msg_t pollRead_thd(void * args) {
         if(chEvtWaitAny(1)) {
             writeSerial("Sending websocket request\n\r");
             wifiWriteByUsart(tcpc, sizeof(tcpc));
-            writeSerial("Sending websocket request\n\r");
 
             wifiWriteByUsart(downloadWave, sizeof(downloadWave));
 
@@ -169,7 +168,7 @@ static msg_t pollRead_thd(void * args) {
 
             while(websocketRecv) {
                 while(poll() != 1) {
-                    chThdSleepMicroseconds(1);
+                    chThdSleepMilliseconds(1);
                 }
                 wifiWriteByUsart(readBuffer, sizeof(readBuffer));
                 parseWebSocketBuffer();

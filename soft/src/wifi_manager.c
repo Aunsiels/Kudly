@@ -45,7 +45,7 @@ static char urlencoded[]=" x-www-form-urlencoded\r\n";
 static char msgWifi[120];
 
 /* Boolean for printing and saving usart data */
-bool_t print = TRUE;
+bool_t print = FALSE;
 bool_t save = TRUE;
 
 /* For system file */
@@ -149,7 +149,7 @@ static msg_t usartRead_thd(void * arg){
 		if(dataCpt == headerSize) {
 		    /* Add end string character to print */
 		    if (save)
-			stream_buffer[dataCpt]='\0';
+                stream_buffer[dataCpt]='\0';
 		    dataSize = headerSize;
 		    chEvtBroadcast(&srcEndToReadUsart);
 		    wifiReadState = IDLE;
