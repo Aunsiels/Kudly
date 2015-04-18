@@ -8,9 +8,9 @@
 #include "usb_serial.h"
 #include "ff.h"
 
-#define WS_DATA_SIZE   64
-#define PACKET_SIZE    70 // WS_DATA_SIZE + 6
-#define READ_RESP      66 // WS_DATA_SIZE + 2
+#define WS_DATA_SIZE   32
+#define PACKET_SIZE    38 // WS_DATA_SIZE + 6
+#define READ_RESP      34 // WS_DATA_SIZE + 2
 
 #define BUFFER_SIZE    64 
 
@@ -185,14 +185,15 @@ static msg_t pollRead_thd(void * args) {
  * Sending data from the codec
  */
 
-//static FIL microFile;
-//static char name[] = "testMic.wav";
+static FIL microFile;
+static char name[] = "stevie.wav";
 
 static msg_t streamingOut(void * args) {
     (void)args;
 
-    msg_t msgCodec;
+    //msg_t msgCodec;
     int lenMsg;
+    UINT sizeRead;
 
     EventListener streamOutLst;
     chEvtRegisterMask(&streamOutSrc, &streamOutLst, (eventmask_t)1);
@@ -203,46 +204,51 @@ static msg_t streamingOut(void * args) {
      * Starting streaming
      */
     if(chEvtWaitAny(1)) {
-        /*
-        if(!f_open(&microFile, name, FA_WRITE | FA_OPEN_ALWAYS)) {
+        if(!f_open(&microFile, name, FA_READ | FA_OPEN_ALWAYS)) {
             writeSerial("Opened !\n\r");
         } else {
-            writeSerial("not opened !\n\r");
+            writeSerial("Not opened !\n\r");
         }
-        */
 
+        /*
+           for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
+           if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
+           codecOutBuffer[i]     = (char)(msgCodec >> 8);
+           codecOutBuffer[i + 1] = (char)msgCodec;
+    //writeSerial("%s", codecOutBuffer[i]);
+    }
+    }
+    */
         while(true) {
-        //for(int j = 0 ; j < 2 ; j++) {
-            for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
-                if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-                    codecOutBuffer[i]     = (char)(msgCodec >> 8);
-                    codecOutBuffer[i + 1] = (char)msgCodec;
-                    //writeSerial("%s", codecOutBuffer[i]);
-                }
+            f_read(&microFile, codecOutBuffer, WS_DATA_SIZE, &sizeRead);
+
+            if(WS_DATA_SIZE > (int)sizeRead) {
+                break;
             }
-            //f_write(&microFile, codecOutBuffer, WS_DATA_SIZE, (void *)NULL);
 
             strcat(webSocketMsg, WEB_SOCKET_MSG);
             lenMsg = strlen(webSocketMsg);
             memcpy(&webSocketMsg[lenMsg], webSocketDataHeader, 6);
             memcpy(&webSocketMsg[lenMsg + 6], codecOutBuffer, WS_DATA_SIZE);
 
+            for(int i = 0 ; i < lenMsg + 6 + WS_DATA_SIZE ; i++) {
+                writeSerial("%x", webSocketMsg[i]);
+            }
+
             wifiWriteByUsart(webSocketMsg, lenMsg + 6 + WS_DATA_SIZE);
             webSocketMsg[0] = 0;
-
             // stop sending data, waiting for another event
             if(!websocketSend) {
                 continue;
             }
+
         }
 
-        /*
         if(!f_close(&microFile)) {
             writeSerial("Bientot le barbeuc !\n\r");
         } else {
-            writeSerial("Fail...\n\r");
+            writeSerial("Fail close...\n\r");
         }
-        */
 
         chEvtUnregister(&streamOutSrc, &streamOutLst);
     }
