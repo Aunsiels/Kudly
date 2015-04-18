@@ -79,4 +79,11 @@ void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]);
  */
 void uploadFile( char *address , char * localFile , char * remoteFile);
 
+/**
+ * \brief Post method
+ * \param address The address where posted
+ * \param data Data to send
+ */
+void postAndRead( char * address , char * data);
+
 #endif

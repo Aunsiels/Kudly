@@ -10,15 +10,39 @@
 #include "usb_serial.h"
 #include "codec.h"
 #include "wifi_parsing.h"
+#include <string.h>
+#include "temperature.h"
+#include <stdlib.h>
 
 /* Working area hands */
 static WORKING_AREA(waHands, 1024);
 /* Working area hug */
-static WORKING_AREA(waHug, 512);
+static WORKING_AREA(waHug, 128);
 /* Working area hug */
 static WORKING_AREA(waPhoto, 1024);
+/* Working area temperature */
+static WORKING_AREA(waTemp, 128);
 
 static char * kuddle = "kuddle.ogg";
+
+static char value[] = "value=";
+static char temperatureSend[12];
+
+/*
+ * Thread for temperature
+ */
+static msg_t tempThread(void * args) {
+    (void) args;
+    temperatureSend[0] = 0;
+    strcat(temperatureSend, value);
+    while (1){
+        int temperature = (int) getTemperatureNotHandled();
+        itoa(temperature, temperatureSend+6,10);
+        postAndRead("/temp", temperatureSend);
+        chThdSleepSeconds(600);
+    }
+    return 0;
+}
 
 /*
  * Thread for hug
@@ -127,4 +151,5 @@ void applicationInit() {
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL); 
     chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL);
     chThdCreateStatic(waPhoto, sizeof(waPhoto), NORMALPRIO, photoThread, NULL); 
+    chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL); 
 }
