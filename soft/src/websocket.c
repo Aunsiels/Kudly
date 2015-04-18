@@ -215,10 +215,8 @@ static msg_t streamingOut(void * args) {
         //for(int j = 0 ; j < 2 ; j++) {
             for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
                 if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-                    //codecOutBuffer[i]     = (char)(msgCodec >> 8);
-                    //codecOutBuffer[i + 1] = (char)msgCodec;
-                    codecOutBuffer[i]     = i;
-                    codecOutBuffer[i + 1] = i + 1;
+                    codecOutBuffer[i]     = (char)(msgCodec >> 8);
+                    codecOutBuffer[i + 1] = (char)msgCodec;
                     //writeSerial("%s", codecOutBuffer[i]);
                 }
             }
