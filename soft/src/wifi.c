@@ -98,7 +98,7 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
-    //palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);
+    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
    
     sdStart(&SD3, &uartCfg);
     wifiReadByUsart();
@@ -125,16 +125,15 @@ void wifiInitByUsart(void) {
 
 static msg_t wifiSleep_thd(void *arg){
     (void)arg;
-    writeSerial("Wifi is sleeping1\r\n");
     wifiWriteByUsart(sleep, sizeof(sleep));
     writeSerial("Wifi is sleeping\r\n");
     return 0;
 }
 
 static void wifiWakeUp(void){
-    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);    
-    chThdSleepMilliseconds(100);
     palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);    
+    chThdSleepMilliseconds(100);
+    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);    
     writeSerial("Wifi is woke up\r\n");
 }
 
