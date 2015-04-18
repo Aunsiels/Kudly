@@ -48,9 +48,6 @@ int main(void) {
     /* Read wifi by usart */
     usartRead();
 
-    /* Initialize wifi */
-    //wifiInitByUsart();
-
     /* Init ADC hug sensors */
     initHugSensors();
 

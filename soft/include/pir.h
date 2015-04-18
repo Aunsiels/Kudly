@@ -8,9 +8,9 @@
 #define PIR_H
 
 /**
- * Event source to listen to if you want to see if there is a mouvement.
+ * \brief Event source to listen to if you want to see if there is a mouvement.
  */
-//extern EventSource pirEvent;
+extern EventSource pirEvent;
 
 /**
  * \brief This function initializes the pir sensor.
