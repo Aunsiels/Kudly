@@ -402,18 +402,18 @@ static msg_t threadSendData(void *arg){
 
         f_open(&testFp, testName, FA_WRITE | FA_OPEN_ALWAYS);
 
-        for(int j = 0 ; j < 2000 ; j++) {
+        //for(int j = 0 ; j < 2000 ; j++) {
+        while(playerState) {
             int i;
             /* Complete the buffer from the mail box*/
             for(i = 0 ; i < 16 ; i++) {	
-		chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
-
+                chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
                 streamBuf[2 * i]     = (uint8_t)(dataRecv);
                 streamBuf[2 * i + 1] = (uint8_t)(dataRecv >> 8);
             }
             /* Send the buffer to the codec */
             sendData(streamBuf,32);
-            f_write(&testFp, streamBuf, 32, &bw); 
+            //f_write(&testFp, streamBuf, 32, &bw); 
         }
 
         if(!f_close(&testFp)) {
