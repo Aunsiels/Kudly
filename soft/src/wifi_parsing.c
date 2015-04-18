@@ -6,12 +6,17 @@
 #include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "application.h"
 
 #define FEATURE_SIZE 25
 #define FUNCTION_SIZE 2048
 
 /* Event for parsing end */
 static EVENTSOURCE_DECL(eventWifiSrc);
+static EventListener eventWifiLst;
+
+/*Event for photo taking */
+EVENTSOURCE_DECL(eventPhotoSrc);
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[FEATURE_SIZE];
@@ -76,38 +81,46 @@ void parseXML(char c) {
     }
 }
 
-static EventListener eventWifiLst;
-
 /* Thread waits an wifi event and parse feature and function to launch the rigth function */
 static msg_t wifiCommands_thd(void * args) {
     (void)args;  
-    chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
-    char* ptr;  
-
+    chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, EVENT_MASK(1));
+    
     while(1) {
 	/* Wait for xml ending */
-        chEvtWaitOne(1);
+        chEvtWaitOne(EVENT_MASK(1));
 	
 	/* Led feature */
         if( NULL != strstr(feature,"led")){
             if ( NULL != strstr(function,"rgb_set")){
-                int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
-                int r = strtol(strstr(function,"r=\"") +3,&ptr,10);
-                int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
-                int b = strtol(strstr(function,"b=\"") +3,&ptr,10);
+                int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
+                int r = strtol(strstr(function,"r=\"") +3,(char **)NULL,10);
+                int g = strtol(strstr(function,"g=\"") +3,(char **)NULL,10);
+                int b = strtol(strstr(function,"b=\"") +3,(char **)NULL,10);
                 ledSetColorRGB(n, r, g, b);
                 continue;
             }
-	    
-            if ( NULL != strstr(function,"hsv_set")){	
-                int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
-                int h = strtol(strstr(function,"h=\"") +3,&ptr,10);
-                int s = strtol(strstr(function,"s=\"") +3,&ptr,10);
-                int v = strtol(strstr(function,"v=\"") +3,&ptr,10);
+
+            if ( NULL != strstr(function,"hsv_set")){
+                int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
+                int h = strtol(strstr(function,"h=\"") +3,(char **)NULL,10);
+                int s = strtol(strstr(function,"s=\"") +3,(char **)NULL,10);
+                int v = strtol(strstr(function,"v=\"") +3,(char **)NULL,10);
                 ledSetColorHSV(n, h, s, v);
                 continue;
             }
         }
+	
+	/* Camera feature */
+	if ( NULL != strstr(feature,"camera")){
+
+	    /* Example : photo */
+	    if ( NULL != strstr(function,"photo")){
+		chEvtBroadcast(&eventPhotoSrc);
+		continue;
+	    }
+	}
+	
     }
     return 0;
 }

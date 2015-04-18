@@ -12,6 +12,12 @@
 
 #ifndef _WIFI_PARSING_H_
 #define _WIFI_PARSING_H_
+/**
+ *
+ * \brief Event 
+ *
+ */
+extern EventSource eventPhotoSrc;
 
 /**
  *
