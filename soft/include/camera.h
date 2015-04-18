@@ -68,4 +68,10 @@ void cameraSetColorEffect(uint8_t value1, uint8_t value2);
  */
 void cameraSetContrast(uint8_t value1, uint8_t value2);
 
+/**
+ * \brief Takes a photo
+ * \param photoName The name of the photo
+ */
+void photo(char * photoName);
+
 #endif

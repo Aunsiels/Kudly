@@ -6,12 +6,14 @@
 #include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <camera.h>
 
 #define FEATURE_SIZE 25
 #define FUNCTION_SIZE 2048
 
 /* Event for parsing end */
-static EVENTSOURCE_DECL(eventWifiSrc);
+static EVENTSOURCE_DECL(evtStartSrc);
+static EventListener evtStartLst;
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[FEATURE_SIZE];
@@ -62,7 +64,7 @@ void parseXML(char c) {
 	if (c == '>'){
 	    state = END_FEATURE;
 	    function[parseFunction-1] = '\0';
-	    chEvtBroadcast(&eventWifiSrc);
+	    chEvtBroadcast(&evtStartSrc);
 	}
 	function[parseFunction]=c;
 	parseFunction++;
@@ -76,13 +78,11 @@ void parseXML(char c) {
     }
 }
 
-static EventListener eventWifiLst;
 
 /* Thread waits an wifi event and parse feature and function to launch the rigth function */
 static msg_t wifiCommands_thd(void * args) {
     (void)args;  
-    chEvtRegisterMask(&eventWifiSrc, &eventWifiLst, 1);
-    char* ptr;  
+    chEvtRegisterMask(&evtStartSrc, &evtStartLst, 1);
 
     while(1) {
 	/* Wait for xml ending */
@@ -90,24 +90,27 @@ static msg_t wifiCommands_thd(void * args) {
 	
 	/* Led feature */
         if( NULL != strstr(feature,"led")){
+
+	    /* Example : rgb_set n="0" r="125" g="0" b="125" */
             if ( NULL != strstr(function,"rgb_set")){
-                int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
-                int r = strtol(strstr(function,"r=\"") +3,&ptr,10);
-                int g = strtol(strstr(function,"g=\"") +3,&ptr,10);
-                int b = strtol(strstr(function,"b=\"") +3,&ptr,10);
+                int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
+                int r = strtol(strstr(function,"r=\"") +3,(char **)NULL,10);
+                int g = strtol(strstr(function,"g=\"") +3,(char **)NULL,10);
+                int b = strtol(strstr(function,"b=\"") +3,(char **)NULL,10);
                 ledSetColorRGB(n, r, g, b);
                 continue;
             }
-	    
-            if ( NULL != strstr(function,"hsv_set")){	
-                int n = strtol(strstr(function,"n=\"") +3,&ptr,10);
-                int h = strtol(strstr(function,"h=\"") +3,&ptr,10);
-                int s = strtol(strstr(function,"s=\"") +3,&ptr,10);
-                int v = strtol(strstr(function,"v=\"") +3,&ptr,10);
+
+	    /* Example : hsv_set n="0" h="300" s="110" v="49" */
+            if ( NULL != strstr(function,"hsv_set")){
+                int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
+                int h = strtol(strstr(function,"h=\"") +3,(char **)NULL,10);
+                int s = strtol(strstr(function,"s=\"") +3,(char **)NULL,10);
+                int v = strtol(strstr(function,"v=\"") +3,(char **)NULL,10);
                 ledSetColorHSV(n, h, s, v);
                 continue;
             }
-        }
+	}   
     }
     return 0;
 }

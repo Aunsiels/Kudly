@@ -28,4 +28,11 @@ void initHugSensors(void);
  */
 void cmdHugSensors(BaseSequentialStream *chp, int argc, char *argv[]);
 
+/**
+ * \brief Gives the values of the hugs sensors
+ * \return The values of the hug sensors, with on on the lowest part and the
+ * other one on the highest part
+ */
+uint32_t getHugValues (void);
+
 #endif
