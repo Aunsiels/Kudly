@@ -68,7 +68,9 @@ void wifiWriteByUsart(char * message, int length){
     chMtxLock(&wifiMtx);
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
-    chEvtWaitOne(EVENT_MASK(1));
+    if(chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(1000)) == 0) {
+        writeSerial("Timeout\n\r");
+    }
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
     chMtxUnlock();
 }
