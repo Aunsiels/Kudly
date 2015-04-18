@@ -41,6 +41,8 @@ static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
 static char sleep[] ="sleep\r\n";
 
+static Mutex wifiMtx;
+
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
@@ -63,10 +65,12 @@ static msg_t usartReadInMB_thd(void * args) {
 
 /* Sends data by wifi */
 void wifiWriteByUsart(char * message, int length){
+    chMtxLock(&wifiMtx);
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
     chEvtWaitOne(EVENT_MASK(1));
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
+    chMtxUnlock();
 }
 
 /* Same as above but don't want to wait for the response */
@@ -98,6 +102,8 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 
 /* Initialization of wifi network */
 void wifiInitByUsart(void) {
+
+    chMtxInit(&wifiMtx);
  
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
