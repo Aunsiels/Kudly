@@ -8,9 +8,39 @@
 #include "ff.h"
 #include "wifi_manager.h"
 #include "usb_serial.h"
+#include "codec.h"
 
 /* Working area hands */
 static WORKING_AREA(waHands, 1024);
+/* Working area hug */
+static WORKING_AREA(waHug, 512);
+
+static char * kuddle = "kuddle.ogg";
+
+/*
+ * Thread for hug
+ */
+static msg_t hugThread(void * args){
+    (void) args;
+    uint32_t formerValue;
+    uint16_t * lowF = (uint16_t *) &formerValue;
+    uint16_t * highF = lowF + 1;
+    uint32_t readValues;
+    uint16_t * low = (uint16_t *) &readValues;
+    uint16_t * high = low + 1;
+
+    formerValue = getHugValues();
+    while(1) {
+        readValues = getHugValues();
+        if (*low > *lowF + 100 || *low < *lowF - 100 ||
+                *high > *highF + 100 || *high < *highF - 100){
+            cmdPlay((BaseSequentialStream *) &SDU1, 1, &kuddle); 
+            cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL); 
+        }
+        chThdSleepMilliseconds(1000);   
+    }
+    return 0;
+}
 
 int getSize(stkalign_t * buf, int size){
     uint32_t * b = (uint32_t *) buf;
@@ -62,4 +92,5 @@ static msg_t handsThread(void * args) {
  */
 void applicationInit() {
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL); 
+    chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL); 
 }
