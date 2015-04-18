@@ -41,6 +41,20 @@ static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
 static char sleep[] ="sleep\r\n";
 
+static char dollar[] = "$$$\r\n";
+
+/* Streaming command */
+static char busMode[] = "set bus.mode stream\r\n";
+static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
+static char remoteHost[] = "set tcp.client.remote_host kudly.herokuapp.com/streaming\r\n";
+static char remotePort[] = "set tcp.client.remote_port 80\r\n";
+static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
+static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
+static char autoStart[] = "set tcp.client.auto_start 1\r\n";
+static char keepAlive[] = "set tcp.keepalive.enabled 1\r\n";
+static char initialTimeout[] = "set tcp.keepalive.initial_timeout 10\r\n";
+static char reboot[] = "reboot\r\n";
+
 static Mutex wifiMtx;
 
 /* Serial driver that uses usart3 */
@@ -117,6 +131,23 @@ void wifiInitByUsart(void) {
     usartRead();
   
     sdStart(&SD3, &uartCfg);
+    wifiWriteNoWait(dollar, sizeof(dollar));
+
+    wifiWriteByUsart(autoJoin, sizeof(autoJoin));
+    wifiWriteByUsart(remoteHost, sizeof(remoteHost));
+    wifiWriteByUsart(remotePort, sizeof(remotePort));
+    wifiWriteByUsart(autoInterface, sizeof(autoInterface));
+wifiWriteByUsart(autoRetries, sizeof(autoRetries));
+    wifiWriteByUsart(autoStart, sizeof(autoStart));
+    wifiWriteByUsart(keepAlive, sizeof(keepAlive));
+    wifiWriteByUsart(initialTimeout, sizeof(initialTimeout));
+    wifiWriteByUsart(busMode, sizeof(busMode));
+    wifiWriteByUsart(save, sizeof(save));
+    wifiWriteByUsart(reboot, sizeof(reboot));
+
+    chThdSleepMilliseconds(5000);
+
+    wifiWriteNoWait(dollar, sizeof(dollar));
 
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
