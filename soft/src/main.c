@@ -15,6 +15,8 @@
 #include "imu.h"
 #include "temperature.h"
 #include "i2c_perso.h"
+#include "ext_init.h"
+#include "pir.h"
 
 static char * sound = "demo.mp3";
 
@@ -69,6 +71,12 @@ int main(void) {
     /* Init temperature sensor */
     temperatureInit();
 
+    /* Initialize Ext */
+    extPersoInit();
+
+    /* Pir initialization */
+    pirInit();
+    
     uint32_t hugValues;
     uint16_t * lowHug = (uint16_t *) &hugValues;
     uint16_t * highHug = lowHug + 1;

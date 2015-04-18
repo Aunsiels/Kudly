@@ -96,6 +96,8 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
        $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/pir.c \
+       $(KUDLYSRC)/ext_init.c \
        $(KUDLYSRC)/camera.c \
        $(KUDLYSRC)/wifi_manager.c \
        $(KUDLYSRC)/wifi_parsing.c \

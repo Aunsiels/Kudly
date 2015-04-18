@@ -17,6 +17,7 @@
 #include "wifi_manager.h"
 #include "imu.h"
 #include "temperature.h"
+#include "pir.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -70,6 +71,7 @@ static const ShellCommand commands[] = {
     {"parsewifi"   , cmdWifiXml    },
     {"temperature" , cmdTemperature},
     {"imu"         , cmdImu        },
+    {"pir"         , testPir       },
     {NULL          , NULL          }
 };
 
