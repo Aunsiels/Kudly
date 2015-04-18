@@ -77,8 +77,8 @@ static const ShellCommand commands[] = {
 
 /* Config of the shell */
 static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU1,
-  commands
+    (BaseSequentialStream *)&SDU1,
+    commands
 };
 
 /*

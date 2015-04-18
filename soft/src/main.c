@@ -32,9 +32,6 @@ int main(void) {
     /* Initialize the serial over usb */
     initUsbSerial();
 
-    /* Initialize shell */
-    shellPersoInit();
-
     /* Initialize SD card */
     sdPersoInit();
 

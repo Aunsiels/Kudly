@@ -23,6 +23,8 @@ void externBroadcast(void);
  * Bloking function
  */
 void wifiWriteByUsart(char * message, int length);
+void wifiWriteNoWait(char * message, int length);
+void wifiWriteUnsigned(uint8_t * message, int length);
 
 /**
  *
