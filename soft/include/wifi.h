@@ -13,7 +13,12 @@
 #define _WIFI_H_
 
 extern Mailbox mbReceiveWifi;
-void externBroadcast(void);
+
+/**
+ *
+ * \brief Mutex for wifi access
+ */
+extern Mutex wifiAccessMtx;
 
 /**
  *
