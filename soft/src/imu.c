@@ -61,13 +61,13 @@ int16_t readRegister16(uint8_t addr){
     int16_t data;
     uint8_t * lsb = (uint8_t *)&data;
     uint8_t * msb = lsb + 1;
-
     *msb = readRegister(addr);
     addr++;
     *lsb = readRegister(addr);
 
     return data;
 }
+
 msg_t writeRegister(uint8_t addr, uint8_t data){
     static msg_t status = RDY_OK;
     uint8_t command[2];

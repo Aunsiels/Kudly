@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "wifi_manager.h"
 #include "imu.h"
+#include "temperature.h"
 
 int main(void) {
 
@@ -33,10 +34,10 @@ int main(void) {
 
     /* Led initialization */
     ledInit();
-    
+
     /* Init sccb */
     sccbInit();
-    
+
     /* DCMI init */
     cameraInit();
 
@@ -45,7 +46,7 @@ int main(void) {
 
     /* Initialize wifi */
     wifiInitByUsart();
-    
+
     /* Init ADC hug sensors */
     initHugSensors();
 
@@ -57,6 +58,9 @@ int main(void) {
 
     /* IMU init */
     imuInit();
+
+    /* Init temperature sensor */
+    temperatureInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
