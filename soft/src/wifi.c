@@ -67,6 +67,11 @@ void wifiWriteByUsart(char * message, int length){
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
 }
 
+/* Same as above but don't want to wait for the response */
+void wifiWriteNoWait(char * message, int length){
+    sdWrite(&SD3, (uint8_t*)message, length);
+}
+
 /*  Launches the wifi reading */
 static void wifiReadByUsart(void) {
     static WORKING_AREA(usartReadInMB_wa, 2048);
@@ -110,7 +115,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(8000);
+    chThdSleepMilliseconds(4000);
     wifiWriteByUsart(nup, sizeof(nup));
     writeSerial("Wifi ready to use\r\n");
     /* Active Thread that wait xml command */
