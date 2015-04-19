@@ -59,8 +59,9 @@ int main(void) {
     /* IMU init */
     imuInit();
 
+    chThdSleepMilliseconds(150);
     /* Init temperature sensor */
-    temperatureInit();
+    //temperatureInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
 
