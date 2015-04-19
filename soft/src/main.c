@@ -44,10 +44,10 @@ int main(void) {
     usartRead();
 
     /* Initialize wifi */
-    wifiInitByUsart();
+    //wifiInitByUsart();
 
     /* Init ADC hug sensors */
-    initHugSensors();
+    //initHugSensors();
 
     /* Init ADC hand sensors */
     initHandSensors();
@@ -78,7 +78,6 @@ int main(void) {
 
     /* Initialize SD card */
     sdPersoInit();
-
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

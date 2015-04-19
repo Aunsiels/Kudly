@@ -83,6 +83,7 @@ static msg_t threadPlayback(void *arg){
         /* Reset the variables to stop encoding / decoding */
         playerState = 1;
 	stopSound = 0;
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 	
         /* Open a file in reading mode */
         f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
@@ -204,7 +205,12 @@ static msg_t threadEncode(void *arg){
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO );
         /* Set quality mode to 9 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-	
+
+	/* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
         writeRegister(SCI_AIADDR,0x50);
@@ -275,7 +281,7 @@ static msg_t threadTestVolume(void *arg){
             continue;
         }
         /* Disable sound on speakers */
-        codecVolume(1);
+        codecVolume(75);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
@@ -286,7 +292,12 @@ static msg_t threadTestVolume(void *arg){
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-	
+
+	/* Reset the variables to control encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
         writeRegister(SCI_AIADDR,0x50);
@@ -353,9 +364,9 @@ static msg_t threadFullDuplex(void *arg){
 	/* Reset variables to stop the encoding / decoding */
         playerState = 1;
         stopSound = 0;
-	
 	/* Launch the streaming */
 	// Wait for streaming : streamLaunch(NULL,0,NULL);
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 	
 	/*Start the sending of datas to SDI (for playback during streaming */
 	chSysLock();
