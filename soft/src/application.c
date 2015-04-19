@@ -25,6 +25,9 @@ static WORKING_AREA(waPhoto, 1024);
 static WORKING_AREA(waTemp, 128);
 /* Working area pir */
 static WORKING_AREA(waPir, 128);
+/* Working area cry */
+static WORKING_AREA(waCry, 128);
+
 
 static char * kuddle = "kuddle.ogg";
 static char * pirSound = "pir.ogg";
@@ -170,6 +173,16 @@ static msg_t photoThread(void * args) {
     return 0;
 }
 
+static msg_t cryThread(void * args) {
+    (void) args;
+
+    while(1){
+	
+    }
+    return 0;
+}
+
+
 /*
  * Initializes the threads
  */
@@ -179,4 +192,5 @@ void applicationInit() {
     chThdCreateStatic(waPhoto, sizeof(waPhoto), NORMALPRIO, photoThread, NULL); 
     chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL); 
     chThdCreateStatic(waPir, sizeof(waPir), NORMALPRIO, pirThread, NULL);
+    chThdCreateStatic(waCry, sizeof(waCry), NORMALPRIO, cryThread, NULL);
 }
