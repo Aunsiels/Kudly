@@ -14,6 +14,7 @@
 
 extern Mailbox mbReceiveWifi;
 void externBroadcast(void);
+extern volatile int streaming;
 
 /**
  *

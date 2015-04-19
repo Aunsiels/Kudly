@@ -11,7 +11,7 @@
 #define PACKET_SIZE    70 // WS_DATA_SIZE + 6
 #define READ_RESP      66 // WS_DATA_SIZE + 2
 
-#define BUFFER_SIZE    1200
+#define BUFFER_SIZE    64
 
 #define STR(x) #x
 #define STR_(x) STR(x)
@@ -34,6 +34,7 @@ static char codecOutBuffer[BUFFER_SIZE];
 /* Streaming event sources */
 EventSource streamOutSrc, pollReadSrc;
 
+static char exitWifi[] = "exit\r\n";
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
 static char streamWriteHeader[] = "write 0 162\r\n\
 GET /echo HTTP/1.1\r\n\
@@ -43,8 +44,8 @@ Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
 Sec-WebSocket-Version: 13\r\n\
 \r\n";
-static char downloadWave[] = "write 0 167\r\n\
-GET /streaming HTTP/1.1\r\n\
+static char downloadWave[] =
+"GET /streaming HTTP/1.1\r\n\
 Host: kudly.herokuapp.com\r\n\
 Upgrade: websocket\r\n\
 Connection: Upgrade\r\n\
@@ -53,7 +54,6 @@ Sec-WebSocket-Version: 13\r\n\
 \r\n";
 
 static char read400[] = "read 0 400\r\n";
-static char readBuffer[] = "read 0 "STR_(BUFFER_SIZE)"\r\n";
 
 // Sending 64 bytes
 static char webSocketMsg[WS_DATA_SIZE+6+20];
@@ -70,69 +70,94 @@ static int wsHeader;
 volatile int websocketSend = 1;
 volatile int websocketRecv = 1;
 
-static int poll(void) {
-    wifiWriteByUsart("poll 0\n\r", 8);
-
-    if(stream_buffer[0] == '1') {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 /*
  * This function parses websocket data in the buffer
  * It reads the whole buffer
  */
 static void parseWebSocketBuffer(void) {
-    static int i;
-    static int dataStart;
     static uint16_t data;
+    static msg_t c;
+    static char readValue[2];
 
-    i = 0;
-    while(i < dataSize - 2) {
+    (void)data;
+
+    while(true) {
+        chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+        if((char)c == '\r') {
+            chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+            if((char)c == '\n') {
+                chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+                if((char)c == '\r') {
+                    chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+                    if((char)c == '\n') {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    writeSerial("\n\r");
+
+
+
+    while(1) {
 
         // If new packet comming
         if(wsHeader) {
+            writeSerial("\n\r----\n\r");
+            chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+
             /*
              * Data length & data start
              * Stream_buffer[i] is the first byte of header
              * Data length begins on the next byte
              */
-            dataLen = stream_buffer[i + 1];
-            dataStart = i + 2;
+	         chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+             readValue[0] = (char) c;
+
+             writeSerial("\n\r%x\n\r", readValue[0]);
+
+             dataLen = readValue[0];
 
             // length & first data byte position can change...
             if(dataLen == 126) {
-                dataLen = (int)(((uint16_t)stream_buffer[i + 2] << 8) | stream_buffer[i + 3]);
-                dataStart = i + 4;
-            } else if(dataLen == 127) {
-            dataLen = (int)(((uint64_t)stream_buffer[i + 9] << 56) |
-                                ((uint64_t)stream_buffer[i + 8] << 48) |
-                                ((uint64_t)stream_buffer[i + 7] << 40) |
-                                ((uint64_t)stream_buffer[i + 6] << 32) |
-                                ((uint64_t)stream_buffer[i + 5] << 24) |
-                                ((uint64_t)stream_buffer[i + 4] << 16) |
-                                ((uint64_t)stream_buffer[i + 3] << 8)  |
-                                ((uint64_t)stream_buffer[i + 2]));
-                dataStart = i + 10;
-            }
-
+                chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+                readValue[0] = (char) c;
+                writeSerial("\n\r%x\n\r", readValue[0]);
+                chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+                readValue[1] = (char) c;
+                writeSerial("\n\r%x\n\r", readValue[1]);
+                dataLen = (int)(((uint16_t)readValue[0] << 8) | readValue[1]);
+            } /* Do not do the last case */
             wsHeader = false;
             dataCpt = 0;
+            writeSerial("\n\rdataLen : %d\n\r", dataLen);
+            writeSerial("\n\r----\n\r");
 
-            // Dropping the header now that we have all the informations
-            i = dataStart;
         } else {
 
             /*
              * TODO : Do something with the data...
              */
-            data = ((uint16_t)(stream_buffer[i+1]) << 8) | (uint16_t)stream_buffer[i];
+            chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+            readValue[0] = (char) c;
+            chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+            readValue[1] = (char) c;
+
+            if(readValue[0] < 16) {
+                writeSerial("0");
+            }
+            writeSerial("%x", readValue[0]);
+            if(readValue[1] < 16) {
+                writeSerial("0");
+            }
+            writeSerial("%x", readValue[1]);
+            
+            data = ((uint16_t)(readValue[1] << 8) | (uint16_t)readValue[0]);
             //writeSerial("%x", stream_buffer[i+1]);
             //writeSerial("%x", stream_buffer[i]);
             chMBPost(&mbCodecIn, (msg_t)data, TIME_INFINITE);
-            i += 2;
             dataCpt += 2;
 
             if(dataCpt >= dataLen) {
@@ -140,20 +165,19 @@ static void parseWebSocketBuffer(void) {
             }
                 
         }
-
     }
 }
 
+
 void webSocketInit(void) {
     writeSerial("Sending websocket request\n\r");
-    wifiWriteByUsart(tcpc, sizeof(tcpc));
 
-    wifiWriteByUsart(downloadWave, sizeof(downloadWave));
+    wifiWriteNoWait(exitWifi,sizeof(exitWifi));
+    streaming = 1;
 
-    while(poll() != 1) {
-        chThdSleepMilliseconds(50);
-    }
-    wifiWriteByUsart(read400, sizeof(read400));
+    chThdSleepMilliseconds(100);
+
+    wifiWriteNoWait(downloadWave, sizeof(downloadWave));
 }
 
 static msg_t pollRead_thd(void * args) {
@@ -170,10 +194,6 @@ static msg_t pollRead_thd(void * args) {
             writeSerial("Receiving data\n\r");
 
             while(websocketRecv) {
-                while(poll() != 1) {
-                    chThdSleepMilliseconds(1);
-                }
-                wifiWriteByUsart(readBuffer, sizeof(readBuffer));
                 parseWebSocketBuffer();
             }
 
@@ -213,7 +233,7 @@ static msg_t streamingOut(void * args) {
        }
        memcpy(webSocketMsg + sizeof(writeWebsocket) + sizeof(webSocketDataHeader), codecOutBuffer, WS_DATA_SIZE);
 
-       wifiWriteByUsart(webSocketMsg, sizeof(writeWebsocket)+ sizeof(webSocketDataHeader) + WS_DATA_SIZE - 1);
+       //wifiWriteByUsart(webSocketMsg, sizeof(writeWebsocket)+ sizeof(webSocketDataHeader) + WS_DATA_SIZE - 1);
 
    }
 
@@ -305,7 +325,7 @@ void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
     writeSerial("Downloading stream...\n\r");
     websocketRecv = 1;
     chEvtBroadcast(&pollReadSrc);
-    chEvtBroadcast(&streamOutSrc);
+//    chEvtBroadcast(&streamOutSrc);
 }
 
 /*

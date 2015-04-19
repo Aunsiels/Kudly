@@ -10,12 +10,15 @@
 #include "wifi_manager.h"
 #include "wifi_parsing.h"
 
+/* Is streaming activated ? */
+volatile int streaming = 0;
+
 /* Event listener for the end of reading by usart */ 
 static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
-static msg_t mb_buf[32];
-MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
+static msg_t mb_buf[10000];
+MAILBOX_DECL(mbReceiveWifi, mb_buf, 10000);
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -26,8 +29,8 @@ static char cmdMessage[120];
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
-static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
+static char ssid[] = "set wlan.ssid \"chezmoi\"\r\n";
+static char passkey[] = "set wlan.passkey \"azertyuiop\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -46,7 +49,7 @@ static char dollar[] = "$$$\r\n";
 /* Streaming command */
 static char busMode[] = "set bus.mode stream\r\n";
 static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
-static char remoteHost[] = "set tcp.client.remote_host kudly.herokuapp.com/streaming\r\n";
+static char remoteHost[] = "set tcp.client.remote_host kudly.herokuapp.com\r\n";
 static char remotePort[] = "set tcp.client.remote_port 80\r\n";
 static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";

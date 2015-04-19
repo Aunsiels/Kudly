@@ -87,78 +87,83 @@ static msg_t usartRead_thd(void * arg){
     static enum wifiReadState wifiReadState = IDLE;    
 
     while(TRUE) {
-	if(chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE) == RDY_OK){
-	    /* Parsing headers & data */
-	    switch(wifiReadState) {	    
-	    case IDLE:
-                /* Message beginning */
-		if((char)c == 'R') {
-		    wifiReadState = RECEIVE_HEADER;
-		    rcvType = (char)c;
-		    h = 0;
-		    dataCpt = 0;
-		    stream_buffer[0]= '\0';
-		}
-		break;
+        if (streaming) {
+            chThdSleepMilliseconds(1000);
+            continue;
+        } else {
+            chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+            /* Parsing headers & data */
+            switch(wifiReadState) {	    
+                case IDLE:
+                    /* Message beginning */
+                    if((char)c == 'R') {
+                        wifiReadState = RECEIVE_HEADER;
+                        rcvType = (char)c;
+                        h = 0;
+                        dataCpt = 0;
+                        stream_buffer[0]= '\0';
+                    }
+                    break;
 
-	    case RECEIVE_HEADER:
-		/* Header beginning */
-		switch(h) {
-		case 0:
-		    /* Error code */
-		    errCode = (int)((char)c - '0');
-		    (void)errCode;
-		    break;
-		case 1: case 2: case 3: case 4:
-		    /* Receiving header */
-		    header[h-1] = (char)c; 
-		    break;
-		case 5:
-		    /* Last header character */
-		    header[h-1] = (char)c;
-		    /* Add end string character to print */
-		    header[h] = '\0';
-		    headerSize = strtol(header, (char **)NULL, 10);
-		    break;
-		case 7: 
-		    /* After receiving \n\r */
-            if(rcvType == 'R') {
-                if(headerSize !=0)
-                    wifiReadState = RECEIVE_RESPONSE;
-                else{
-                    chEvtBroadcast(&srcEndToReadUsart);
-                    wifiReadState = IDLE;
-                }
-            } 
-		    break;
-		}		
-		h++;
-		break;
-		
-	    case RECEIVE_RESPONSE:
-		/* Response beginning */
-		/* Printing on shell */
-		if(print)
-		    writeSerial("%c",(unsigned char)c);
-		/* Saving in stream_buffer */
-		if (save)
-		    stream_buffer[dataCpt]= (char)c;
-		dataCpt++;
+                case RECEIVE_HEADER:
+                    /* Header beginning */
+                    switch(h) {
+                        case 0:
+                            /* Error code */
+                            errCode = (int)((char)c - '0');
+                            (void)errCode;
+                            break;
+                        case 1: case 2: case 3: case 4:
+                            /* Receiving header */
+                            header[h-1] = (char)c; 
+                            break;
+                        case 5:
+                            /* Last header character */
+                            header[h-1] = (char)c;
+                            /* Add end string character to print */
+                            header[h] = '\0';
+                            headerSize = strtol(header, (char **)NULL, 10);
+                            break;
+                        case 7: 
+                            /* After receiving \n\r */
+                            if(rcvType == 'R') {
+                                if(headerSize !=0)
+                                    wifiReadState = RECEIVE_RESPONSE;
+                                else{
+                                    dataSize = headerSize;
+                                    chEvtBroadcast(&srcEndToReadUsart);
+                                    wifiReadState = IDLE;
+                                }
+                            } 
+                            break;
+                    }		
+                    h++;
+                    break;
 
-		/* End of stream_buffer - dataSize updating */
-		if(dataCpt == headerSize) {
-		    /* Add end string character to print */
-		    if (save)
-                stream_buffer[dataCpt]='\0';
-		    dataSize = headerSize;
-		    chEvtBroadcast(&srcEndToReadUsart);
-		    wifiReadState = IDLE;
-		}
-		break;
-	    default :
-		break;
-	    }
-	}
+                case RECEIVE_RESPONSE:
+                    /* Response beginning */
+                    /* Printing on shell */
+                    if(print)
+                        writeSerial("%c",(unsigned char)c);
+                    /* Saving in stream_buffer */
+                    if (save)
+                        stream_buffer[dataCpt]= (char)c;
+                    dataCpt++;
+
+                    /* End of stream_buffer - dataSize updating */
+                    if(dataCpt == headerSize) {
+                        /* Add end string character to print */
+                        if (save)
+                            stream_buffer[dataCpt]='\0';
+                        dataSize = headerSize;
+                        chEvtBroadcast(&srcEndToReadUsart);
+                        wifiReadState = IDLE;
+                    }
+                    break;
+                default :
+                    break;
+            }
+        }
     }
     return 0;
 }
