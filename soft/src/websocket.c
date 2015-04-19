@@ -105,7 +105,6 @@ static void parseWebSocketBuffer(void) {
 
         // If new packet comming
         if(wsHeader) {
-            writeSerial("\n\r----\n\r");
             chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
             readValue[0] = (char) c;
             if (readValue[0] != 0x82) port_halt();
@@ -118,24 +117,19 @@ static void parseWebSocketBuffer(void) {
 	         chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
              readValue[0] = (char) c;
 
-             writeSerial("\n\r%x\n\r", readValue[0]);
-
              dataLen = readValue[0];
 
             // length & first data byte position can change...
             if(dataLen == 126) {
                 chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
                 readValue[0] = (char) c;
-                writeSerial("\n\r%x\n\r", readValue[0]);
                 chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
                 readValue[1] = (char) c;
-                writeSerial("\n\r%x\n\r", readValue[1]);
                 dataLen = (int)(((uint16_t)readValue[0] << 8) | readValue[1]);
             } /* Do not do the last case */
             wsHeader = false;
             dataCpt = 0;
             writeSerial("\n\rdataLen : %d\n\r", dataLen);
-            writeSerial("\n\r----\n\r");
 
         } else {
 
@@ -147,18 +141,7 @@ static void parseWebSocketBuffer(void) {
             chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
             readValue[1] = (char) c;
 
-            if(readValue[0] < 16) {
-                writeSerial("0");
-            }
-            writeSerial("%x", readValue[0]);
-            if(readValue[1] < 16) {
-                writeSerial("0");
-            }
-            writeSerial("%x", readValue[1]);
-            
             data = ((uint16_t)(readValue[1] << 8) | (uint16_t)readValue[0]);
-            //writeSerial("%x", stream_buffer[i+1]);
-            //writeSerial("%x", stream_buffer[i]);
             chMBPost(&mbCodecIn, (msg_t)data, TIME_INFINITE);
             dataCpt += 2;
 
