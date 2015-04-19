@@ -107,6 +107,8 @@ static void parseWebSocketBuffer(void) {
         if(wsHeader) {
             writeSerial("\n\r----\n\r");
             chMBFetch(&mbReceiveWifi,(msg_t *)&c,TIME_INFINITE);
+            readValue[0] = (char) c;
+            if (readValue[0] != 0x82) port_halt();
 
             /*
              * Data length & data start

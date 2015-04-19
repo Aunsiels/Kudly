@@ -18,7 +18,7 @@ static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
 static msg_t mb_buf[10000];
-MAILBOX_DECL(mbReceiveWifi, mb_buf, 10000);
+MAILBOX_DECL(mbReceiveWifi, mb_buf, sizeof(mb_buf)/sizeof(msg_t));
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -29,8 +29,8 @@ static char cmdMessage[120];
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"chezmoi\"\r\n";
-static char passkey[] = "set wlan.passkey \"azertyuiop\"\r\n";
+static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
+static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -63,7 +63,7 @@ static Mutex wifiMtx;
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
-    921600,
+    230400,
     0,
     0,
     USART_CR3_CTSE | USART_CR3_RTSE
@@ -73,9 +73,21 @@ static SerialConfig uartCfg =
 static msg_t usartReadInMB_thd(void * args) {
     (void)args;
 
+    EventListener el;
+    chEvtRegister(&(SD3.event), &el, EVENT_MASK(1));
+
     while(1) {
-        sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
-        chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
+        if( sdReadTimeout(&SD3,(uint8_t *) &wifi_buffer, 1, TIME_IMMEDIATE) ==
+            0){
+            palClearPad(GPIOD,GPIOD_WIFI_UART_RTS);
+            sdRead(&SD3,(uint8_t *) &wifi_buffer, 1);
+        }
+        if(chEvtWaitOneTimeout(EVENT_MASK(1), TIME_IMMEDIATE)) port_halt();
+        if(chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_IMMEDIATE) !=
+            RDY_OK){
+            palSetPad(GPIOD,GPIOD_WIFI_UART_RTS);
+            chMBPost(&mbReceiveWifi,(msg_t)wifi_buffer, TIME_INFINITE);
+        }
     }
     return 0;
 }
@@ -103,7 +115,7 @@ static void wifiReadByUsart(void) {
     
     chThdCreateStatic(
 	usartReadInMB_wa, sizeof(usartReadInMB_wa),
-	NORMALPRIO, usartReadInMB_thd, NULL);
+	NORMALPRIO + 1, usartReadInMB_thd, NULL);
 }
 
 /* Command shell to speak with wifi module in command mode */
@@ -124,10 +136,24 @@ void wifiInitByUsart(void) {
 
     chMtxInit(&wifiMtx);
  
-    palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7));
-    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
-    palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
-    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7) |
+        PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP |
+        PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7) |
+        PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP |
+        PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7) |
+        PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP |
+        PAL_STM32_OSPEED_HIGHEST);
+    palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_STM32_MODE_OUTPUT |
+        PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP |
+        PAL_STM32_OSPEED_HIGHEST);
+    //palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
+    //palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);
+   
+    palClearPad(GPIOD, GPIOD_WIFI_UART_RTS);
+
+    sdStart(&SD3, &uartCfg);
     wifiReadByUsart();
 
     /* Read wifi by usart */
