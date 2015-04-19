@@ -173,11 +173,41 @@ static msg_t photoThread(void * args) {
     return 0;
 }
 
+
+
 static msg_t cryThread(void * args) {
     (void) args;
-
+  
+    static char itoaBuff[10];
+    static char * encodeCry[2] = {"10","cry.ogg"};
+     
     while(1){
+	/* Test the volume */
+	static char * durationTest[1] = {"1"};
+	cmdTestVolume((BaseSequentialStream *) &SDU1, 1, durationTest);
+	chThdSleepMilliseconds(200);
+	itoa(audioLevel,itoaBuff,10);
+	char levelSend[] = "value=";
+	strcat(levelSend,itoaBuff);
+	writeSerial("Audio : %s\r\n\r\n",levelSend);
+	/* We send the audio level to the server every 10 seconds */
+	postAndRead("/cry",levelSend);
+	/* If we overtake a threeshold, activity is set and we encode sound */ 
+
+	// TODO set a right threeshold with a good micro
 	
+	if(audioLevel > 10000){
+	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	    postAndRead("/activity","value=1");
+	   cmdEncode((BaseSequentialStream *) &SDU1, 2, encodeCry);
+	   uploadFile("kudly.herokuapp.com/sendimage", "cry.ogg",
+	   	   "cry.ogg");
+	   f_unlink("cry.ogg");
+	}
+	else{
+	    postAndRead("/activity","value=0");
+	}
+	chThdSleepSeconds(10);
     }
     return 0;
 }

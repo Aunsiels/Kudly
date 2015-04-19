@@ -52,6 +52,8 @@ void codecReset(void);
 
 void codecVolume(int);
 
+extern uint16_t audioLevel;
+
 /**
  *
  * \brief Displays a music file

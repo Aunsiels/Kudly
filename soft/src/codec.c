@@ -257,6 +257,9 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
+/* Variable in which the actual audio level is stocked */
+uint16_t audioLevel=0;
+
 static msg_t threadTestVolume(void *arg){
     (void) arg;
 
@@ -264,7 +267,6 @@ static msg_t threadTestVolume(void *arg){
     chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
 
     while(1){
-        ledSetColorRGB(2,0,0,0);
         /* Wait for the thread to be called */
         chEvtWaitOne(1);
         /* Can't encode if SPI is not ready (typicaly when playback) */
@@ -277,16 +279,16 @@ static msg_t threadTestVolume(void *arg){
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
-        writeRegister(SCI_AICTRL1,200);
+        writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x40 */
-        writeRegister(SCI_AICTRL2,1);
+        writeRegister(SCI_AICTRL2,1024);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
 	
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
         writeRegister(SCI_AIADDR,0x50);
 
 	/* Reset the variables to control encoding / decoding */
@@ -298,21 +300,19 @@ static msg_t threadTestVolume(void *arg){
         chSysUnlock();   
       
         while(playerState){
-            uint16_t level=0;
             /* See if there is some data available */
-            if((readRegister(SCI_RECWORDS)) > 0) {
+            if((readRegister(SCI_RECWORDS)) > 0 && !stopSound) {
                 readRegister(SCI_RECDATA);
-		while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
+		while ((audioLevel = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
 		writeRam(PAR_ENC_CHANNEL_MAX,0);
-                writeSerial("Level : %d\r\n", level);
-                ledSetColorRGB(2,level,0,0);
+                //writeSerial("Audio level : %d\r\n", audioLevel);
+                ledSetColorRGB(2,audioLevel,0,0);
                 chThdSleepMilliseconds(100);
             }   	    
             else{
-                if(stopSound && !readRegister(SCI_RECWORDS)){
-                    playerState = 0;        
-                }
-            }
+		if(stopSound)
+		    playerState = 0;        
+	    }
         }
     
         writeRam(PAR_END_FILL_BYTE,0);

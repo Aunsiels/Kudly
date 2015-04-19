@@ -64,6 +64,7 @@ static const ShellCommand commands[] = {
     {"encode"      , cmdEncode     },
     {"stop"        , cmdStop       },
     {"volume"      , cmdVolume     },
+    {"testVolume"  , cmdTestVolume },
     {"c"           , cmdControl    },
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
