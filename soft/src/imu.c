@@ -103,9 +103,9 @@ static msg_t threadImu(void *arg){
         if(((accel_x - ABS(readRegister16(ACCEL_X))) > 1000) |
            ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
            ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
-            postAndRead("/activity","value=1");
+            postAndRead("kudly.herokuapp.com/activity","value=1");
         else
-            postAndRead("/activity","value=0");
+            postAndRead("kudly.herokuapp.com/activity","value=0");
     }
 
     return(0);

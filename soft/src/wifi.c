@@ -117,6 +117,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(nup, sizeof(nup));
     chThdSleepMilliseconds(4000);
     wifiWriteByUsart(nup, sizeof(nup));
+    chThdSleepMilliseconds(3000);
     writeSerial("Wifi ready to use\r\n");
     /* Active Thread that wait xml command */
     wifiCommands();

@@ -24,12 +24,14 @@ int main(void) {
     halInit();
     chSysInit();
 
-    /* Clear pad to break wifi factory reset */
-    palClearPad(GPIOB, GPIOB_SPI2_MISO);
-    chThdSleepMilliseconds(100);
-
     /* Initialize the serial over usb */
     initUsbSerial();
+
+    /* Initialize shell */
+    shellPersoInit();
+
+    /* Initialize SD card */
+    sdPersoInit();
 
     /* Led initialization */
     ledInit();
@@ -44,10 +46,10 @@ int main(void) {
     usartRead();
 
     /* Initialize wifi */
-    //wifiInitByUsart();
+    wifiInitByUsart();
 
     /* Init ADC hug sensors */
-    //initHugSensors();
+    initHugSensors();
 
     /* Init ADC hand sensors */
     initHandSensors();
@@ -72,12 +74,6 @@ int main(void) {
     
     /* Initializes the application */
     applicationInit();
-
-    /* Initialize shell */
-    shellPersoInit();
-
-    /* Initialize SD card */
-    sdPersoInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

@@ -3,7 +3,6 @@
 #include "codecDefinitions.h"
 #include "codec.h"
 #include "usb_serial.h"
-#include "led.h"
 #include "ff.h"
 #include "chprintf.h"
 #include <stdlib.h>
@@ -77,6 +76,9 @@ static msg_t threadPlayback(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
+	/* Volume set at maximum for the demo */
+	codecVolume(100);
+	
         /* Reset the control command */
         control = 0;
 	
@@ -241,8 +243,7 @@ static msg_t threadEncode(void *arg){
             else{
                 if(stopSound && !readRegister(SCI_RECWORDS)){
                     playerState = 0;
-                    ledSetColorRGB(2,0,0,0);        
-                }
+		}
             }
         }
         
@@ -317,7 +318,6 @@ static msg_t threadTestVolume(void *arg){
 		while ((audioLevel = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
 		writeRam(PAR_ENC_CHANNEL_MAX,0);
                 //writeSerial("Audio level : %d\r\n", audioLevel);
-                ledSetColorRGB(2,audioLevel,0,0);
                 chThdSleepMilliseconds(100);
             }   	    
             else{
