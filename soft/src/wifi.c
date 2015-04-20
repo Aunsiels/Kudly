@@ -49,8 +49,8 @@ static char dollar[] = "$$$\r\n";
 /* Streaming command */
 static char busMode[] = "set bus.mode stream\r\n";
 static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
-static char remoteHost[] = "set tcp.client.remote_host kudly.herokuapp.com\r\n";
-static char remotePort[] = "set tcp.client.remote_port 80\r\n";
+static char remoteHost[] = "set tcp.client.remote_host 137.194.43.123\r\n";
+static char remotePort[] = "set tcp.client.remote_port 9000\r\n";
 static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
 static char autoStart[] = "set tcp.client.auto_start 1\r\n";
@@ -75,6 +75,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     EventListener el;
     chEvtRegister(&(SD3.event), &el, EVENT_MASK(1));
+    chRegSetThreadName("streamingout");
 
     while(1) {
         if( sdReadTimeout(&SD3,(uint8_t *) &wifi_buffer, 1, TIME_IMMEDIATE) ==
@@ -166,7 +167,7 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(remoteHost, sizeof(remoteHost));
     wifiWriteByUsart(remotePort, sizeof(remotePort));
     wifiWriteByUsart(autoInterface, sizeof(autoInterface));
-wifiWriteByUsart(autoRetries, sizeof(autoRetries));
+    wifiWriteByUsart(autoRetries, sizeof(autoRetries));
     wifiWriteByUsart(autoStart, sizeof(autoStart));
     wifiWriteByUsart(keepAlive, sizeof(keepAlive));
     wifiWriteByUsart(initialTimeout, sizeof(initialTimeout));
