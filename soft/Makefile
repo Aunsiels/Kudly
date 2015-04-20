@@ -96,6 +96,8 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
        $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/pir.c \
+       $(KUDLYSRC)/ext_init.c \
        $(KUDLYSRC)/camera.c \
        $(KUDLYSRC)/wifi_manager.c \
        $(KUDLYSRC)/wifi_parsing.c \
@@ -107,11 +109,11 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/hand_sensors.c \
        $(KUDLYSRC)/codec.c \
        $(KUDLYSRC)/imu.c \
+       $(KUDLYSRC)/application.c \
        $(KUDLYSRC)/temperature.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(KUDLYSRC)/sccb.c \
-       $(KUDLYSRC)/websocket.c \
        $(KUDLYSRC)/i2c_perso.c 
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

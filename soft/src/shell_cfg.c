@@ -17,6 +17,7 @@
 #include "wifi_manager.h"
 #include "imu.h"
 #include "temperature.h"
+#include "pir.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -63,6 +64,7 @@ static const ShellCommand commands[] = {
     {"encode"      , cmdEncode     },
     {"stop"        , cmdStop       },
     {"volume"      , cmdVolume     },
+    {"testVolume"  , cmdTestVolume },
     {"c"           , cmdControl    },
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
@@ -70,13 +72,14 @@ static const ShellCommand commands[] = {
     {"parsewifi"   , cmdWifiXml    },
     {"temperature" , cmdTemperature},
     {"imu"         , cmdImu        },
+    {"pir"         , testPir       },
     {NULL          , NULL          }
 };
 
 /* Config of the shell */
 static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU1,
-  commands
+    (BaseSequentialStream *)&SDU1,
+    commands
 };
 
 /*
