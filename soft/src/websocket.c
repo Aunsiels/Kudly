@@ -152,12 +152,12 @@ static void parseWebSocketBuffer(void) {
 void webSocketInit(void) {
     writeSerial("Sending websocket request\n\r");
 
-    wifiWriteNoWait(exitWifi,sizeof(exitWifi));
+    wifiWriteNoWait(exitWifi,sizeof(exitWifi) - 1);
     streaming = 1;
 
     chThdSleepMilliseconds(100);
 
-    wifiWriteNoWait(downloadWave, sizeof(downloadWave));
+    wifiWriteNoWait(downloadWave, sizeof(downloadWave) - 1);
 }
 
 static msg_t pollRead_thd(void * args) {
@@ -205,27 +205,28 @@ static msg_t streamingOut(void * args) {
        /*
         * Starting streaming
         */
-       webSocketDataHeader[2]++;
-       webSocketDataHeader[3]+=11;
-       webSocketDataHeader[4]+=32;
-       webSocketDataHeader[5]+=3;
+       webSocketDataHeader[4]++;
+       webSocketDataHeader[5]+=11;
+       webSocketDataHeader[6]+=32;
+       webSocketDataHeader[7]+=3;
        for(int i = 0 ; i < WS_DATA_SIZE ; i += 2) {
-           if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
-               codecOutBuffer[i]     = ((char)(msgCodec >> 8)) ^
-                   webSocketDataHeader[2];
-               codecOutBuffer[i + 1] = ((char)msgCodec) ^
-                   webSocketDataHeader[3];
-              // writeSerial("%x", codecOutBuffer[i]);
-           }
-           i+=2;
            if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
                codecOutBuffer[i]     = ((char)(msgCodec >> 8)) ^
                    webSocketDataHeader[4];
                codecOutBuffer[i + 1] = ((char)msgCodec) ^
                    webSocketDataHeader[5];
               // writeSerial("%x", codecOutBuffer[i]);
+           }
+           i+=2;
+           if(chMBFetch(&mbCodecOut, &msgCodec, TIME_INFINITE) == RDY_OK) {
+               codecOutBuffer[i]     = ((char)(msgCodec >> 8)) ^
+                   webSocketDataHeader[6];
+               codecOutBuffer[i + 1] = ((char)msgCodec) ^
+                   webSocketDataHeader[7];
+              // writeSerial("%x", codecOutBuffer[i]);
            }      
        }
+       writeSerial("--Try send--\r\n");
        wifiWriteNoWait(webSocketDataHeader, sizeof(webSocketDataHeader));
        wifiWriteNoWait(codecOutBuffer, WS_DATA_SIZE);
        writeSerial("--Packet\r\n");
@@ -258,7 +259,7 @@ void streamInit(void){
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
-            NORMALPRIO, streamingOut, NULL);
+            NORMALPRIO + 1, streamingOut, NULL);
    
     chThdCreateStatic(
             stream_wa, sizeof(stream_wa),
