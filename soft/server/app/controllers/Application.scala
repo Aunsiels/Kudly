@@ -485,12 +485,12 @@ object Application extends Controller {
             "type" -> "serial",
             "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
             "categoryField" -> "date",
-            "dataDateFormat" -> "YYYY-MM-DD HH ->NN",
+            "dataDateFormat" -> "YYYY-MM-DD HH:NN",
             "categoryAxis" -> Json.obj(
                 "minPeriod" -> "mm",
                 "parseDates" -> true),
             "chartCursor" -> Json.obj(
-                "categoryBalloonDateFormat" -> "JJ ->NN"
+                "categoryBalloonDateFormat" -> "JJ:NN"
             ),
             "chartScrollbar" -> Json.obj(),
             "trendLines" -> Json.arr(),
