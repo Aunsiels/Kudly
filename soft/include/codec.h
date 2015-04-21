@@ -12,6 +12,9 @@
 #ifndef CODEC_H
 #define CODEC_H
 
+extern Mailbox mbCodecOut;
+extern Mailbox mbCodecIn;
+
 /**
  *
  * \brief Initializes audio codec
@@ -49,6 +52,8 @@ void codecReset(void);
 
 void codecVolume(int);
 
+extern uint16_t audioLevel;
+
 /**
  *
  * \brief Displays a music file
@@ -66,6 +71,25 @@ void cmdPlay(BaseSequentialStream *, int, char *[]);
  */
 
 void cmdEncode(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
+ * \brief Shell command for testing volume
+ *
+ * This function enables the TestVolume function in a shell command  
+ */
+
+void cmdTestVolume(BaseSequentialStream *, int, char *[]);
+
+/**
+ *
+ * \brief Shell command for encoding and decoding sounds at the same time
+ *
+ * This function enables the Codec (Fullduplex) function in a shell command 
+ * It is used for streaming audio : the data are stocked in a mailbox, and readen from a mailbox
+ */
+
+void cmdFullDuplex(BaseSequentialStream *, int, char *[]);
 
 /**
  *
@@ -93,5 +117,13 @@ void cmdVolume(BaseSequentialStream *, int, char *[]);
  */
 
 void cmdControl(BaseSequentialStream *, int, char *[]);
+
+/**
+ * 
+ * \brief Shell command for testing the micro
+ *
+ * Takes a duration and change the intenity of a led
+ */
+void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* CODEC_H */

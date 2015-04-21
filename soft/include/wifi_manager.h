@@ -71,4 +71,19 @@ void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]);
  */
 void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]);
 
+/**
+ * \brief Upload a file on the server
+ * \param address The link where the file is uploaded
+ * \param localFile The name of the local file
+ * \param remoteFile The name on the server
+ */
+void uploadFile( char *address , char * localFile , char * remoteFile);
+
+/**
+ * \brief Post method
+ * \param address The address where posted
+ * \param data Data to send
+ */
+void postAndRead( char * address , char * data);
+
 #endif

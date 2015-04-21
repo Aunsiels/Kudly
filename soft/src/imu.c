@@ -4,6 +4,8 @@
 #include "usb_serial.h"
 #include "led.h"
 #include "i2c_perso.h"
+#include "wifi_manager.h"
+
 static i2cflags_t errors = 0;
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
@@ -85,6 +87,7 @@ void imuInit(void){
     writeRegister(PWR_MGMT_2,F_1_25 | GYRO_DIS);
 }
 
+
 static msg_t threadImu(void *arg){
     (void) arg;
 
@@ -100,7 +103,9 @@ static msg_t threadImu(void *arg){
         if(((accel_x - ABS(readRegister16(ACCEL_X))) > 1000) |
            ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
            ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
-            writeSerial("Tu as bougé !\r\n");
+            postAndRead("kudly.herokuapp.com/activity","value=1");
+        else
+            postAndRead("kudly.herokuapp.com/activity","value=0");
     }
 
     return(0);

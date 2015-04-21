@@ -41,13 +41,16 @@ static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
 static char sleep[] ="sleep\r\n";
 
+/* Mutex for wifi access */
+Mutex wifiAccessMtx;
+
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
-    921600,
+    115200,
     0,
     0,
-    USART_CR3_CTSE | USART_CR3_RTSE
+    0
 };
 
 /* Thread that reads wifi data and puts it on Mailbox */
@@ -67,6 +70,11 @@ void wifiWriteByUsart(char * message, int length){
     sdWrite(&SD3, (uint8_t*)message, length);
     chEvtWaitOne(1);
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
+}
+
+/* Same as above but don't want to wait for the response */
+void wifiWriteNoWait(char * message, int length){
+    sdWrite(&SD3, (uint8_t*)message, length);
 }
 
 /*  Launches the wifi reading */
@@ -100,8 +108,14 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
     palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
    
+    /* Init Mutex for wifi access */
+    chMtxInit(&wifiAccessMtx);
+    /* Start usart 3 */
+
     sdStart(&SD3, &uartCfg);
+    /* Fill mailbox with usart data */
     wifiReadByUsart();
+    /* Send commad to wifi module */
     wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
     wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
     wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
@@ -111,9 +125,11 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
     wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(8000);
+    chThdSleepMilliseconds(4000);
     wifiWriteByUsart(nup, sizeof(nup));
+    chThdSleepMilliseconds(3000);
     writeSerial("Wifi ready to use\r\n");
+    /* Active Thread that wait xml command */
     wifiCommands();
 
     /*

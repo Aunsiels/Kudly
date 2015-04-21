@@ -64,6 +64,7 @@ static const ShellCommand commands[] = {
     {"encode"      , cmdEncode     },
     {"stop"        , cmdStop       },
     {"volume"      , cmdVolume     },
+    {"testVolume"  , cmdTestVolume },
     {"c"           , cmdControl    },
     {"getwifi"     , cmdWifiGet    },
     {"postwifi"    , cmdWifiPost   },
@@ -79,8 +80,8 @@ static const ShellCommand commands[] = {
 
 /* Config of the shell */
 static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU1,
-  commands
+    (BaseSequentialStream *)&SDU1,
+    commands
 };
 
 /*

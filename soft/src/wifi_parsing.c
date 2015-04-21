@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <camera.h>
+#include "application.h"
 
 #define FEATURE_SIZE 25
 #define FUNCTION_SIZE 2048
@@ -14,6 +15,9 @@
 /* Event for parsing end */
 static EVENTSOURCE_DECL(evtStartSrc);
 static EventListener evtStartLst;
+
+/*Event for photo taking */
+EVENTSOURCE_DECL(eventPhotoSrc);
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[FEATURE_SIZE];
@@ -78,7 +82,6 @@ void parseXML(char c) {
     }
 }
 
-
 /* Thread waits an wifi event and parse feature and function to launch the rigth function */
 static msg_t wifiCommands_thd(void * args) {
     (void)args;  
@@ -86,11 +89,11 @@ static msg_t wifiCommands_thd(void * args) {
 
     while(1) {
 	/* Wait for xml ending */
-        chEvtWaitOne(1);
+        chEvtWaitOne(EVENT_MASK(1));
 	
 	/* Led feature */
         if( NULL != strstr(feature,"led")){
-
+	    
 	    /* Example : rgb_set n="0" r="125" g="0" b="125" */
             if ( NULL != strstr(function,"rgb_set")){
                 int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
@@ -100,7 +103,7 @@ static msg_t wifiCommands_thd(void * args) {
                 ledSetColorRGB(n, r, g, b);
                 continue;
             }
-
+	    
 	    /* Example : hsv_set n="0" h="300" s="110" v="49" */
             if ( NULL != strstr(function,"hsv_set")){
                 int n = strtol(strstr(function,"n=\"") +3,(char **)NULL,10);
@@ -111,6 +114,16 @@ static msg_t wifiCommands_thd(void * args) {
                 continue;
             }
 	}   
+	
+	/* Camera feature */
+	if ( NULL != strstr(feature,"camera")){
+	    
+	    /* Example : photo */
+	    if ( NULL != strstr(function,"photo")){
+		chEvtBroadcast(&eventPhotoSrc);
+		continue;
+	    }
+	}
     }
     return 0;
 }

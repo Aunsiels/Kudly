@@ -7,6 +7,8 @@
 #define ADC_GRP2_NUM_CHANNELS   2
 #define ADC_GRP2_BUF_DEPTH      8
 
+static MUTEX_DECL(handMtx);
+
 /* Samples buffer */
 static adcsample_t samples1[ADC_GRP2_NUM_CHANNELS * ADC_GRP2_BUF_DEPTH];
 
@@ -32,6 +34,7 @@ void initHandSensors(void) {
     palSetPadMode(GPIOC, GPIOC_HAND_SENSOR2_IN , PAL_MODE_INPUT_ANALOG);
     palSetPadMode(GPIOA, GPIOA_HAND_SENSOR_OUT , PAL_MODE_OUTPUT_PUSHPULL);
     palClearPad(GPIOA, GPIOA_HAND_SENSOR_OUT);
+    chMtxInit(&handMtx);
 }
 
 /* Command shell to launch ADC on two channels conversion */
@@ -54,10 +57,12 @@ uint32_t getHandValues () {
     uint32_t result = 0;
     uint16_t * low = (uint16_t *) &result;
     uint16_t * high = low + 1;
+    chMtxLock(&handMtx);
     palSetPad(GPIOA, GPIOA_HAND_SENSOR_OUT);
     adcConvert(&ADCD2, &adcgrpcfg1, samples1, ADC_GRP2_BUF_DEPTH);
     *low = samples1[0];
     *high = samples1[1];
-    palClearPad(GPIOA, GPIOA_HAND_SENSOR_OUT);    
+    palClearPad(GPIOA, GPIOA_HAND_SENSOR_OUT);
+    chMtxUnlock();
     return result;
 }

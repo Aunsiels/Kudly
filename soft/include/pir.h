@@ -10,7 +10,7 @@
 /**
  * Event source to listen to if you want to see if there is a mouvement.
  */
-//extern EventSource pirEvent;
+extern EventSource pirEvent;
 
 /**
  * \brief This function initializes the pir sensor.

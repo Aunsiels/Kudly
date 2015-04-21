@@ -5,6 +5,7 @@
 #include "sd_perso.h"
 #include "sccb.h"
 #include "ov2640_regs.h"
+#include "usb_serial.h"
 
 #define JPEG_SIZE     3
 
@@ -213,13 +214,11 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     }
 
     photo(argv[0]);
-
 }
 
 /*
  * Takes a photo
  */
-
 void photo(char * photoName){
     if(!cameraReady){
         return;
@@ -230,7 +229,7 @@ void photo(char * photoName){
     }
 
     /* File object */
-    FIL fil;
+    static FIL fil;
     FRESULT res;
 
     res = f_open(&fil, photoName, FA_WRITE | FA_OPEN_ALWAYS);
