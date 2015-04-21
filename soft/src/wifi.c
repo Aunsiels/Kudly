@@ -115,14 +115,14 @@ void wifiInitByUsart(void) {
     /* Fill mailbox with usart data */
     wifiReadByUsart();
     /* Send commad to wifi module */
-    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
-    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
-    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
-    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-    wifiWriteByUsart(wakeUp, sizeof(wakeUp));
-    wifiWriteByUsart(ssid, sizeof(ssid));
-    wifiWriteByUsart(passkey, sizeof(passkey));
-    wifiWriteByUsart(save, sizeof(save));
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff)-1);
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0)-1);
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn)-1);
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff)-1);
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp)-1);
+    wifiWriteByUsart(ssid, sizeof(ssid)-1);
+    wifiWriteByUsart(passkey, sizeof(passkey)-1);
+    wifiWriteByUsart(save, sizeof(save)-1);
     
     /* Loop to test the network connection */
     bool_t state;
@@ -152,10 +152,9 @@ void wifiInitByUsart(void) {
 }
 
 
-static msg_t wifiSleep_thd(void *arg){
-    (void)arg;
-    wifiWriteByUsart(sleep, sizeof(sleep));
-    writeSerial("Wifi is sleeping\r\n");
+static msg_t wifiSleep(void){
+    writeSerial("Wifi is sleeping\r\n");	
+    wifiWriteByUsart(sleep, sizeof(sleep)-1);
     return 0;
 }
 
@@ -166,17 +165,12 @@ static void wifiWakeUp(void){
     writeSerial("Wifi is woke up\r\n");
 }
 
-static WORKING_AREA(wifiSleep_wa, 512);
-
 /* Command to sleep the wifi module */
 void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]){
     (void)chp;
     (void)argc;
     (void)argv;
-    
-    chThdCreateStatic(
-	wifiSleep_wa, sizeof(wifiSleep_wa),
-	NORMALPRIO, wifiSleep_thd, NULL);
+    wifiSleep();
 }
 
 /* Command to wake up the wifi module */

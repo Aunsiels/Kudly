@@ -73,7 +73,7 @@ int main(void) {
     pirInit();
     
     /* Initializes the application */
-//    applicationInit();
+    applicationInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

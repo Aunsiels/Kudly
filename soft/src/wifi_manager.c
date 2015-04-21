@@ -40,7 +40,7 @@ static char nup[] = "nup\r\n";
 static char itoaBuff[10];
 
 /* String used to build string for wifi module command */
-static char msgWifi[sizeof(stream_write) + sizeof(itoaBuff) + sizeof(endLine) + DATA_SIZE];
+static char msgWifi[sizeof(stream_write) + sizeof(itoaBuff)-1 + sizeof(endLine)-1 + DATA_SIZE];
 
 /* Number of data to read */
 static int dataRead = DATA_READ;
@@ -468,7 +468,7 @@ bool_t wifiNup(void){
     bool_t state;
     chMtxLock(&wifiAccessMtx);    
     save=TRUE;
-    wifiWriteByUsart(nup, sizeof(nup));
+    wifiWriteByUsart(nup, sizeof(nup)-1);
     if(NULL != strstr(stream_buffer, "Success"))
 	state = TRUE;
     else

@@ -6,7 +6,7 @@
 #include "led.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <camera.h>
+#include "camera.h"
 #include "application.h"
 
 #define FEATURE_SIZE 25
