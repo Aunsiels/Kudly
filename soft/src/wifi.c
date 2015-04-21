@@ -28,7 +28,6 @@ static char wifi_buffer;
 /* Some string used by initialization to configure network */
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
-static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
 /* http request on Kudly website */
@@ -124,10 +123,24 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(ssid, sizeof(ssid));
     wifiWriteByUsart(passkey, sizeof(passkey));
     wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(4000);
-    wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(3000);
+    
+    /* Loop to test the network connection */
+    bool_t state;
+    while(TRUE){
+	state = wifiNup();
+	if (state == TRUE){
+	    ledSetColorRGB(0, 0, 255, 0);
+	    break;
+	}
+	else
+	    ledSetColorRGB(0, 255, 0, 0);
+
+	chThdSleepMilliseconds(500);
+	ledSetColorRGB(0, 0, 0, 0);
+	chThdSleepMilliseconds(500);
+    }
+    chThdSleepMilliseconds(500);
+    ledSetColorRGB(0, 0, 0, 0);
     writeSerial("Wifi ready to use\r\n");
     /* Active Thread that wait xml command */
     wifiCommands();
