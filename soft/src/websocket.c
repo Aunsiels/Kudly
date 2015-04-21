@@ -7,9 +7,9 @@
 #include "wifi.h"
 #include "usb_serial.h"
 
-#define WS_DATA_SIZE   8192
+#define WS_DATA_SIZE   1024
 
-#define BUFFER_SIZE    8192
+#define BUFFER_SIZE    1024
 
 #define STR(x) #x
 #define STR_(x) STR(x)
@@ -21,9 +21,9 @@ static WORKING_AREA(stream_wa, 1024);
 
 /* Codec mailboxes */
 static msg_t mbCodecOut_buf[10000];
-static msg_t mbCodecIn_buf[10000];
+static msg_t mbCodecIn_buf[5000];
 MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 10000);
-MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 10000);
+MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 5000);
 
 /* Buffer to send in a websocket */ 
 static char codecOutBuffer[BUFFER_SIZE];
@@ -53,7 +53,7 @@ Sec-WebSocket-Version: 13\r\n\
 static char read400[] = "read 0 400\r\n";
 
 // Sending 64 bytes
-static char webSocketDataHeader[] = {0x82, 0xFE, 0x20, 0,  0x32, 0x76, 0xA7, 0x3d};
+static char webSocketDataHeader[] = {0x82, 0xFE, 0x04, 0x00,  0x32, 0x76, 0xA7, 0x3d};
 
 static bool_t pollRead = FALSE;
 
@@ -96,7 +96,7 @@ static void parseWebSocketBuffer(void) {
 
     writeSerial("Before\r\n");
     chEvtBroadcast(&streamOutSrc);
-    //chThdSleep(TIME_INFINITE);
+    chThdSleep(TIME_INFINITE);
     while(1) {
         // If new packet comming
         if(wsHeader) {
@@ -259,7 +259,7 @@ void streamInit(void){
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
-            NORMALPRIO + 2, streamingOut, NULL);
+            NORMALPRIO + 1, streamingOut, NULL);
    
     chThdCreateStatic(
             stream_wa, sizeof(stream_wa),

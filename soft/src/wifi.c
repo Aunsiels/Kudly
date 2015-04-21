@@ -55,7 +55,7 @@ static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
 static char autoStart[] = "set tcp.client.auto_start 1\r\n";
 static char keepAlive[] = "set tcp.keepalive.enabled 1\r\n";
-static char initialTimeout[] = "set tcp.keepalive.initial_timeout 100\r\n";
+static char initialTimeout[] = "set tcp.keepalive.initial_timeout 65000\r\n";
 static char reboot[] = "reboot\r\n";
 
 static Mutex wifiMtx;
@@ -116,7 +116,7 @@ static void wifiReadByUsart(void) {
     
     chThdCreateStatic(
 	usartReadInMB_wa, sizeof(usartReadInMB_wa),
-	NORMALPRIO + 3, usartReadInMB_thd, NULL);
+	NORMALPRIO + 0, usartReadInMB_thd, NULL);
 }
 
 /* Command shell to speak with wifi module in command mode */
