@@ -239,11 +239,7 @@ static void saveWebPage( char * address , char * file){
    
     /* Create file and open it with writing mode */ 
     res = f_open(&fil,file,FA_WRITE | FA_CREATE_NEW);
-    if (res == FR_EXIST){
-	writeSerial("This file already exist\r\n");
-	sendStreamCommand(stream_close, &stream , NULL , NULL);
-    }
-    else if (res){ 
+    if (res){ 
         writeSerial("Cannot create this file\r\n");
 	sendStreamCommand(stream_close, &stream , NULL , NULL);
     }

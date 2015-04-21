@@ -327,11 +327,10 @@ void readSerial(uint8_t * buffer, int size){
 }
 
 void writeSerial(const char * fmt,...){
-    va_list ap;
-
-    va_start(ap, fmt);
-    chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
-    va_end(ap);
-         
-
+    if (serialusbcfg.usbp->state == USB_ACTIVE){
+	va_list ap;
+	va_start(ap, fmt);
+	chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
+	va_end(ap);
+    }
 }
