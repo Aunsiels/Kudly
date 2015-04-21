@@ -29,8 +29,8 @@ static char cmdMessage[120];
 static char wifi_buffer;
 
 /* Some string used by initialization to configure network */
-static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
-static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
+static char ssid[] = "set wlan.ssid \"Bob\"\r\n";
+static char passkey[] = "set wlan.passkey \"Archibald\"\r\n";
 static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
@@ -49,13 +49,13 @@ static char dollar[] = "$$$\r\n";
 /* Streaming command */
 static char busMode[] = "set bus.mode stream\r\n";
 static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
-static char remoteHost[] = "set tcp.client.remote_host 137.194.43.123\r\n";
+static char remoteHost[] = "set tcp.client.remote_host 192.168.1.103\r\n";
 static char remotePort[] = "set tcp.client.remote_port 9000\r\n";
 static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
 static char autoStart[] = "set tcp.client.auto_start 1\r\n";
 static char keepAlive[] = "set tcp.keepalive.enabled 1\r\n";
-static char initialTimeout[] = "set tcp.keepalive.initial_timeout 10\r\n";
+static char initialTimeout[] = "set tcp.keepalive.initial_timeout 100\r\n";
 static char reboot[] = "reboot\r\n";
 
 static Mutex wifiMtx;
@@ -66,7 +66,7 @@ static SerialConfig uartCfg =
     230400,
     0,
     0,
-    USART_CR3_CTSE | USART_CR3_RTSE
+    USART_CR3_CTSE
 };
 
 /* Thread that reads wifi data and puts it on Mailbox */
@@ -75,7 +75,7 @@ static msg_t usartReadInMB_thd(void * args) {
 
     EventListener el;
     chEvtRegister(&(SD3.event), &el, EVENT_MASK(1));
-    chRegSetThreadName("streamingout");
+    chRegSetThreadName("read");
 
     while(1) {
         if( sdReadTimeout(&SD3,(uint8_t *) &wifi_buffer, 1, TIME_IMMEDIATE) ==
@@ -116,7 +116,7 @@ static void wifiReadByUsart(void) {
     
     chThdCreateStatic(
 	usartReadInMB_wa, sizeof(usartReadInMB_wa),
-	NORMALPRIO + 1, usartReadInMB_thd, NULL);
+	NORMALPRIO + 3, usartReadInMB_thd, NULL);
 }
 
 /* Command shell to speak with wifi module in command mode */

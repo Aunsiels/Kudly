@@ -43,7 +43,7 @@ Sec-WebSocket-Version: 13\r\n\
 \r\n";
 static char downloadWave[] =
 "GET /streaming HTTP/1.1\r\n\
-Host: 137.194.43.123:9000\r\n\
+Host: 192.168.1.103:9000\r\n\
 Upgrade: websocket\r\n\
 Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
@@ -96,7 +96,7 @@ static void parseWebSocketBuffer(void) {
 
     writeSerial("Before\r\n");
     chEvtBroadcast(&streamOutSrc);
-
+    //chThdSleep(TIME_INFINITE);
     while(1) {
         // If new packet comming
         if(wsHeader) {
@@ -259,7 +259,7 @@ void streamInit(void){
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),
-            NORMALPRIO + 1, streamingOut, NULL);
+            NORMALPRIO + 2, streamingOut, NULL);
    
     chThdCreateStatic(
             stream_wa, sizeof(stream_wa),

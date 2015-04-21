@@ -560,7 +560,7 @@ void codecInit(){
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
     chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
-    chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO, threadFullDuplex,NULL);
+    chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO + 1, threadFullDuplex,NULL);
     chThdCreateStatic(waSendData, sizeof(waSendData),NORMALPRIO, threadSendData,NULL);
 
     /* Thread to count the duration of recording */
