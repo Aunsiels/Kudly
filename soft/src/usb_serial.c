@@ -329,6 +329,8 @@ void readSerial(uint8_t * buffer, int size){
 void writeSerial(const char * fmt,...){
     va_list ap;
 
+    /* USB not connected */
+    if ((SDU1.config->usbp->state != USB_ACTIVE)) return; 
     va_start(ap, fmt);
     chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
     va_end(ap);

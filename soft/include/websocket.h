@@ -102,4 +102,14 @@ void cmdStopSend(BaseSequentialStream * chp, int argc, char * argv[]);
  */
 void cmdStopRecv(BaseSequentialStream * chp, int argc, char * argv[]);
 
+/**
+ * Command that stops streaming
+ * \param chp    can be NULL
+ * \param argc   can be 0
+ * \param argv   can be NULL
+ *
+ * Can be launched in the shell with "stopstream"
+ */
+void cmdStopStream(BaseSequentialStream * chp, int argc, char * argv[]);
+
 #endif
