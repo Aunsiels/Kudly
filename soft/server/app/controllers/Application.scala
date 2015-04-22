@@ -65,7 +65,7 @@ object Application extends Controller {
     def index = Action {
         Ok("Welcome page")
     }
-  
+
     /*
      * Connexion fake through url
      */
@@ -89,7 +89,7 @@ object Application extends Controller {
                     led.getAs[Int]("r").getOrElse(0),
                     led.getAs[Int]("g").getOrElse(0),
                     led.getAs[Int]("b").getOrElse(0))
-                Ok("<led>\n<pwm_set n=\""+ 
+                Ok("<led>\n<pwm_set n=\""+
                    + l.n + "\" r=\""
                    + l.r + "\" g=\""
                    + l.g + "\" b=\""
@@ -104,7 +104,7 @@ object Application extends Controller {
      */
     def stream = Action {
         val file = new File("public/0233.ogg")
-            
+
         Ok.sendFile(file)
     }
 
@@ -123,7 +123,7 @@ object Application extends Controller {
         "data" -> text
     )
 
-    /* 
+    /*
      * Simply answer with what was received
      */
     def postEcho = Action { implicit request =>
@@ -165,7 +165,7 @@ object Application extends Controller {
                            value : Int) {
         /* Return a format Date */
         def getDate : String = {
-            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH:mm")
+            val formater = new java.text.SimpleDateFormat ("yyyy-MM-dd HH:mm:ss")
             return formater.format(date)
         }
 
@@ -173,8 +173,8 @@ object Application extends Controller {
 
     implicit val graphValueWrites = new Writes[graphValue] {
       def writes(gv: graphValue) = Json.obj(
-          "column-1" -> gv.value,
-          "date"     -> gv.getDate
+          "date"  -> gv.getDate,
+          "value" -> gv.value
           )
     }
 
@@ -182,7 +182,7 @@ object Application extends Controller {
      * Graph value representation for the POST
      */
     case class graphPost (date : Option[java.util.Date],
-                           value : Int)   
+                           value : Int)
 
     /*
      * Graph data form
@@ -201,7 +201,7 @@ object Application extends Controller {
         Ok(views.html.graph("Temperature", "temp"))
     }
 
-    /* 
+    /*
      * Set temp value
      */
     def temp = Action { implicit request =>
@@ -323,7 +323,7 @@ object Application extends Controller {
      */
     def upload = Action(parse.multipartFormData) { request =>
         request.body.file("file").map { picture =>
-            val filename = picture.filename 
+            val filename = picture.filename
             val contentType = picture.contentType
 
             picture.ref.moveTo(new File(s"/tmp/$filename"))
@@ -363,7 +363,7 @@ object Application extends Controller {
                 var file = new File(filename)
                 im writeTo file
                 Ok.sendFile(file)}
-            case None     => 
+            case None     =>
                 Ok("No such image")
         }
     }
@@ -392,7 +392,7 @@ object Application extends Controller {
         val pusher = Iteratee.foreach[Array[Byte]](
             s => channelKudly push s )
         val newIteratee: Future[Iteratee[Array[Byte],Unit]] =
-            dataContent(pusher) 
+            dataContent(pusher)
 
         (in, enumKudly)
     }
@@ -422,7 +422,7 @@ object Application extends Controller {
                    /* Maximum chunk size (we are streaming here */
                    IntLittleBytes(0x7fffffff) ++
                    "WAVE".getBytes
-  
+
         val fmt =  "fmt ".getBytes ++
                    /* Subchunk1Size for PCM = 16 */
                    IntLittleBytes(16) ++
@@ -433,10 +433,10 @@ object Application extends Controller {
                    IntLittleBytes(frameRate*samplesPerFrame*bytesPerSamples) ++
                    ShortLittleBytes(samplesPerFrame*bytesPerSamples toShort) ++
                    ShortLittleBytes(bitsPerSample toShort);
-  
+
         val data = "data".getBytes ++
                    IntLittleBytes(0x7fffffff);
-  
+
         riff ++ fmt ++ data;
     }
 
@@ -452,7 +452,7 @@ object Application extends Controller {
                          (CACHE_CONTROL, "no-cache"))
     }
 
-    /* 
+    /*
      * Update file of configuration
      */
     def configFile = Action {
@@ -483,46 +483,80 @@ object Application extends Controller {
                     data.getAs[Int]("value").getOrElse(0)) :: list )
         val json : JsValue = Json.obj(
             "type" -> "serial",
-            "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
-            "categoryField" -> "date",
-            "dataDateFormat" -> "YYYY-MM-DD HH ->NN",
-            "categoryAxis" -> Json.obj(
-                "minPeriod" -> "mm",
-                "parseDates" -> true),
-            "chartCursor" -> Json.obj(
-                "categoryBalloonDateFormat" -> "JJ ->NN"
-            ),
-            "chartScrollbar" -> Json.obj(),
-            "trendLines" -> Json.arr(),
-            "graphs" -> Json.arr(
-                Json.obj(
-                    "bullet" -> "square",
-                    "id" -> "AmGraph-2",
-                    "title" -> name,
-                    "valueField" -> "column-1"
-                    )
-            ),
-            "guides" -> Json.arr(),
+            "marginRight" -> 80,
+            "autoMarginOffset" -> 20,
+            "pathToImages" -> "http://www.amcharts.com/lib/3/images/",
+            "dataDateFormat" -> "YYYY-MM-DD JJ:NN:SS",
             "valueAxes" -> Json.arr(
                 Json.obj(
-                    "id" -> "ValueAxis-1",
-                    "title" -> name
+                    "id" -> "v1",
+                    "axisAlpha" -> 0,
+                    "position" -> "left"
                     )
                 ),
-            "allLabels" -> Json.arr(),
-            "balloon" -> Json.obj(),
-            "legend" -> Json.obj(
-                "useGraphSettings" -> true
+            "balloon" ->
+                Json.obj(
+                    "borderThickness" -> 1,
+                    "shadowAlpha" -> 0
                 ),
-            "titles" -> Json.arr(
-                Json.obj( 
-                    "id" -> "Title-1",
-                    "size" -> 15,
-                    "text" -> name
+            "graphs" -> Json.arr(
+                Json.obj(
+                    "id" -> "g1",
+                    "type" -> "step",
+                    "bullet" -> "round",
+                    "bulletBorderAlpha" -> 1,
+                    "bulletColor" -> "#FFFFFF",
+                    "bulletSize" -> 5,
+                    "hideBulletsCount" -> 50,
+                    "lineColor" -> "#81ABD9",
+                    "lineThickness" -> 2,
+                    "title" -> "red line",
+                    "useLineColorForBulletBorder" -> true,
+                    "valueField" -> "value",
+                    "balloonText" -> "<div style='margin:5px; font-size:19px;'><span style='font-size:13px;'>[[category]]</span><br>[[value]]</div>"
                 )
             ),
-            "dataProvider" -> list
-       )
+            "chartScrollbar" ->
+                Json.obj(
+                    "graph" -> "g1",
+                    "scrollbarHeight" -> 80,
+                    "backgroundAlpha" -> 0,
+                    "selectedBackgroundAlpha" -> 0.1,
+                    "selectedBackgroundColor" -> "#888888",
+                    "graphFillAlpha" -> 0,
+                    "graphLineAlpha" -> 0.5,
+                    "selectedGraphFillAlpha" -> 0,
+                    "selectedGraphLineAlpha" -> 1,
+                    "autoGridCount" -> true,
+                    "color" -> "#AAAAAA"
+                ),
+            "chartCursor" ->
+                Json.obj(
+                    "pan" -> true,
+                    "valueLineEnabled" -> true,
+                    "valueLineBalloonEnabled" -> true,
+                    "cursorAlpha" -> 0,
+                    "valueLineAlpha" -> 0.2
+                ),
+            "categoryField" -> "date",
+            "categoryAxis" ->
+                Json.obj(
+                    "minPeriod" -> "ss",
+                    "parseDates" -> true,
+                    "dashLength" -> 1,
+                    "minorGridEnabled" -> true,
+                    "position" -> "top"
+                ),
+            "export" ->
+                Json.obj(
+                    "enabled" -> true,
+                    "libs" ->
+                    Json.obj(
+                        "path" -> "http://www.amcharts.com/lib/3/plugins/export/libs/"
+                    )
+                ),
+            "dataProvider" -> list.sortWith((x,y) => x.date.before(y.date))
+            );
        Ok(json)
     }
 }
