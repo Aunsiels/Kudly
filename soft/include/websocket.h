@@ -17,9 +17,6 @@
 /* Main receiving mailbox */
 extern Mailbox * mb;
 
-/* Stream buffer */
-extern char stream_buffer[];
-
 /* Buffer to the codec */
 extern uint8_t streamBuf[32];
 

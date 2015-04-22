@@ -12,10 +12,13 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
+/* Mailing box for data received by wifi */
 extern Mailbox mbReceiveWifi;
-void externBroadcast(void);
+
+/* Signals a streaming */
 extern volatile int streaming;
-extern EventSource alternateEv1;
+
+/* Mutex for wifi connexion */
 extern Mutex wifiMtx;
 
 /**

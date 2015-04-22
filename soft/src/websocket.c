@@ -7,6 +7,7 @@
 #include "wifi.h"
 #include "usb_serial.h"
 #include "codec.h"
+#include "wifi_manager.h"
 
 #define WS_DATA_SIZE   1024
 
