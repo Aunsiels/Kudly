@@ -241,7 +241,6 @@ static msg_t streamingOut(void * args) {
                         webSocketDataHeader[7];
                 }      
             }
-            writeSerial("Send\r\n");
             /* Websocket header */
             wifiWriteNoWait(webSocketDataHeader, sizeof(webSocketDataHeader));
             /* Send data */
@@ -318,7 +317,7 @@ void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
 
     int error;
     error = wifiWriteByUsart(list, sizeof(list) - 1);
-	if(error == 0 || NULL == strstr(stream_buffer, "Info")){
+	if(error == 0 || NULL == strstr(stream_buffer, "TCPC")){
         cmdStop(NULL, 0, NULL);
         chMBReset(&mbCodecOut);
         chMBReset(&mbCodecIn);

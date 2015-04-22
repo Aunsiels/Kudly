@@ -24,9 +24,6 @@ enum wifiReadState {
     RECEIVE_RESPONSE
 };
 
-/* Boolean to set streaming to on */
-bool_t streaming = FALSE;
-
 /* Some string for polling functions */
 static char stream_poll[] = "stream_poll 0\r\n";
 static char stream_close[] = "stream_close all\r\n";
