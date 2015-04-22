@@ -319,7 +319,6 @@ void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
     error = wifiWriteByUsart(list, sizeof(list) - 1);
 	if(error == 0 || NULL == strstr(stream_buffer, "Info")){
         cmdStop(NULL, 0, NULL);
-        chThdSleepSeconds(10);
         chMBReset(&mbCodecOut);
         chMBReset(&mbCodecIn);
         wifiWriteNoWait(dollar, sizeof(dollar) -1);
