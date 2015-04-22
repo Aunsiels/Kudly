@@ -59,7 +59,7 @@ int main(void) {
 
     /* Init i2c bus */
     i2cPersoInit();
-    
+
     /* IMU init */
     imuInit();
 
@@ -71,9 +71,11 @@ int main(void) {
 
     /* Pir initialization */
     pirInit();
-    
+
     /* Initializes the application */
     applicationInit();
+
+    cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
