@@ -118,7 +118,7 @@ int getSize(stkalign_t * buf, int size){
 }
 
 
-static char * photo = "photo.ogg";
+//static char * photo = "photo.ogg";
 /*
  * Thread for hands sensors
  */
@@ -147,14 +147,14 @@ static msg_t handsThread(void * args) {
 		continue;
             /* Turn on led */
         ledSetColorRGB(0, 255, 255, 255);
-        cmdPlay((BaseSequentialStream *) &SDU1, 1, &photo);
-        chThdSleepMilliseconds(3000);
+//        cmdPlay((BaseSequentialStream *) &SDU1, 1, &photo);
+//        chThdSleepMilliseconds(3000);
         writeSerial("Begin photo\r\n");
         chThdSleepMilliseconds(100);
         photo("photo.jpg");
         writeSerial("End photo\r\n");
-        chThdSleepMilliseconds(1000);
-        cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+        chThdSleepMilliseconds(100);
+//        cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
 
 	    ledSetColorRGB(0, 0, 0, 0);
 	    chMtxUnlock();

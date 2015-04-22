@@ -47,7 +47,7 @@ int main(void) {
 
     /* Initialize wifi */
     wifiInitByUsart();
-
+	
     /* Init ADC hug sensors */
     initHugSensors();
 
@@ -74,9 +74,7 @@ int main(void) {
 
     /* Initializes the application */
     applicationInit();
-
-    cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
-
+	    
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }
