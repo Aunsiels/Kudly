@@ -47,6 +47,10 @@ static char sleep[] ="sleep\r\n";
 static char dollar[] = "$$$\r\n";
 
 /* Streaming command */
+/* Forgotten : rxtx_ratio 20
+ *             buffer.size 40000
+ *             retry_timeout 1
+ */
 static char busMode[] = "set bus.mode stream\r\n";
 static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
 static char remoteHost[] = "set tcp.client.remote_host 192.168.1.103\r\n";
@@ -55,10 +59,10 @@ static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
 static char autoStart[] = "set tcp.client.auto_start 1\r\n";
 static char keepAlive[] = "set tcp.keepalive.enabled 1\r\n";
-static char initialTimeout[] = "set tcp.keepalive.initial_timeout 65000\r\n";
+static char initialTimeout[] = "set tcp.keepalive.initial_timeout 10\r\n";
 static char reboot[] = "reboot\r\n";
 
-static Mutex wifiMtx;
+Mutex wifiMtx;
 
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
@@ -66,7 +70,7 @@ static SerialConfig uartCfg =
     230400,
     0,
     0,
-    USART_CR3_CTSE
+    USART_CR3_CTSE | USART_CR3_RTSE
 };
 
 /* Thread that reads wifi data and puts it on Mailbox */
@@ -94,15 +98,17 @@ static msg_t usartReadInMB_thd(void * args) {
 }
 
 /* Sends data by wifi */
-void wifiWriteByUsart(char * message, int length){
+int wifiWriteByUsart(char * message, int length){
+    int returnValue = 0;
     chMtxLock(&wifiMtx);
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
-    if(chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(1000)) == 0) {
+    if((returnValue = chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(1000))) == 0){
         writeSerial("Timeout\n\r");
     }
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
     chMtxUnlock();
+    return returnValue;
 }
 
 /* Same as above but don't want to wait for the response */
@@ -199,6 +205,30 @@ void wifiInitByUsart(void) {
      */
 }
 
+/* Initialization of wifi network */
+void wifiInitAgain(void) {
+
+    chThdSleepMilliseconds(5000);
+
+    streaming = 0;
+
+    wifiWriteNoWait(dollar, sizeof(dollar));
+
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp));
+    wifiWriteByUsart(ssid, sizeof(ssid));
+    wifiWriteByUsart(passkey, sizeof(passkey));
+    wifiWriteByUsart(save, sizeof(save));
+    wifiWriteByUsart(nup, sizeof(nup));
+    chThdSleepMilliseconds(5000);
+    wifiWriteByUsart(nup, sizeof(nup));
+    writeSerial("Wifi ready to use\r\n");
+    wifiCommands();
+
+}
 
 static msg_t wifiSleep_thd(void *arg){
     (void)arg;

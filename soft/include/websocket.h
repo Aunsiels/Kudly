@@ -19,10 +19,12 @@ extern Mailbox * mb;
 
 /* Stream buffer */
 extern char stream_buffer[];
-extern int dataSize;
 
 /* Buffer to the codec */
 extern uint8_t streamBuf[32];
+
+/* Source stream out */
+extern EventSource streamOutSrc, pollReadSrc;
 
 /**
  * \brief Initializes a websocket connection

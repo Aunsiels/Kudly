@@ -328,11 +328,11 @@ static msg_t threadFullDuplex(void *arg){
     (void) arg;
 
     static EventListener eventListener;
-    chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,1);
+    chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,EVENT_MASK(1));
     
     while(1){
         /* Wait for the thread to be called */
-        chEvtWaitOne(1);
+        chEvtWaitOne(EVENT_MASK(1));
         /* Can't encode if SPI is not ready (typicaly when playback or encoding) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
@@ -358,7 +358,7 @@ static msg_t threadFullDuplex(void *arg){
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
-    
+       
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
@@ -402,7 +402,6 @@ static msg_t threadSendData(void *arg){
 
         f_open(&testFp, testName, FA_WRITE | FA_OPEN_ALWAYS);
 
-        //for(int j = 0 ; j < 2000 ; j++) {
         while(playerState) {
             int i;
             /* Complete the buffer from the mail box*/
@@ -413,7 +412,6 @@ static msg_t threadSendData(void *arg){
             }
             /* Send the buffer to the codec */
             sendData(streamBuf,32);
-            //f_write(&testFp, streamBuf, 32, &bw); 
             switch(control){
             case '+' :
                 if(volLevel == 100)
