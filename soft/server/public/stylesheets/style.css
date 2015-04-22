@@ -969,3 +969,10 @@ figure.effect-bubba:hover p {
 
 }
 
+
+/*
+ * Overriding bootstrap defaults
+ */
+.modal-dialog {
+	width: 90%;
+}
