@@ -203,12 +203,12 @@
 
             <div class="row">
 
-                <div class="modal fade" id="tempModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="tempModal" tabindex="-1" role="dialog" aria-labelledby="tempModal" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Température</h4>
+                                <h4 class="modal-title" id="myModalLabel">Température ambiante</h4>
                             </div>
                             <div class="modal-body">
                                 <div id="tempChart" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
@@ -221,15 +221,32 @@
                 </div>
 
 
-                <div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-labelledby="activityModal" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel">Activité</h4>
+                                <h4 class="modal-title" id="myModalLabel">Votre enfant s'est-il réveillé récemment ? S'est-il agité ?</h4>
                             </div>
                             <div class="modal-body">
                                 <div id="activityChart" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="photoModal" aria-hidden="true">
+                    <div class="modal-dialog photo-modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Photos</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p><img src="http://kudly.herokuapp.com/image?name=photo.jpg" alt="Photo"></p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
@@ -269,12 +286,12 @@
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
 
-                    <div class="grid wow zoomIn">
+                    <div class="grid wow zoomIn" data-toggle="modal" data-target="#photoModal">
                         <figure class="effect-bubba">
                             <img src="assets/images/item-6.jpg" alt="img01"/>
                             <figcaption>
-                                <h2><span>Poke</span></h2>
-                                <p>Lily likes to play with crayons and pencils</p>
+                                <h2>L'album <span>photos</span></h2>
+                                <p>La bouille de votre bambin</p>
                             </figcaption>
                         </figure>
                     </div>

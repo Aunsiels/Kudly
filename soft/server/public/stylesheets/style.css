@@ -976,3 +976,7 @@ figure.effect-bubba:hover p {
 .modal-dialog {
 	width: 90%;
 }
+
+.modal-dialog.photo-modal-dialog {
+	width: 600px;
+}
