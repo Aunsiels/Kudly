@@ -483,10 +483,26 @@ object Application extends Controller {
                     data.getAs[Int]("value").getOrElse(0)) :: list )
         val json : JsValue = Json.obj(
             "type" -> "serial",
-            "marginRight" -> 80,
-            "autoMarginOffset" -> 20,
-            "pathToImages" -> "http://www.amcharts.com/lib/3/images/",
-            "dataDateFormat" -> "YYYY-MM-DD JJ:NN:SS",
+            "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
+            "categoryField" -> "date",
+            "dataDateFormat" -> "YYYY-MM-DD HH:NN",
+            "categoryAxis" -> Json.obj(
+                "minPeriod" -> "mm",
+                "parseDates" -> true),
+            "chartCursor" -> Json.obj(
+                "categoryBalloonDateFormat" -> "JJ:NN"
+            ),
+            "chartScrollbar" -> Json.obj(),
+            "trendLines" -> Json.arr(),
+            "graphs" -> Json.arr(
+                Json.obj(
+                    "bullet" -> "square",
+                    "id" -> "AmGraph-2",
+                    "title" -> name,
+                    "valueField" -> "column-1"
+                    )
+            ),
+            "guides" -> Json.arr(),
             "valueAxes" -> Json.arr(
                 Json.obj(
                     "id" -> "v1",
