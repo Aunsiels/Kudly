@@ -63,7 +63,7 @@ object Application extends Controller {
      * Welcome page
      */
     def index = Action {
-        Ok("Welcome page")
+        Ok(views.html.index())
     }
 
     /*
