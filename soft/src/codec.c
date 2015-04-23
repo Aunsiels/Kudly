@@ -196,28 +196,28 @@ static msg_t threadEncode(void *arg){
             continue;
         }
         /* Set desactive sound on the speaker */
-        codecVolume(75);
+        codecVolume(100);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x1 */
-        writeRegister(SCI_AICTRL2,1024);
+        writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO );
         /* Set quality mode to 9 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
 
-	/* Reset the variables to stop encoding / decoding */
+        /* Reset the variables to stop encoding / decoding */
         playerState = 1;
         stopSound = 0;
-	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
-	/* Reset the variables to stop encoding / decoding */
+        /* Reset the variables to stop encoding / decoding */
         playerState = 1;
         stopSound = 0;
 
@@ -282,13 +282,13 @@ static msg_t threadTestVolume(void *arg){
             continue;
         }
         /* Disable sound on speakers */
-        codecVolume(75);
+        codecVolume(100);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x40 */
-        writeRegister(SCI_AICTRL2,1024);
+        writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
@@ -300,7 +300,7 @@ static msg_t threadTestVolume(void *arg){
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
 	/* Reset the variables to control encoding / decoding */

@@ -121,9 +121,7 @@ static msg_t usartRead_thd(void * arg){
 			    wifiReadState = RECEIVE_RESPONSE;
 			else{
 			    dataSize = headerSize;
-			    chSysLock();
-			    chEvtBroadcastI(&srcEndToReadUsart);
-			    chSysUnlock();
+			    chEvtBroadcast(&srcEndToReadUsart);
 			    wifiReadState = IDLE;
 			}
 		    } 
@@ -148,9 +146,7 @@ static msg_t usartRead_thd(void * arg){
 		    if (save)
 			stream_buffer[dataCpt]='\0';
 		    dataSize = headerSize;
-		    chSysLock();
-		    chEvtBroadcastI(&srcEndToReadUsart);
-		    chSysUnlock();
+		    chEvtBroadcast(&srcEndToReadUsart);
 		    wifiReadState = IDLE;
 		}
 		break;

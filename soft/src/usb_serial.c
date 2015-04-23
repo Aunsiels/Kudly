@@ -3,7 +3,7 @@
 #include "usb_serial.h"
 #include "chprintf.h"
 
-#define DEBUG 0
+#define DEBUG 1
 SerialUSBDriver SDU1;
 
 /*

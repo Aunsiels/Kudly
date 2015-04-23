@@ -126,6 +126,7 @@ static msg_t handsThread(void * args) {
     uint32_t readValues;
     uint16_t * low = (uint16_t *) &readValues;
     uint16_t * high = low + 1;
+    chRegSetThreadName("Photo");
 
     while (1) {
 
@@ -322,6 +323,8 @@ static char * encodeAlphabet[2] = {"alphabetChild.ogg","10"};
 
 static msg_t educLettersThread(void * args) {
     (void) args;
+
+    chRegSetThreadName("Letter");
 
     uint32_t readValues;
     uint16_t * low = (uint16_t *) &readValues;
