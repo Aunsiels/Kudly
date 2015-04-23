@@ -115,6 +115,7 @@ bool_t sdIsReady (){
 
 /* Scans all the files */
 FRESULT scan_files(BaseSequentialStream *chp, char *path) {
+    (void)chp;
     FRESULT res;
     FILINFO fno;
     DIR dir;
@@ -154,7 +155,7 @@ FRESULT scan_files(BaseSequentialStream *chp, char *path) {
             }
             else {
                 /* Prints a normal file */
-                chprintf(chp, "%s/%s\r\n", path, fn);
+                writeSerial( "%s/%s\r\n", path, fn);
             }
         }
     }
@@ -163,6 +164,7 @@ FRESULT scan_files(BaseSequentialStream *chp, char *path) {
 
 /* Scans the files in a dir*/
 FRESULT ls(BaseSequentialStream *chp, char *path) {
+    (void)chp;
     FRESULT res;
     FILINFO fno;
     DIR dir;
@@ -189,10 +191,10 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
             fn = fno.fname;
             /* If it is a dir */
             if (fno.fattrib & AM_DIR) {
-                chprintf(chp, "%s/%s/\r\n", path, fn);
+                writeSerial( "%s/%s/\r\n", path, fn);
             }else {
                 /* Prints a normal file */
-                chprintf(chp, "%s/%s\r\n", path, fn);
+                writeSerial( "%s/%s\r\n", path, fn);
             }
         }
     }
@@ -201,6 +203,7 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
 
 /* Print a given file*/
 FRESULT cat(BaseSequentialStream *chp, char *path) {
+    (void)chp;
     FRESULT res;
     static FIL fil;       /* File object */
 
@@ -209,7 +212,7 @@ FRESULT cat(BaseSequentialStream *chp, char *path) {
 
     /* Read all lines and display it */
     while (f_gets((TCHAR *)fbuff, sizeof(fbuff), &fil))
-        chprintf(chp,(char *)fbuff);
+        writeSerial((char *)fbuff);
 
     /* Close the file */
     f_close(&fil);
@@ -222,12 +225,13 @@ FRESULT cat(BaseSequentialStream *chp, char *path) {
  */
 void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Usage: cat file\r\n");
+        writeSerial( "Usage: cat file\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     cat(chp, argv[0]);
@@ -238,19 +242,20 @@ void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdLs(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc > 0) {
-        chprintf(chp, "Usage: ls\r\n");
+        writeSerial( "Usage: ls\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
 
     FRESULT res;
     res = f_getcwd((TCHAR *) current_dir, sizeof(current_dir));
     if (res) {
-        chprintf(chp, "Error while getting the current path");
+        writeSerial( "Error while getting the current path");
         return;
     }
 
@@ -263,21 +268,22 @@ void cmdLs(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdPwd(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc > 0) {
-        chprintf(chp, "Usage: pwd\r\n");
+        writeSerial( "Usage: pwd\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     FRESULT res;
     res = f_getcwd((TCHAR *) current_dir, sizeof(current_dir));
     if (res) {
-        chprintf(chp, "Error while getting the current path");
+        writeSerial( "Error while getting the current path");
         return;
     }
-    chprintf(chp, "Current directory : %s\r\n", current_dir);
+    writeSerial( "Current directory : %s\r\n", current_dir);
 }
 
 /*
@@ -285,12 +291,13 @@ void cmdPwd(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc > 1) {
-        chprintf(chp, "Usage: cd or cd path\r\n");
+        writeSerial( "Usage: cd or cd path\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     if (argc == 0){
@@ -299,10 +306,10 @@ void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
         FRESULT res;
         res = f_chdir((TCHAR *) argv[0]);
         if (res) {
-            chprintf(chp,"Error while changing the directory\r\n");
+            writeSerial("Error while changing the directory\r\n");
             return;
         }
-        chprintf(chp, "Current directory : %s\r\n", argv[0]);
+        writeSerial( "Current directory : %s\r\n", argv[0]);
     }
 }
 
@@ -311,18 +318,19 @@ void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdMkdir(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Usage: mkdir dirname\r\n");
+        writeSerial( "Usage: mkdir dirname\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     FRESULT res;
     res = f_mkdir(argv[0]);
     if (res) {
-        chprintf(chp, "Cannot create that directory\r\n");
+        writeSerial( "Cannot create that directory\r\n");
     }
 }
 
@@ -332,18 +340,19 @@ void cmdMkdir(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdRm(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Usage: rm name\r\n");
+        writeSerial( "Usage: rm name\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     FRESULT res;
     res = f_unlink(argv[0]);
     if (res) {
-        chprintf(chp, "Cannot delete this file\r\n");
+        writeSerial( "Cannot delete this file\r\n");
     }
 }
 
@@ -353,21 +362,22 @@ void cmdRm(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Usage: touch name\r\n");
+        writeSerial( "Usage: touch name\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     FRESULT res;
     static FIL* fil = NULL;
     res = f_open(fil,argv[0],FA_CREATE_NEW);
     if (res == FR_EXIST) {
-        chprintf(chp, "The file already exists\r\n");
+        writeSerial( "The file already exists\r\n");
     } else if (res) {
-        chprintf(chp, "Cannot create this file\r\n");
+        writeSerial( "Cannot create this file\r\n");
     }
     if (fil != NULL)
         f_close(fil);
@@ -378,18 +388,19 @@ void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 void cmdMv(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)argv;
+    (void)chp;
     if (argc != 2) {
-        chprintf(chp, "Usage: rm old_name new_name\r\n");
+        writeSerial( "Usage: rm old_name new_name\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
     FRESULT res;
     res = f_rename(argv[0],argv[1]);
     if (res) {
-        chprintf(chp, "Cannot move this file\r\n");
+        writeSerial( "Cannot move this file\r\n");
     }
 }
 
@@ -487,23 +498,23 @@ void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]) {
   FRESULT err;
   uint32_t clusters;
   FATFS *fsp;
-
+  (void)chp;
   (void)argv;
   if (argc > 0) {
-    chprintf(chp, "Usage: tree\r\n");
+    writeSerial( "Usage: tree\r\n");
     return;
   }
   if (!fs_ready) {
-    chprintf(chp, "File System not mounted\r\n");
+    writeSerial( "File System not mounted\r\n");
     return;
   }
   /* Total size and free size */
   err = f_getfree("/", &clusters, &fsp);
   if (err != FR_OK) {
-    chprintf(chp, "FS: f_getfree() failed\r\n");
+    writeSerial( "FS: f_getfree() failed\r\n");
     return;
   }
-  chprintf(chp,
+  writeSerial(
            "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
            clusters, (uint32_t)MMC_FS.csize,
            clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMCSD_BLOCK_SIZE);
@@ -514,47 +525,49 @@ void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 /* test mkdir and rm functions */
 FRESULT testMkdir(BaseSequentialStream *chp, char * dirname) {
+    (void)chp;
     FRESULT err;
     char * args[1];
 
-    chprintf(chp, "Create a directory\r\n");
+    writeSerial( "Create a directory\r\n");
     /* Create a directory */
     args[0] = dirname;
     cmdMkdir(chp, 1, args);
-    chprintf(chp, "End of the directory creation\r\n");
+    writeSerial( "End of the directory creation\r\n");
 
     /* Checks if the file exists */
     FILINFO* fno = NULL;
     err = f_stat(dirname, fno);
 
     if (err == FR_NO_FILE) {
-        chprintf(chp, "The directory was not created\r\n");
+        writeSerial( "The directory was not created\r\n");
     } else if (err) {
-        chprintf(chp, "An error occured after directory creation\r\n");
+        writeSerial( "An error occured after directory creation\r\n");
     }
     return err;
 }
 
 /* test rm function */
 FRESULT testRm(BaseSequentialStream *chp, char * name) {
+    (void)chp;
     FRESULT err;
     char * args[1];
 
-    chprintf(chp, "Remove the directory\r\n");
+    writeSerial( "Remove the directory\r\n");
     /* Remove the directory created */
     args[0] = name;
     cmdRm(chp, 1, args);
-    chprintf(chp, "End of the directory removal\r\n");
+    writeSerial( "End of the directory removal\r\n");
 
     /* Checks if the file was removed */
     FILINFO* fno = NULL;
     err = f_stat(name, fno);
 
     if (err == FR_NO_FILE) {
-        chprintf(chp, "The directory was removed\r\n");
+        writeSerial( "The directory was removed\r\n");
         return FR_OK;
     } else if (err) {
-        chprintf(chp, "An error occured after directory removal\r\n");
+        writeSerial( "An error occured after directory removal\r\n");
         return err;
     }
 
@@ -562,102 +575,105 @@ FRESULT testRm(BaseSequentialStream *chp, char * name) {
 }
 
 FRESULT testTouch(BaseSequentialStream *chp, char * filename){
+    (void)chp;
     FRESULT err;
     char * args[1];
 
-    chprintf(chp, "Create a file\r\n");
+    writeSerial( "Create a file\r\n");
     /* Create a directory */
     args[0] = filename;
     cmdTouch(chp, 1, args);
-    chprintf(chp, "End of the file creation\r\n");
+    writeSerial( "End of the file creation\r\n");
 
     /* Checks if the file exists */
     FILINFO* fno = NULL;
     err = f_stat(filename, fno);
 
     if (err == FR_NO_FILE) {
-        chprintf(chp, "The file was not created\r\n");
+        writeSerial( "The file was not created\r\n");
     } else if (err) {
-        chprintf(chp, "An error occured after file creation\r\n");
+        writeSerial( "An error occured after file creation\r\n");
     }
     return err;
 }
 
 FRESULT testMv(BaseSequentialStream *chp, char * from, char * to) {
+    (void)chp;
     FRESULT err;
     char * args[2];
 
     args[0] = from;
     args[1] = to;
-    chprintf(chp, "Begin to move the file\r\n");
+    writeSerial( "Begin to move the file\r\n");
     cmdMv(chp,2, args);
-    chprintf(chp, "End of the moving action\r\n");
+    writeSerial( "End of the moving action\r\n");
 
     /* Checks if the file exists */
     FILINFO* fno = NULL;
     err = f_stat(to, fno);
 
     if (err == FR_NO_FILE) {
-        chprintf(chp, "The file was not moved\r\n");
+        writeSerial( "The file was not moved\r\n");
     } else if (err) {
-        chprintf(chp, "An error occured after the moving action\r\n");
+        writeSerial( "An error occured after the moving action\r\n");
     }
     return err;
 }
 
 /* Test Write/read */
 FRESULT testWR(BaseSequentialStream *chp){
+    (void)chp;
     /* File object */
     static FIL fil;
     FRESULT res;
 
-    chprintf(chp, "Open a file in write mode\r\n");
+    writeSerial( "Open a file in write mode\r\n");
     res = f_open(&fil, "testwr", FA_WRITE | FA_CREATE_NEW);
     if(res) {
-        chprintf(chp,"A problem occured while opening the file\r\n");
+        writeSerial("A problem occured while opening the file\r\n");
         return res;
     }
-    chprintf(chp, "File opened\r\n");
-    chprintf(chp, "Write data\r\n");
+    writeSerial( "File opened\r\n");
+    writeSerial( "Write data\r\n");
     int written = f_printf(&fil, (const TCHAR*) "This is a test !\n");
     if (written != 17) {
-        chprintf(chp, "The characters were not all written\r\n");
+        writeSerial( "The characters were not all written\r\n");
         testRm(chp, "testwr");
         return 1;
     }
-    chprintf(chp, "Data written\r\n");
-    chprintf(chp, "Close file\r\n");
+    writeSerial( "Data written\r\n");
+    writeSerial( "Close file\r\n");
     res = f_close(&fil);
     if (res) {
-        chprintf(chp, "An error occured while opening the file\r\n");
+        writeSerial( "An error occured while opening the file\r\n");
         testRm(chp, "testwr");
         return res;
     }
-    chprintf(chp, "Open a file in read mode\r\n");
+    writeSerial( "Open a file in read mode\r\n");
     res = f_open(&fil, "testwr", FA_READ);
     if(res) {
-        chprintf(chp,"A problem occured while opening the file\r\n");
+        writeSerial("A problem occured while opening the file\r\n");
         return res;
     }
-    chprintf(chp, "File opened\r\n");
+    writeSerial( "File opened\r\n");
     char buff[20];
-    chprintf(chp, "Read data\r\n");
+    writeSerial( "Read data\r\n");
     char * buffres = f_gets(buff, sizeof(buff), &fil);
     if (buff != buffres){
-        chprintf(chp, "A problem occured while reading data\r\n");
+        writeSerial( "A problem occured while reading data\r\n");
         testRm(chp, "testwr");
         return 1;
     }
     if (strcmp(buff, "This is a test !\n") != 0){
-        chprintf(chp, "The datas read are not the same than the one written\r\n");
+        writeSerial( "The datas read are not the same than the one written\r\n");
         testRm(chp, "testwr");
         return 1;
     }
-    chprintf(chp, "The reading is OK\r\n");
-    chprintf(chp, "Close file\r\n");
+    writeSerial( "The reading is OK\r\n");
+    writeSerial( "Close file\r\n");
     res = f_close(&fil);
     if (res) {
-        chprintf(chp, "An error occured while opening the file\r\n");
+        writeSerial( "An error occured while opening the file\r\n");
         testRm(chp, "testwr");
         return res;
     }
@@ -667,12 +683,13 @@ FRESULT testWR(BaseSequentialStream *chp){
 /* Test the functionalities of the sd card */
 void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
     (void)argv;
+    (void)chp;
     if (argc > 0) {
-        chprintf(chp, "Usage: tree\r\n");
+        writeSerial( "Usage: tree\r\n");
         return;
     }
     if (!fs_ready) {
-        chprintf(chp, "File System not mounted\r\n");
+        writeSerial( "File System not mounted\r\n");
         return;
     }
 
@@ -697,12 +714,12 @@ void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
     /* test write and read in a file */
     if(testWR(chp)) goto ERROR;
 
-    chprintf(chp, "The SD test SUCCEEDED\r\n");
+    writeSerial( "The SD test SUCCEEDED\r\n");
 
     return;
 
 ERROR :
-    chprintf(chp, "The SD test FAILED\r\n");
+    writeSerial( "The SD test FAILED\r\n");
 }
 
 FRESULT writeFile(char * filename, char * buf, UINT length){

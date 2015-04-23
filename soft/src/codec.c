@@ -430,9 +430,9 @@ void codecVolume(int volume) {
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the file name after the command Play\r\n");
+        writeSerial( "Enter the file name after the command Play\r\n");
         return;
     }
 
@@ -444,9 +444,9 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 2) {
-        chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
+        writeSerial( "Enter the file, and the duration of recording name after the command Encode\r\n");
         return;
     }
 
@@ -459,9 +459,9 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the duration of recording for the volume test\r\n");
+        writeSerial( "Enter the duration of recording for the volume test\r\n");
         return;
     }
     duration  = strtol(argv[0],NULL,10);
@@ -483,9 +483,9 @@ void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the volume level after the command Volume\r\n");
+        writeSerial( "Enter the volume level after the command Volume\r\n");
         return;
     }
 
@@ -504,9 +504,9 @@ void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-    
+    (void)chp;    
     if (argc != 1) {
-        chprintf(chp, "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
+        writeSerial( "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
         return;
     }
 

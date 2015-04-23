@@ -31,12 +31,13 @@ static WORKING_AREA(waShellController, 256);
 /* Command to test the shell */
 static void cmdTest(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
+    (void)chp;
 
     if (argc > 0) {
-        chprintf(chp, "Usage : test\r\n");
+        writeSerial( "Usage : test\r\n");
         return;
     }
-    chprintf(chp, "The shell seems to work :)\r\n");
+    writeSerial( "The shell seems to work :)\r\n");
 }
 
 /* List of commands */

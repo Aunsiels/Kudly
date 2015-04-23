@@ -8,7 +8,7 @@
 #include "ff.h"
 #include "wifi_manager.h"
 #include "wifi_parsing.h"
-
+#include "led.h"
 /* !!! dataRead (for stream_read command) must be greather than dataWrite (for stream_write command)*/
 #define DATA_READ 1440
 #define DATA_WRITE 1440
@@ -383,6 +383,10 @@ UPLD_BGN:
 	    /* Send wifi command to delete file in wifi module flash */
 	    wifiWriteByUsart(msgWifi, strlen(msgWifi));    
 	    msgWifi[0] ='\0';   
+	    ledSetColorRGB(0, 255, 0, 0);
+	    chThdSleepMilliseconds(500);
+	    ledSetColorRGB(0, 0, 0, 0);
+
 	    goto UPLD_BGN;
 	} 	
 	if(br != DATA_WRITE){	    

@@ -208,8 +208,9 @@ void cameraInit() {
  */
 void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
+    (void)chp;
     if (argc != 1){
-        chprintf(chp, "Usage : camera filename\r\n");
+        writeSerial( "Usage : camera filename\r\n");
         return;
     }
 
