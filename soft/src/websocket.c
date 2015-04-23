@@ -31,7 +31,9 @@ MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 5000);
 static char codecOutBuffer[BUFFER_SIZE];
 
 /* Streaming event sources */
-EventSource streamOutSrc, pollReadSrc, endStreamEvent;
+EVENTSOURCE_DECL(streamOutSrc);
+EVENTSOURCE_DECL(pollReadSrc);
+EVENTSOURCE_DECL(endStreamEvent);
 
 /* To streaming mode */
 static char exitWifi[] = "exit\r\n";
@@ -57,7 +59,7 @@ Sec-WebSocket-Version: 13\r\n\
 /* Streaming header */
 static char downloadWave[] =
 "GET /streaming HTTP/1.1\r\n\
-Host: 192.168.1.103:9000\r\n\
+Host: kudly.herokuapp.com\r\n\
 Upgrade: websocket\r\n\
 Connection: Upgrade\r\n\
 Sec-WebSocket-Key: x3JJrRBKLlEzLkh9GBhXDw==\r\n\
@@ -258,10 +260,6 @@ static msg_t streamingOut(void * args) {
 void streamInit(void){
 
     writeSerial("StreamInit...\n\r");
-    chEvtInit(&streamOutSrc);
-    chEvtInit(&pollReadSrc);
-    chEvtInit(&endStreamEvent);
-
 
     chThdCreateStatic(
             streamingOut_wa, sizeof(streamingOut_wa),

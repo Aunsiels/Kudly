@@ -53,16 +53,19 @@ static char dollar[] = "$$$\r\n";
  */
 static char busMode[] = "set bus.mode stream\r\n";
 static char autoJoin[] = "set wlan.autojoin.enabled 1\r\n";
-static char remoteHost[] = "set tcp.client.remote_host 192.168.1.103\r\n";
-static char remotePort[] = "set tcp.client.remote_port 9000\r\n";
+static char remoteHost[] = "set tcp.client.remote_host kudly.herokuapp.com\r\n";
+static char remotePort[] = "set tcp.client.remote_port 80\r\n";
 static char autoInterface[] = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[] = "set tcp.client.auto_retries 0\r\n";
 static char autoStart[] = "set tcp.client.auto_start 1\r\n";
 static char keepAlive[] = "set tcp.keepalive.enabled 1\r\n";
 static char initialTimeout[] = "set tcp.keepalive.initial_timeout 10\r\n";
+static char ratio[] = "set network.buffer.rxtx_ratio 20\r\n";
+static char bufferSize[] = "set network.buffer.size 40000\r\n";
+static char retryTimeout[] = "set tcp.keepalive.retry_timeout 1\r\n";
 static char reboot[] = "reboot\r\n";
 
-Mutex wifiMtx;
+MUTEX_DECL(wifiMtx);
 
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
@@ -141,8 +144,6 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
 /* Initialization of wifi network */
 void wifiInitByUsart(void) {
 
-    chMtxInit(&wifiMtx);
- 
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_TX, PAL_MODE_ALTERNATE(7) |
         PAL_STM32_OTYPE_PUSHPULL | PAL_STM32_PUDR_PULLUP |
         PAL_STM32_OSPEED_HIGHEST);
@@ -169,33 +170,36 @@ void wifiInitByUsart(void) {
     sdStart(&SD3, &uartCfg);
     wifiWriteNoWait(dollar, sizeof(dollar));
 
-    wifiWriteByUsart(autoJoin, sizeof(autoJoin));
-    wifiWriteByUsart(remoteHost, sizeof(remoteHost));
-    wifiWriteByUsart(remotePort, sizeof(remotePort));
-    wifiWriteByUsart(autoInterface, sizeof(autoInterface));
-    wifiWriteByUsart(autoRetries, sizeof(autoRetries));
-    wifiWriteByUsart(autoStart, sizeof(autoStart));
-    wifiWriteByUsart(keepAlive, sizeof(keepAlive));
-    wifiWriteByUsart(initialTimeout, sizeof(initialTimeout));
-    wifiWriteByUsart(busMode, sizeof(busMode));
-    wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(reboot, sizeof(reboot));
+    wifiWriteByUsart(autoJoin, sizeof(autoJoin) - 1);
+    wifiWriteByUsart(remoteHost, sizeof(remoteHost) - 1);
+    wifiWriteByUsart(remotePort, sizeof(remotePort) - 1);
+    wifiWriteByUsart(autoInterface, sizeof(autoInterface) - 1);
+    wifiWriteByUsart(autoRetries, sizeof(autoRetries) - 1);
+    wifiWriteByUsart(autoStart, sizeof(autoStart) - 1);
+    wifiWriteByUsart(keepAlive, sizeof(keepAlive) - 1);
+    wifiWriteByUsart(initialTimeout, sizeof(initialTimeout) - 1);
+    wifiWriteByUsart(ratio, sizeof(ratio) - 1);
+    wifiWriteByUsart(bufferSize, sizeof(bufferSize) - 1);
+    wifiWriteByUsart(retryTimeout, sizeof(retryTimeout) - 1);
+    wifiWriteByUsart(busMode, sizeof(busMode) - 1);
+    wifiWriteByUsart(save, sizeof(save) - 1);
+    wifiWriteByUsart(reboot, sizeof(reboot) - 1);
 
     chThdSleepMilliseconds(5000);
 
-    wifiWriteNoWait(dollar, sizeof(dollar));
+    wifiWriteNoWait(dollar, sizeof(dollar) - 1);
 
-    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
-    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
-    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
-    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-    wifiWriteByUsart(wakeUp, sizeof(wakeUp));
-    wifiWriteByUsart(ssid, sizeof(ssid));
-    wifiWriteByUsart(passkey, sizeof(passkey));
-    wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(nup, sizeof(nup));
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff) - 1);
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0) - 1);
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn) - 1);
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff) - 1);
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp) - 1);
+    wifiWriteByUsart(ssid, sizeof(ssid) - 1);
+    wifiWriteByUsart(passkey, sizeof(passkey) - 1);
+    wifiWriteByUsart(save, sizeof(save) - 1);
+    wifiWriteByUsart(nup, sizeof(nup) - 1);
     chThdSleepMilliseconds(5000);
-    wifiWriteByUsart(nup, sizeof(nup));
+    wifiWriteByUsart(nup, sizeof(nup) - 1);
     writeSerial("Wifi ready to use\r\n");
     wifiCommands();
 
@@ -212,19 +216,19 @@ void wifiInitAgain(void) {
 
     streaming = 0;
 
-    wifiWriteNoWait(dollar, sizeof(dollar));
+    wifiWriteNoWait(dollar, sizeof(dollar) - 1);
 
-    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
-    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
-    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
-    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-    wifiWriteByUsart(wakeUp, sizeof(wakeUp));
-    wifiWriteByUsart(ssid, sizeof(ssid));
-    wifiWriteByUsart(passkey, sizeof(passkey));
-    wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(nup, sizeof(nup));
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff) - 1);
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0) - 1);
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn) - 1);
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff) - 1);
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp) - 1);
+    wifiWriteByUsart(ssid, sizeof(ssid) - 1);
+    wifiWriteByUsart(passkey, sizeof(passkey) - 1);
+    wifiWriteByUsart(save, sizeof(save) - 1);
+    wifiWriteByUsart(nup, sizeof(nup) - 1);
     chThdSleepMilliseconds(5000);
-    wifiWriteByUsart(nup, sizeof(nup));
+    wifiWriteByUsart(nup, sizeof(nup) - 1);
     writeSerial("Wifi ready to use\r\n");
     wifiCommands();
 

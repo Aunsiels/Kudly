@@ -26,7 +26,8 @@ static unsigned cnt;
 /*
  * Card event sources.
  */
-static EventSource inserted_event, removed_event;
+static EVENTSOURCE_DECL(inserted_event);
+static EVENTSOURCE_DECL(removed_event);
 
 /*
  * Insertion monitor timer callback function.
@@ -72,9 +73,6 @@ static void tmrfunc(void *p) {
  * p is a pointer to an object implementing @p BaseBlockDevice
  */
 static void tmr_init(void *p) {
-    /* Initializes insert and remove events */
-    chEvtInit(&inserted_event);
-    chEvtInit(&removed_event);
     chSysLock();
     /* Initializes the polling counter */
     cnt = POLLING_INTERVAL;
