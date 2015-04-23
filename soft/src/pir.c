@@ -4,7 +4,7 @@
 #include "chprintf.h"
 
 /* Event for the pir */
-EVENTSOURCE_DECL(pirEvent);
+EventSource pirEvent;
 
 /*
  * Callback function for the pir
@@ -29,6 +29,7 @@ static EXTChannelConfig config[] =
 void pirInit(){
     palSetPadMode(GPIOD,GPIOD_PIR,PAL_MODE_INPUT_PULLDOWN);
     extSetChannelMode(&EXTD1,GPIOD_PIR, config);
+    chEvtInit(&pirEvent);
 }
 
 /*

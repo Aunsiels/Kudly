@@ -13,12 +13,12 @@
 #define min(a,b) (((a)<b))?(a):(b)
 
 /* Event and working area for playback and encoding threads */
-EVENTSOURCE_DECL(eventSourcePlay);
-EVENTSOURCE_DECL(eventSourceEncode);
-EVENTSOURCE_DECL(eventSourceVolume);
-EVENTSOURCE_DECL(eventSourceWaitEncoding);
-EVENTSOURCE_DECL(eventSourceFullDuplex);
-EVENTSOURCE_DECL(eventSourceSendData);
+EventSource eventSourcePlay;
+EventSource eventSourceEncode;
+EventSource eventSourceVolume;
+EventSource eventSourceWaitEncoding;
+EventSource eventSourceFullDuplex;
+EventSource eventSourceSendData;
 
 static WORKING_AREA(waEncode, 2048);
 static WORKING_AREA(waPlayback, 2048);
@@ -525,6 +525,13 @@ void codecInit(){
   
     codecReset();
     
+    chEvtInit(&eventSourcePlay);
+    chEvtInit(&eventSourceEncode);
+    chEvtInit(&eventSourceVolume);
+    chEvtInit(&eventSourceWaitEncoding);
+    chEvtInit(&eventSourceFullDuplex);
+    chEvtInit(&eventSourceSendData);
+
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);

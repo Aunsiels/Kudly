@@ -11,7 +11,8 @@
 
 /* !!! dataRead (for stream_read command) must be greather than dataWrite (for stream_write command)*/
 #define DATA_READ 1440
-#define DATA_WRITE 1440 
+#define DATA_WRITE 1440
+ 
 #define DATA_SIZE (DATA_READ>DATA_WRITE)?(DATA_READ):(DATA_WRITE)
 
 /* Different states for usart reading */
@@ -62,7 +63,7 @@ static UINT br;
 static char stream_buffer[DATA_READ + 4];
 
 /* Event source to signal whan all data are received */
-EVENTSOURCE_DECL(srcEndToReadUsart);
+EventSource srcEndToReadUsart;
 
 /* Data size to be used after broacast */
 static int dataSize;
@@ -120,7 +121,9 @@ static msg_t usartRead_thd(void * arg){
 			    wifiReadState = RECEIVE_RESPONSE;
 			else{
 			    dataSize = headerSize;
-			    chEvtBroadcast(&srcEndToReadUsart);
+			    chSysLock();
+			    chEvtBroadcastI(&srcEndToReadUsart);
+			    chSysUnlock();
 			    wifiReadState = IDLE;
 			}
 		    } 
@@ -145,7 +148,9 @@ static msg_t usartRead_thd(void * arg){
 		    if (save)
 			stream_buffer[dataCpt]='\0';
 		    dataSize = headerSize;
-		    chEvtBroadcast(&srcEndToReadUsart);
+		    chSysLock();
+		    chEvtBroadcastI(&srcEndToReadUsart);
+		    chSysUnlock();
 		    wifiReadState = IDLE;
 		}
 		break;
@@ -187,8 +192,9 @@ static void sendStreamCommand (char * command, int * stream , int *number , char
     if (data != NULL){    
 	for (int i = 0 ; i < *number; i++){
 	    msgWifi[ msgWifiLen + i ] = data[i];
-	} 	 
+	}
 	wifiWriteByUsart(msgWifi, msgWifiLen + *number);
+	
 	msgWifi[0] ='\0';
     }
     else{

@@ -25,8 +25,9 @@ static WORKING_AREA(stream_wa, 128);
 /* Codec mailboxes */
 static msg_t mbCodecOut_buf[256];
 static msg_t mbCodecIn_buf[256];
-MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 128);
-MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 128);
+
+Mailbox mbCodecOut;
+Mailbox mbCodecIn;
 
 /* Buffer to send in a websocket */ 
 static char codecOutBuffer[WS_DATA_SIZE];
@@ -259,6 +260,8 @@ void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
  */
 void streamInit(void){
 
+    chMBInit(&mbCodecOut, mbCodecOut_buf, 128);
+    chMBInit(&mbCodecIn, mbCodecIn_buf, 128);
 
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);

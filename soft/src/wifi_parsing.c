@@ -17,7 +17,7 @@ static EVENTSOURCE_DECL(evtStartSrc);
 static EventListener evtStartLst;
 
 /*Event for photo taking */
-EVENTSOURCE_DECL(eventPhotoSrc);
+EventSource eventPhotoSrc;
 
 /* Feature and function buffer used to launch functionnality by wifi */
 static char feature[FEATURE_SIZE];
