@@ -502,6 +502,7 @@ object Application extends Controller {
                 list = graphValue(
                     data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
                     data.getAs[Int]("value").getOrElse(0)) :: list )
+        val typeData = if(name == "Activity") "step" else "line"
         val json : JsValue = Json.obj(
             "type" -> "serial",
             "pathToImages" -> "http://cdn.amcharts.com/lib/3/images/",
@@ -539,7 +540,7 @@ object Application extends Controller {
             "graphs" -> Json.arr(
                 Json.obj(
                     "id" -> "g1",
-                    "type" -> "step",
+                    "type" -> typeData,
                     "bullet" -> "round",
                     "bulletBorderAlpha" -> 1,
                     "bulletColor" -> "#FFFFFF",
