@@ -20,7 +20,7 @@ img {
 }
 
 a {
-	color: #E7746F;
+	color: #81ABD9;
 }
 
 a:hover {
@@ -548,7 +548,7 @@ textarea.form-control {
 .navbar-custom .navbar-nav > li.active a {
 	background: none;
 	outline: 0;
-	color: #E7746F;
+	color: #81ABD9;
 }
 
 .navbar-custom .navbar-brand {
@@ -559,7 +559,7 @@ textarea.form-control {
 
 .navbar-custom .dropdown-menu {
 	border: 0;
-	border-top: 2px solid #E7746F;
+	border-top: 2px solid #81ABD9;
 	border-radius: 0;
 }
 
@@ -969,3 +969,14 @@ figure.effect-bubba:hover p {
 
 }
 
+
+/*
+ * Overriding bootstrap defaults
+ */
+.modal-dialog {
+	width: 90%;
+}
+
+.modal-dialog.photo-modal-dialog {
+	width: 600px;
+}
