@@ -86,4 +86,15 @@ void uploadFile( char *address , char * localFile , char * remoteFile);
  */
 void postAndRead( char * address , char * data);
 
+/**
+ * \brief Test the network connection
+ * \return State of netwoork connection
+ */
+bool_t wifiNup(void);
+
+/**
+ * \brief Parse xml web page
+ * \param Web address to parse
+ */
+void parsePage( char * address);
 #endif

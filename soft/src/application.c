@@ -18,17 +18,19 @@
 /* Working area hands */
 static WORKING_AREA(waHands, 1024);
 /* Working area hug */
-static WORKING_AREA(waHug, 128);
+static WORKING_AREA(waHug, 1024);
 /* Working area temperature */
-static WORKING_AREA(waTemp, 128);
+static WORKING_AREA(waTemp, 1024);
 /* Working area pir */
-static WORKING_AREA(waPir, 128);
+static WORKING_AREA(waPir, 1024);
 /* Working area cry */
 static WORKING_AREA(waCry, 1024);
 /* Working area educ color */
-static WORKING_AREA(waEducColor, 128);
+static WORKING_AREA(waEducColor, 1024);
 /* Working area educ letters */
 static WORKING_AREA(waEducLetters, 1024);
+/* Working area educ letters */
+static WORKING_AREA(waXmlPolling, 1024);
 
 static MUTEX_DECL(appliMtx);
 
@@ -123,44 +125,33 @@ int getSize(stkalign_t * buf, int size){
  */
 static msg_t handsThread(void * args) {
     (void) args;
-    uint32_t readValues;
-    uint16_t * low = (uint16_t *) &readValues;
-    uint16_t * high = low + 1;
+    chRegSetThreadName("Photo");
+    static EventListener eventPhotoLst;
+    chEvtRegisterMask(&eventPhotoSrc , &eventPhotoLst ,EVENT_MASK(1));
 
     while (1) {
-
-	chThdSleepMilliseconds(1000);
+	chEvtWaitOne(EVENT_MASK(1));
+	chMtxLock(&appliMtx);
 	
-        int timeBegin = chTimeNow();
-        readValues = getHandValues();
-
-        /* While pressed, wait */
-        while (*low > 300 && *high > 300){
-            readValues = getHandValues();
-            chThdSleepMilliseconds(100);
-        }
-        
-        /* If pressed lon enought, photo */
-        if(chTimeNow() - timeBegin > 5000){
-	    if(!chMtxTryLock(&appliMtx))
-		continue;
-            /* Turn on led */
-            ledSetColorRGB(0, 255, 255, 255);
-            writeSerial("Begin photo\r\n");
-            chThdSleepMilliseconds(100);
-            photo("photo.jpg");
-            writeSerial("End photo\r\n");
-            chThdSleepMilliseconds(100);
+        /* Turn on led */
+	ledSetColorRGB(0, 255, 255, 255);
+	writeSerial("Begin photo\r\n");
+	chThdSleepMilliseconds(100);
+	photo("photo.jpg");
+	writeSerial("End photo\r\n");
+	chThdSleepMilliseconds(100);
 	    
-	    ledSetColorRGB(0, 0, 0, 0);
-	    chMtxUnlock();
+	ledSetColorRGB(0, 0, 0, 0);
+	chMtxUnlock();
 	    
-            uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
-		       "photo.jpg");
-            f_unlink("photo.jpg");
-            
-        }	
-    }
+	uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
+		   "photo.jpg");
+	f_unlink("photo.jpg");
+	ledSetColorRGB(0, 0, 255, 0);
+	chThdSleepMilliseconds(500);
+	ledSetColorRGB(0, 0, 0, 0);
+    }	
+    
     return 0;
 }
 
@@ -219,97 +210,85 @@ static msg_t educColorThread(void * args) {
   
     uint32_t readValues;
     uint16_t * low = (uint16_t *) &readValues;
-    uint16_t * high = low + 1;     
-
-    while(1){
-	chThdSleepMilliseconds(500);
+    uint16_t * high = low + 1;
+     
+    static EventListener eventGameLst;
+    chEvtRegisterMask(&eventGameSrc , &eventGameLst ,EVENT_MASK(1));
+    
+    while (1) {
+	chEvtWaitOne(EVENT_MASK(1));
+	chMtxLock(&appliMtx);
+	    
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorRedSound);
+	ledSetColorRGB(0, 255, 0, 0);
+	/* Wait the sound to finish "my ears are in red" */
+	chThdSleepSeconds(3);
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	    
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorGreenSound);
+	ledSetColorRGB(0, 0, 255, 0);
+	/* Wait the sound to finish "my ears are in green" */
+	chThdSleepSeconds(3);
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	    
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorBlueSound);
+	ledSetColorRGB(0, 0, 0, 255);
+	/* Wait the sound to finish "my ears are in blue" */
+	chThdSleepSeconds(3);
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
 	
-	int timeBegin = chTimeNow();
+	/* Start color test */
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &handRedSound);
+	ledSetColorRGB(1, 255, 0, 0);
+	ledSetColorRGB(2, 0, 255, 0);
 	readValues = getHandValues();
-
-        /* While pressed, wait */
-        while (*low > 300){
-            readValues = getHandValues();
-            chThdSleepMilliseconds(100);
-        }
-        
-        /* If pressed lon enought, photo */
-        if(chTimeNow() - timeBegin > 1000 && chTimeNow() - timeBegin < 3000){
-
-	    if(!chMtxTryLock(&appliMtx))
-		continue;
-	    
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorRedSound);
-	    ledSetColorRGB(0, 255, 0, 0);
-	    /* Wait the sound to finish "my ears are in red" */
-	    chThdSleepSeconds(3);
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	    
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorGreenSound);
-	    ledSetColorRGB(0, 0, 255, 0);
-	    /* Wait the sound to finish "my ears are in green" */
-	    chThdSleepSeconds(3);
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	    
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &colorBlueSound);
-	    ledSetColorRGB(0, 0, 0, 255);
-	    /* Wait the sound to finish "my ears are in blue" */
-	    chThdSleepSeconds(3);
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	
-	    /* Start color test */
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &handRedSound);
-	    ledSetColorRGB(1, 255, 0, 0);
-	    ledSetColorRGB(2, 0, 255, 0);
+	/* While no pressed, wait */
+	while (*low < 300 && *high < 300){
+	    chThdSleepMilliseconds(100);
 	    readValues = getHandValues();
-	    /* While no pressed, wait */
-	    while (*low < 300 && *high < 300){
-		chThdSleepMilliseconds(100);
-		readValues = getHandValues();
-	    }
-	
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	
-	    if(*high > *low){
-		cmdPlay((BaseSequentialStream *) &SDU1, 1, &successSound);
-		chThdSleepSeconds(3);
-	    }
-	    else{
-		cmdPlay((BaseSequentialStream *) &SDU1, 1, &wrongSound);
-		chThdSleepSeconds(3);
-	    }
-
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-
-	    chThdSleepMilliseconds(500);
-	    
-	    /* Another color test */
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &handBlueSound);
-	    ledSetColorRGB(1, 0, 255, 0);
-	    ledSetColorRGB(2, 0, 0, 255);
-	    readValues = getHandValues();
-	    /* While no pressed, wait */
-	    while (*low < 300 && *high < 300){
-		readValues = getHandValues();
-		chThdSleepMilliseconds(100);
-	    }
-	
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	
-	    if(*high > *low){
-		cmdPlay((BaseSequentialStream *) &SDU1, 1, &successSound);
-		chThdSleepSeconds(3);
-	    }
-	    else{
-		cmdPlay((BaseSequentialStream *) &SDU1, 1, &wrongSound);
-		chThdSleepSeconds(3);
-	    }
-
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	    ledSetColorRGB(0, 0, 0, 0);
-
-	    chMtxUnlock();
 	}
+	
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	
+	if(*high > *low){
+	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &successSound);
+	    chThdSleepSeconds(3);
+	}
+	else{
+	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &wrongSound);
+	    chThdSleepSeconds(3);
+	}
+
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+
+	chThdSleepMilliseconds(500);
+	    
+	/* Another color test */
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &handBlueSound);
+	ledSetColorRGB(1, 0, 255, 0);
+	ledSetColorRGB(2, 0, 0, 255);
+	readValues = getHandValues();
+	/* While no pressed, wait */
+	while (*low < 300 && *high < 300){
+	    readValues = getHandValues();
+	    chThdSleepMilliseconds(100);
+	}
+	
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	
+	if(*high > *low){
+	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &successSound);
+	    chThdSleepSeconds(3);
+	}
+	else{
+	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &wrongSound);
+	    chThdSleepSeconds(3);
+	}
+
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	ledSetColorRGB(0, 0, 0, 0);
+
+	chMtxUnlock();
     }
     
     return 0;
@@ -320,52 +299,53 @@ static char * encodeAlphabet[2] = {"alphabetChild.ogg","10"};
 
 static msg_t educLettersThread(void * args) {
     (void) args;
-
-    uint32_t readValues;
-    uint16_t * low = (uint16_t *) &readValues;
-    uint16_t * high = low + 1;
+    chRegSetThreadName("Letter");
+    static EventListener eventSoundLst;
+    chEvtRegisterMask(&eventSoundSrc , &eventSoundLst ,EVENT_MASK(1));
     
-    while(1){
+    while (1) {
+	chEvtWaitOne(EVENT_MASK(1));
+	chMtxLock(&appliMtx);
+	
+	cmdPlay((BaseSequentialStream *) &SDU1, 1, &lettersSound);
+	chThdSleepSeconds(13);
+	
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	chThdSleepSeconds(1);
+	cmdEncode((BaseSequentialStream *) &SDU1, 2, encodeAlphabet);
+	chThdSleepMilliseconds(10100);
+	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	
+	writeSerial("reacording finished\r\n");
+	uploadFile("kudly.herokuapp.com/sendimage", "alphabetChild.ogg",
+		   "alphabetChild.ogg");
+	f_unlink("alphabetChild.ogg");
+	ledSetColorRGB(0, 0, 255, 0);
 	chThdSleepMilliseconds(500);
-	
-	int timeBegin = chTimeNow();
-	readValues = getHandValues();
-	
-	/* While pressed, wait */
-        while (*high > 300){
-            readValues = getHandValues();
-            chThdSleepMilliseconds(100);
-        }
-        
-        /* If pressed lon enought, photo */
-        if(chTimeNow() - timeBegin > 1000 && chTimeNow() - timeBegin < 3000){
-
-	    if(!chMtxTryLock(&appliMtx))
-		continue;
-	    
-	    cmdPlay((BaseSequentialStream *) &SDU1, 1, &lettersSound);
-	    chThdSleepSeconds(13);
-
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	    cmdEncode((BaseSequentialStream *) &SDU1, 2, encodeAlphabet);
-	    chThdSleepMilliseconds(10100);
-	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-
-	    chMtxUnlock();
-	    
-	    uploadFile("kudly.herokuapp.com/sendimage", "alphabetChild.ogg",
-		       "alphabetChild.ogg");
-	    f_unlink("alphabetChild.ogg");
-	}
+	ledSetColorRGB(0, 0, 0, 0);
+	chMtxUnlock();
     }
-    return 0;
+return 0;
 }
 
+static msg_t xmlPollingThread(void * args) {
+    (void) args;
+    chRegSetThreadName("xmlPolling");
+    while (1) {
+
+	chMtxLock(&appliMtx);
+	parsePage("kudly.herokuapp.com/config");
+	chMtxUnlock();
+	writeSerial("Polling ...\r\n");
+	chThdSleepSeconds(5);
+    }
+return 0;
+}
 /*
  * Initializes the threads
  */
 void applicationInit() {
-    chMtxInit(&appliMtx);
+    chThdCreateStatic(waXmlPolling, sizeof(waXmlPolling), NORMALPRIO, xmlPollingThread, NULL); 
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL); 
     chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL);
     chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL); 

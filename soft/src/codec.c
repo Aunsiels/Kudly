@@ -196,28 +196,28 @@ static msg_t threadEncode(void *arg){
             continue;
         }
         /* Set desactive sound on the speaker */
-        codecVolume(75);
+        codecVolume(1);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x1 */
-        writeRegister(SCI_AICTRL2,1024);
+        writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO );
         /* Set quality mode to 9 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
 
-	/* Reset the variables to stop encoding / decoding */
+        /* Reset the variables to stop encoding / decoding */
         playerState = 1;
         stopSound = 0;
-	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
-	/* Reset the variables to stop encoding / decoding */
+        /* Reset the variables to stop encoding / decoding */
         playerState = 1;
         stopSound = 0;
 
@@ -282,13 +282,13 @@ static msg_t threadTestVolume(void *arg){
             continue;
         }
         /* Disable sound on speakers */
-        codecVolume(75);
+        codecVolume(100);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
         /* Maximum gain amplification at x40 */
-        writeRegister(SCI_AICTRL2,1024);
+        writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, and in format OGG Vorbis */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
@@ -300,7 +300,7 @@ static msg_t threadTestVolume(void *arg){
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
 
         /* Start encoding procedure */
-        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE | SM_LINE1);
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
 	/* Reset the variables to control encoding / decoding */
@@ -430,9 +430,9 @@ void codecVolume(int volume) {
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the file name after the command Play\r\n");
+        writeSerial( "Enter the file name after the command Play\r\n");
         return;
     }
 
@@ -444,9 +444,9 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 2) {
-        chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
+        writeSerial( "Enter the file, and the duration of recording name after the command Encode\r\n");
         return;
     }
 
@@ -459,9 +459,9 @@ void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the duration of recording for the volume test\r\n");
+        writeSerial( "Enter the duration of recording for the volume test\r\n");
         return;
     }
     duration  = strtol(argv[0],NULL,10);
@@ -483,9 +483,9 @@ void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the volume level after the command Volume\r\n");
+        writeSerial( "Enter the volume level after the command Volume\r\n");
         return;
     }
 
@@ -504,9 +504,9 @@ void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-    
+    (void)chp;    
     if (argc != 1) {
-        chprintf(chp, "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
+        writeSerial( "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
         return;
     }
 
@@ -577,7 +577,6 @@ void codecLowPower(void){
 
 /* Buffer used for construcion of read and write command instructions */
 static uint8_t instruction[4];
-static uint8_t registerContent[4];
 
 /* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
@@ -613,6 +612,8 @@ void writeRam32(uint16_t adress, uint32_t data){
 
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
+    uint8_t registerContent[4];
+
     /* Wait until it's possible to read from SCI */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 

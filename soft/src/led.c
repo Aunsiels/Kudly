@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ch.h>
 #include <hal.h>
+#include "usb_serial.h"
 
 /* PWM configuration for led 1 */
 static PWMConfig pwmcfg_led1 = {
@@ -178,9 +179,10 @@ void ledTest(void) {
 
 void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
 
-    chprintf(chp, "Starting test leds...\n\r");
+    writeSerial( "Starting test leds...\n\r");
     (void)argv;
     (void)argc;
+    (void)chp;
 
     ledSetColorRGB(0, 255, 255, 255);
     chThdSleepMilliseconds(500);
@@ -236,13 +238,14 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
 }
 
 void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
+    (void)chp;
     static int r, g, b, h, s, v, led;
 
     if(argc != 5 || !strcmp(argv[0], "--help")) {
-        chprintf(chp, "Usage :\r\n");
-        chprintf(chp, "\tled rgb {0|1|2} r_val g_val b_val\r\n");
-        chprintf(chp, "\tled hsv {0|1|2} h_val s_val v_val\r\n");
-        chprintf(chp, "\t1 or 2 selects only one led, 0 changes both leds\r\n");
+        writeSerial( "Usage :\r\n");
+        writeSerial( "\tled rgb {0|1|2} r_val g_val b_val\r\n");
+        writeSerial( "\tled hsv {0|1|2} h_val s_val v_val\r\n");
+        writeSerial( "\t1 or 2 selects only one led, 0 changes both leds\r\n");
         return;
     }
     
@@ -254,11 +257,11 @@ void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
 
         if(r < 0 || g < 0 || b < 0 ||
                 r > 255 || g > 255 || b > 255) {
-            chprintf(chp, "Wrong parameters\n\r"); 
+            writeSerial( "Wrong parameters\n\r"); 
             return;
         }
 
-        chprintf(chp, "Setting led value to (r,g,b) = (%d,%d,%d)\n\r", r, g, b);
+        writeSerial( "Setting led value to (r,g,b) = (%d,%d,%d)\n\r", r, g, b);
         ledSetColorRGB(led, r, g, b);
         return;
     }
@@ -271,11 +274,11 @@ void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
 
         if(h < 0 || s < 0 || v < 0 ||
                 h > 359 || s > 100 || v > 100) {
-            chprintf(chp, "Wrong parameters\n\r"); 
+            writeSerial( "Wrong parameters\n\r"); 
             return;
         }
         
-        chprintf(chp, "Setting led value to (h,s,v) = (%d,%d,%d)\n\r", h, s, v);
+        writeSerial( "Setting led value to (h,s,v) = (%d,%d,%d)\n\r", h, s, v);
         ledSetColorHSV(led, h, s, v);
         return;
     }

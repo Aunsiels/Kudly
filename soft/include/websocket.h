@@ -4,9 +4,6 @@
 #include "hal.h"
 #include "ch.h"
 
-/* Main receiving mailbox */
-extern Mailbox * mb;
-
 //Boolean values, both defined in wifi_manager.c
 extern bool_t streaming;
 extern bool_t print;

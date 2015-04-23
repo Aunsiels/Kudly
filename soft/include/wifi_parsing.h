@@ -21,18 +21,39 @@ extern EventSource eventPhotoSrc;
 
 /**
  *
+ * \brief Event source to signal streaming
+ *
+ */
+extern EventSource eventStreamSrc;
+
+/**
+ *
+ * \brief Event source to signal a sound
+ *
+ */
+extern EventSource eventSoundSrc;
+
+/**
+ *
+ * \brief Event source to signal a story
+ *
+ */
+extern EventSource eventStorySrc;
+
+/**
+ *
+ * \brief Event source to signal a story
+ *
+ */
+extern EventSource eventGameSrc;
+
+/**
+ *
  * \brief XML parsing to execute actions
  *
  * This function parses a xml page from serve and launches right 
  * functions  
  */
 void parseXML(char c);
-
-/**
- *
- * \brief Launches thread that waits for xml action
- *  
- */
-void wifiCommands(void);
 
 #endif

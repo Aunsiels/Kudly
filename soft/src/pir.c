@@ -2,6 +2,7 @@
 #include "ch.h"
 #include "pir.h"
 #include "chprintf.h"
+#include "usb_serial.h"
 
 /* Event for the pir */
 EVENTSOURCE_DECL(pirEvent);
@@ -36,8 +37,9 @@ void pirInit(){
  */
 void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
     (void) argv;
+    (void) chp;
     if (argc > 0){
-        chprintf(chp, "Usage : pir\r\n");
+        writeSerial( "Usage : pir\r\n");
         return;
     }
     /* Event listener for change */
@@ -50,28 +52,28 @@ void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
         /* Wait for a change for 10 seconds */
         int res = palReadPad(GPIOD,GPIOD_PIR);
         if (res){
-            chprintf(chp, "Current : mouvement detected\r\n");
+            writeSerial( "Current : mouvement detected\r\n");
         } else {
-            chprintf(chp, "Current : mouvement stopped\r\n");
+            writeSerial( "Current : mouvement stopped\r\n");
         }
-        chprintf(chp, "Please change state");
+        writeSerial( "Please change state");
         check = chEvtWaitOneTimeout(EVENT_MASK(1),MS2ST(10000));
         if (check == 0) {
-            chprintf(chp, "The operation timed out\r\n");
+            writeSerial( "The operation timed out\r\n");
             break;
         } else {
             res = palReadPad(GPIOD,GPIOD_PIR);
             if (res){
-                chprintf(chp, "Mouvement detected\r\n");
+                writeSerial( "Mouvement detected\r\n");
             } else {
-                chprintf(chp, "Mouvement stopped\r\n");
+                writeSerial( "Mouvement stopped\r\n");
             }
         }
     }
     if (i == 10){
-        chprintf(chp, "The 10 changes have been detected\r\n");
+        writeSerial( "The 10 changes have been detected\r\n");
     } else {
-        chprintf(chp, "Some changes were not detected\r\n");
+        writeSerial( "Some changes were not detected\r\n");
     }
     chEvtUnregister(&pirEvent, &el);
 }

@@ -15,7 +15,7 @@ static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
 static msg_t mb_buf[32];
-MAILBOX_DECL(mbReceiveWifi, mb_buf, 32);
+MAILBOX_DECL(mbReceiveWifi, mb_buf, sizeof(mb_buf) / sizeof(mb_buf));
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -28,7 +28,6 @@ static char wifi_buffer;
 /* Some string used by initialization to configure network */
 static char ssid[] = "set wlan.ssid \"54vergniaud\"\r\n";
 static char passkey[] = "set wlan.passkey \"rose2015rulez\"\r\n";
-static char nup[] = "nup\r\n";
 static char save[] = "save\r\n";
 
 /* http request on Kudly website */
@@ -37,8 +36,14 @@ static char cfg_printLevel0[] = "set system.print_level 0\r\n";
 static char cfg_promptOff[] = "set system.cmd.prompt_enabled 0\r\n";
 static char cfg_headersOn[] = "set system.cmd.header_enabled 1\r\n";
 
+/* String for lowpower mode */
+static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
+static char sleep[] ="sleep\r\n";
+
 /* Mutex for wifi access */
-Mutex wifiAccessMtx;
+MUTEX_DECL(wifiAccessMtx);
+MUTEX_DECL(writeMtx);
+
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
 {
@@ -61,15 +66,19 @@ static msg_t usartReadInMB_thd(void * args) {
 
 /* Sends data by wifi */
 void wifiWriteByUsart(char * message, int length){
-    chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,1);
+    chMtxLock(&writeMtx);    
+    chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
-    chEvtWaitOne(1);
+    chEvtWaitOne(EVENT_MASK(1));
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
+    chMtxUnlock();
 }
 
 /* Same as above but don't want to wait for the response */
 void wifiWriteNoWait(char * message, int length){
+    chMtxLock(&writeMtx);
     sdWrite(&SD3, (uint8_t*)message, length);
+    chMtxUnlock();
 }
 
 /*  Launches the wifi reading */
@@ -100,30 +109,74 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RX, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_CTS, PAL_MODE_ALTERNATE(7));
     palSetPadMode (GPIOD,GPIOD_WIFI_UART_RTS, PAL_MODE_ALTERNATE(7));
-    /* Init Mutex for wifi access */
-    chMtxInit(&wifiAccessMtx);
+    palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
+    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
+   
     /* Start usart 3 */
     sdStart(&SD3, &uartCfg);
     /* Fill mailbox with usart data */
     wifiReadByUsart();
     /* Send commad to wifi module */
-    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff));
-    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0));
-    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn));
-    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff));
-    wifiWriteByUsart(ssid, sizeof(ssid));
-    wifiWriteByUsart(passkey, sizeof(passkey));
-    wifiWriteByUsart(save, sizeof(save));
-    wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(4000);
-    wifiWriteByUsart(nup, sizeof(nup));
-    chThdSleepMilliseconds(3000);
+    wifiWriteByUsart(cfg_echoOff, sizeof(cfg_echoOff)-1);
+    wifiWriteByUsart(cfg_printLevel0, sizeof(cfg_printLevel0)-1);
+    wifiWriteByUsart(cfg_headersOn, sizeof(cfg_headersOn)-1);
+    wifiWriteByUsart(cfg_promptOff, sizeof(cfg_promptOff)-1);
+    wifiWriteByUsart(wakeUp, sizeof(wakeUp)-1);
+    wifiWriteByUsart(ssid, sizeof(ssid)-1);
+    wifiWriteByUsart(passkey, sizeof(passkey)-1);
+    wifiWriteByUsart(save, sizeof(save)-1);
+    
+    /* Loop to test the network connection */
+    bool_t state;
+    while(TRUE){
+	state = wifiNup();
+	if (state == TRUE){
+	    ledSetColorRGB(0, 0, 255, 0);
+	    break;
+	}
+	else
+	    ledSetColorRGB(0, 255, 0, 0);
+
+	chThdSleepMilliseconds(500);
+	ledSetColorRGB(0, 0, 0, 0);
+	chThdSleepMilliseconds(500);
+    }
+    chThdSleepMilliseconds(500);
+    ledSetColorRGB(0, 0, 0, 0);
     writeSerial("Wifi ready to use\r\n");
-    /* Active Thread that wait xml command */
-    wifiCommands();
 
     /*
      * Configuring wifi module in machine friendly command mode
      * cf : http://wiconnect.ack.me/2.1/serial_interface#configuration
      */
+}
+
+
+static msg_t wifiSleep(void){
+    writeSerial("Wifi is sleeping\r\n");	
+    wifiWriteByUsart(sleep, sizeof(sleep)-1);
+    return 0;
+}
+
+static void wifiWakeUp(void){
+    palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);    
+    chThdSleepMilliseconds(100);
+    palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);    
+    writeSerial("Wifi is woke up\r\n");
+}
+
+/* Command to sleep the wifi module */
+void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    wifiSleep();
+}
+
+/* Command to wake up the wifi module */
+void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]){
+    (void)chp;
+    (void)argc;
+    (void)argv;
+    wifiWakeUp();
 }
