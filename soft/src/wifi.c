@@ -144,8 +144,6 @@ void wifiInitByUsart(void) {
     chThdSleepMilliseconds(500);
     ledSetColorRGB(0, 0, 0, 0);
     writeSerial("Wifi ready to use\r\n");
-    /* Active Thread that wait xml command */
-    wifiCommands();
 
     /*
      * Configuring wifi module in machine friendly command mode

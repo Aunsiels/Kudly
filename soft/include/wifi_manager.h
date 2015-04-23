@@ -91,4 +91,10 @@ void postAndRead( char * address , char * data);
  * \return State of netwoork connection
  */
 bool_t wifiNup(void);
+
+/**
+ * \brief Parse xml web page
+ * \param Web address to parse
+ */
+void parsePage( char * address);
 #endif

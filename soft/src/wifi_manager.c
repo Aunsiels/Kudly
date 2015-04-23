@@ -13,7 +13,7 @@
 #define DATA_READ 1440
 #define DATA_WRITE 1440
  
-#define DATA_SIZE (DATA_READ>DATA_WRITE)?(DATA_READ):(DATA_WRITE)
+#define DATA_SIZE (DATA_READ>DATA_WRITE?DATA_READ:DATA_WRITE)
 
 /* Different states for usart reading */
 enum wifiReadState {
@@ -338,6 +338,7 @@ UPLD_BGN:
     dword = f_size(&fil);
 
     /* Build wifi module command to create a new file */
+    msgWifi[0]='\0';
     strcat(msgWifi ,file_create);
     strcat(msgWifi ,localFile);
     strcat(msgWifi , " ");
@@ -436,7 +437,8 @@ void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]){
 }
 
 /* Function that sends hhtp_request and send data to xml parsing */
-static void parsePage( char * address){
+void parsePage( char * address){
+    chMtxLock(&wifiAccessMtx);
 
     /* Build http request command */
     strcat(msgWifi , http_get);
@@ -467,8 +469,7 @@ static void parsePage( char * address){
     }
     save = FALSE;
     print = TRUE;
-    
-    writeSerial("Page read\r\n");
+    chMtxUnlock();
 }
 
 /* Shell command to read a web xml page on server and execute actions */

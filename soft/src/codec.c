@@ -196,7 +196,7 @@ static msg_t threadEncode(void *arg){
             continue;
         }
         /* Set desactive sound on the speaker */
-        codecVolume(100);
+        codecVolume(1);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
