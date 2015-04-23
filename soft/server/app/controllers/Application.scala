@@ -189,7 +189,7 @@ object Application extends Controller {
      */
     val graphForm : Form[graphPost] = Form(
         mapping(
-            "date"  -> optional(date("dd/MM/yyyy/HH/mm")),
+            "date"  -> optional(date("dd/MM/yyyy/HH/mm/ss")),
             "value" -> number
         )(graphPost.apply)(graphPost.unapply)
     )
@@ -201,16 +201,35 @@ object Application extends Controller {
         Ok(views.html.graph("Temperature", "temp"))
     }
 
-    /*
+    def calculate (aux : Int) : Double = {
+        var temperature : Double = 0
+        var i = 0
+        for(i <- 0 to 11){
+            temperature += ((aux >> i)&0x01)*Math.pow(2,i-4)
+        }
+        if (((aux >> 12)&0x01) == 1)
+            temperature *= -1;
+        return temperature
+    }
+
+    /* 
      * Set temp value
      */
     def temp = Action { implicit request =>
         graphForm.bindFromRequest.fold(
             error => BadRequest("Bad argument"),
             data  => {
+                var aux = data.value
+                var temperature : Double = 0
+                var i = 0
+                for(i <- 0 to 11){
+                    temperature += ((aux >> i)&0x01)*Math.pow(2,i-4)
+                }
+                if (((aux >> 12)&0x01) == 1)
+                    temperature *= -1;
                 var tempData = MongoDBObject(
                     "data"  -> "temp",
-                    "value" -> data.value,
+                    "value" -> temperature,
                     "date"  -> data.date.getOrElse(new java.util.Date())
                 )
                 rawCollection += tempData
@@ -323,13 +342,16 @@ object Application extends Controller {
      */
     def upload = Action(parse.multipartFormData) { request =>
         request.body.file("file").map { picture =>
-            val filename = picture.filename
+            val filename = picture.filename 
             val contentType = picture.contentType
 
-            picture.ref.moveTo(new File(s"/tmp/$filename"))
-            var image = new FileInputStream(s"/tmp/$filename")
+            var f = new File(s"/tmp/$filename")
+            f.delete()
+            picture.ref.moveTo(f)
+            var image = new FileInputStream(f)
 
             try {
+                gridfs remove filename
                 /* Write in the database */
                 var id = gridfs(image) { f =>
                     f.filename = filename
@@ -399,7 +421,7 @@ object Application extends Controller {
 
     val samplesPerFrame: Int = 1
     val frameRate: Int = 8000
-    val bitsPerSample: Int = 8
+    val bitsPerSample: Int = 16
 
     val bytesPerSamples = ((bitsPerSample+7)/8).toInt
 
@@ -446,8 +468,7 @@ object Application extends Controller {
     /* Streams the sound to the parents */
     def toParent = Action {
         streamingRequest = 1;
-        Ok.chunked(audioHeader >>> enumParent &>
-            Concurrent.dropInputIfNotReady(50)).
+        Ok.chunked(audioHeader >>> enumParent).
             withHeaders( (CONTENT_TYPE, "audio/wav"),
                          (CACHE_CONTROL, "no-cache"))
     }
