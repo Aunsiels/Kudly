@@ -26,14 +26,16 @@ static WORKING_AREA(stream_wa, 128);
 static msg_t mbCodecOut_buf[128];
 static msg_t mbCodecIn_buf[128];
 
-Mailbox mbCodecOut;
-Mailbox mbCodecIn;
+MAILBOX_DECL(mbCodecOut, sizeof(mbCodecOut_buf) / sizeof(msg_t));
+MAILBOX_DECL(mbCodecIn, sizeof(mbCodecIn_buf) / sizeof(msg_t));
 
 /* Buffer to send in a websocket */ 
 static char codecOutBuffer[WS_DATA_SIZE];
 
 /* Streaming event sources */
-EventSource streamOutSrc, streamInSrc, pollReadSrc;
+EVENTSOURCE_DECL(streamOutSrc);
+EVENTSOURCE_DECL(streamInSrc);
+EVENTSOURCE_DECL(pollReadSrc);
 
 static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
 static char streamWriteHeader[] = "write 0 162\r\n\
@@ -260,12 +262,6 @@ void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
  */
 void streamInit(void){
 
-    chMBInit(&mbCodecOut, mbCodecOut_buf, sizeof mbCodecOut_buf / sizeof(msg_t));
-    chMBInit(&mbCodecIn, mbCodecIn_buf, sizeof mbCodecIn_buf / sizeof(msg_t));
-
-    chEvtInit(&streamOutSrc);
-    chEvtInit(&streamInSrc);
-    chEvtInit(&pollReadSrc);
 
     chThdCreateStatic(
             streamingIn_wa, sizeof(streamingIn_wa),

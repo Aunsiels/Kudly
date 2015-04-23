@@ -63,7 +63,7 @@ static UINT br;
 static char stream_buffer[DATA_READ + 4];
 
 /* Event source to signal whan all data are received */
-EventSource srcEndToReadUsart;
+EVENTSOURCE_DECL(srcEndToReadUsart);
 
 /* Data size to be used after broacast */
 static int dataSize;

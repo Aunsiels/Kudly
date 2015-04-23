@@ -5,7 +5,7 @@
 #include "usb_serial.h"
 
 /* Event for the pir */
-EventSource pirEvent;
+EVENTSOURCE_DECL(pirEvent);
 
 /*
  * Callback function for the pir
@@ -30,7 +30,6 @@ static EXTChannelConfig config[] =
 void pirInit(){
     palSetPadMode(GPIOD,GPIOD_PIR,PAL_MODE_INPUT_PULLDOWN);
     extSetChannelMode(&EXTD1,GPIOD_PIR, config);
-    chEvtInit(&pirEvent);
 }
 
 /*

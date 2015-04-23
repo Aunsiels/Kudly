@@ -18,9 +18,11 @@ static uint8_t* imgBuf0 = imgBuf;
 static uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
 /* Source to indicate if a frame ends or dma ends */
-static EventSource dmaEvS, frameEvS;
+static EVENTSOURCE_DECL(dmaEvS); 
+static EVENTSOURCE_DECL(frameEvS);
 /* The listeners linked */
-static EventListener dmaEvL, frameEvL;
+static EventListener dmaEvL;
+static EventListener frameEvL;
 
 /* Callback frame end */
 static void frameEndCb(DCMIDriver* dcmip) {
@@ -185,10 +187,6 @@ void cameraInit() {
     chThdSleepMilliseconds(100);
     /* Start camera */
     palClearPad(GPIOC, GPIOC_CAMERA_ENABLE);
-
-    /* Initializes the events */
-    chEvtInit(&dmaEvS);
-    chEvtInit(&frameEvS);
 
     /* Initialize the DCMI driver */
     dcmiObjectInit(&DCMID1);

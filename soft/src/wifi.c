@@ -15,7 +15,7 @@ static EventListener lstEndToReadUsart;
 
 /* Mailbox for received data */
 static msg_t mb_buf[32];
-Mailbox mbReceiveWifi;
+MAILBOX_DECL(mbReceiveWifi, mb_buf, sizeof(mb_buf) / sizeof(mb_buf));
 
 /* Special strings to print */
 static char crlf[] ="\r\n";
@@ -41,8 +41,8 @@ static char wakeUp[] = "set system.wakeup.events gpio22\r\n";
 static char sleep[] ="sleep\r\n";
 
 /* Mutex for wifi access */
-Mutex wifiAccessMtx;
-Mutex writeMtx;
+MUTEX_DECL(wifiAccessMtx);
+MUTEX_DECL(writeMtx);
 
 /* Serial driver that uses usart3 */
 static SerialConfig uartCfg =
@@ -112,13 +112,6 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
     palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
    
-    /* Init Mutex for wifi access */
-    chMtxInit(&wifiAccessMtx);
-    chEvtInit(&srcEndToReadUsart);
-    chMtxInit(&writeMtx);
-    chEvtInit(&eventPhotoSrc);
-
-    chMBInit(&mbReceiveWifi, mb_buf, 32);
     /* Start usart 3 */
     sdStart(&SD3, &uartCfg);
     /* Fill mailbox with usart data */
