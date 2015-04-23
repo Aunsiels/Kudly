@@ -584,7 +584,6 @@ void codecLowPower(void){
 
 /* Buffer used for construcion of read and write command instructions */
 static uint8_t instruction[4];
-static uint8_t registerContent[4];
 
 /* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
@@ -620,6 +619,8 @@ void writeRam32(uint16_t adress, uint32_t data){
 
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
+    uint8_t registerContent[4];
+
     /* Wait until it's possible to read from SCI */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
 
