@@ -23,8 +23,8 @@ static WORKING_AREA(streamingIn_wa, 128);
 static WORKING_AREA(stream_wa, 128);
 
 /* Codec mailboxes */
-static msg_t mbCodecOut_buf[256];
-static msg_t mbCodecIn_buf[256];
+static msg_t mbCodecOut_buf[128];
+static msg_t mbCodecIn_buf[128];
 
 Mailbox mbCodecOut;
 Mailbox mbCodecIn;
@@ -260,8 +260,8 @@ void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
  */
 void streamInit(void){
 
-    chMBInit(&mbCodecOut, mbCodecOut_buf, 128);
-    chMBInit(&mbCodecIn, mbCodecIn_buf, 128);
+    chMBInit(&mbCodecOut, mbCodecOut_buf, sizeof mbCodecOut_buf / sizeof(msg_t));
+    chMBInit(&mbCodecIn, mbCodecIn_buf, sizeof mbCodecIn_buf / sizeof(msg_t));
 
     chEvtInit(&streamOutSrc);
     chEvtInit(&streamInSrc);
