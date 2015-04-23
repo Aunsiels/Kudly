@@ -85,7 +85,7 @@ static void tmr_init(void *p) {
 /*
  * FS object.
  */
-FATFS MMC_FS;
+static FATFS MMC_FS;
 
 /*
  * MMC driver instance.
@@ -106,7 +106,7 @@ static SPIConfig ls_spicfg = {NULL, GPIOD, 10,
 static MMCConfig mmccfg = {&SPID2, &ls_spicfg, &hs_spicfg};
 
 /* Generic large buffer.*/
-uint8_t fbuff[1024];
+static uint8_t fbuff[1024];
 
 /* Is the sd card ready ? */
 bool_t sdIsReady (){
