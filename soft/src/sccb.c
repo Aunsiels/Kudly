@@ -50,8 +50,9 @@ void sccbInit(){
     palSetPad(GPIOC, SIO_D);
 
     /* Init GPT */
-    gptStart(&GPTD4, &gpt4cfg);
-
+    do {
+	gptStart(&GPTD4, &gpt4cfg);
+    }while(GPTD4.state != GPT_READY);
     /* Ready to be used */
     state = SCCB_READY;
 }

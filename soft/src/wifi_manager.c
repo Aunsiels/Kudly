@@ -329,6 +329,7 @@ void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
 void uploadFile( char *address , char * localFile , char * remoteFile){
     chMtxLock(&wifiAccessMtx);
     /* Open file in reading mode */
+UPLD_BGN:
     res = f_open(&fil,localFile,FA_OPEN_EXISTING | FA_READ);
     if (res) {
         writeSerial("Cannot read this file %d\r\n",res);
@@ -371,7 +372,18 @@ void uploadFile( char *address , char * localFile , char * remoteFile){
 	sendStreamCommand(stream_write, &stream , &intBr , writeBuff);
 	if(NULL == strstr(stream_buffer, "Success")){
 	    writeSerial("A stream not sent\r\n");
-	    break;
+	    f_close(&fil);
+
+	    sendStreamCommand(stream_close, &stream , NULL , NULL);
+	    /* Build string to delete file in wifi module flash */
+	    strcat(msgWifi,file_delete);
+	    strcat(msgWifi,localFile);
+	    strcat(msgWifi,endLine);
+	    
+	    /* Send wifi command to delete file in wifi module flash */
+	    wifiWriteByUsart(msgWifi, strlen(msgWifi));    
+	    msgWifi[0] ='\0';   
+	    goto UPLD_BGN;
 	} 	
 	if(br != DATA_WRITE){	    
 	    break;

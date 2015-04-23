@@ -18,15 +18,15 @@
 /* Working area hands */
 static WORKING_AREA(waHands, 1024);
 /* Working area hug */
-static WORKING_AREA(waHug, 128);
+static WORKING_AREA(waHug, 1024);
 /* Working area temperature */
-static WORKING_AREA(waTemp, 128);
+static WORKING_AREA(waTemp, 1024);
 /* Working area pir */
-static WORKING_AREA(waPir, 128);
+static WORKING_AREA(waPir, 1024);
 /* Working area cry */
 static WORKING_AREA(waCry, 1024);
 /* Working area educ color */
-static WORKING_AREA(waEducColor, 128);
+static WORKING_AREA(waEducColor, 1024);
 /* Working area educ letters */
 static WORKING_AREA(waEducLetters, 1024);
 
@@ -153,12 +153,14 @@ static msg_t handsThread(void * args) {
             chThdSleepMilliseconds(100);
 	    
 	    ledSetColorRGB(0, 0, 0, 0);
-	    chMtxUnlock();
+            chMtxUnlock();
 	    
             uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
 		       "photo.jpg");
             f_unlink("photo.jpg");
-            
+	    ledSetColorRGB(0, 0, 255, 0);
+	    chThdSleepMilliseconds(500);
+	    ledSetColorRGB(0, 0, 0, 0);
         }	
     }
     return 0;
@@ -347,6 +349,7 @@ static msg_t educLettersThread(void * args) {
 	    chThdSleepSeconds(13);
 
 	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+	    chThdSleepSeconds(1);
 	    cmdEncode((BaseSequentialStream *) &SDU1, 2, encodeAlphabet);
 	    chThdSleepMilliseconds(10100);
 	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
@@ -356,6 +359,9 @@ static msg_t educLettersThread(void * args) {
 	    uploadFile("kudly.herokuapp.com/sendimage", "alphabetChild.ogg",
 		       "alphabetChild.ogg");
 	    f_unlink("alphabetChild.ogg");
+	    ledSetColorRGB(0, 0, 255, 0);
+	    chThdSleepMilliseconds(500);
+	    ledSetColorRGB(0, 0, 0, 0);
 	}
     }
     return 0;
