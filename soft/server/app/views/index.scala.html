@@ -238,6 +238,24 @@
                     </div>
                 </div>
 
+                <div class="modal fade" id="cryModal" tabindex="-1" role="dialog" aria-labelledby="cryModal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel">Votre bébé pleure-t-il ?</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="cryChart" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="photoModal" aria-hidden="true">
                     <div class="modal-dialog photo-modal-dialog">
                         <div class="modal-content">
@@ -285,6 +303,20 @@
                 </div>
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
+
+                    <div class="grid wow zoomIn" data-toggle="modal" data-target="#cryModal">
+                        <figure class="effect-bubba">
+                            <img src="assets/images/cry.jpg" alt="img01"/>
+                            <figcaption>
+                                <h2><span>Ouinnnnnn !!</span></h2>
+                                <p>Votre enfant pleure-t-il ?</p>
+                            </figcaption>
+                        </figure>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-offset-4 col-sm-4 col-md-4">
 
                     <div class="grid wow zoomIn" data-toggle="modal" data-target="#photoModal">
                         <figure class="effect-bubba">
@@ -445,6 +477,9 @@
             });
             $.getJSON("@controllers.routes.Application.dataJSON("Activity", "activity")", function(result){
                 AmCharts.makeChart("activityChart",result);
+            });
+            $.getJSON("@controllers.routes.Application.dataJSON("Cry", "cry")", function(result){
+                AmCharts.makeChart("cryChart",result);
             });
         });
     </script>
