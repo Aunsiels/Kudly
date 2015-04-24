@@ -28,4 +28,11 @@ void initHandSensors(void);
  */
 void cmdHandSensors(BaseSequentialStream *chp, int argc, char *argv[]);
 
+/**
+ * \brief Get the values of the hands sensors
+ *
+ * \return The lsb are the right and the msb are the left sensors
+ */
+uint32_t getHandValues (void);
+
 #endif

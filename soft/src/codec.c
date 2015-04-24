@@ -3,7 +3,6 @@
 #include "codecDefinitions.h"
 #include "codec.h"
 #include "usb_serial.h"
-#include "led.h"
 #include "ff.h"
 #include "chprintf.h"
 #include "websocket.h"
@@ -30,6 +29,11 @@ static WORKING_AREA(waFullDuplex, 2048);
 static WORKING_AREA(waSendData, 1024);
 
 volatile int volLevel = 5;
+
+/* Variable to stop recording / encoding */
+volatile bool_t stopSound = 0;
+volatile bool_t playerState = 1;
+volatile bool_t stopRecord = 1;
 
 /* Functions used to access registers and ram of the codec */
 static void writeRegister(uint8_t adress, uint16_t command);
@@ -75,21 +79,27 @@ static msg_t threadPlayback(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
+	/* Volume set at maximum for the demo */
+	codecVolume(100);
+	
         /* Reset the control command */
         control = 0;
+	
+        /* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+	stopSound = 0;
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+	
         /* Open a file in reading mode */
         f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
         /* Get the file contain and keep it in a buffer */
-        while(!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))){
+        while((!(f_read(&readFp,playBuf,FILE_BUFFER_SIZE,&bytesNumber))) & playerState){
             /* Send the whole file to VS1063 */
             t = min(SDI_MAX_TRANSFER_SIZE, bytesNumber);
             sendData(playBuf,t);
             if(t != SDI_MAX_TRANSFER_SIZE)
                 break;
             switch(control){
-            case 'q' :
-                writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
-                break;
             case '+' :
                 if(volLevel == 100)
                     break;
@@ -106,15 +116,13 @@ static msg_t threadPlayback(void *arg){
                     codecVolume(volLevel);
                     break;
                 }
-		
-            default:
-                break;
-            }
-            if(control == 'q'){
-                control = 0;
+	    default:
                 break;
             }
             control = 0;
+
+	    if(stopSound)
+		playerState = 0;
         }
 
         f_close(&readFp);
@@ -137,8 +145,8 @@ static msg_t threadPlayback(void *arg){
                 codecReset();
                 break;
             }
-        } 
-      
+        }
+
         if((readRegister(SCI_HDAT1)&readRegister(SCI_HDAT0))!=0){
             writeSerial("Error transmiiting audio file\r\n");
             return 0;
@@ -150,8 +158,6 @@ static msg_t threadPlayback(void *arg){
 
 static FIL encodeFp;
 static uint8_t recBuf[REC_BUFFER_SIZE];
-volatile int stopRecord = 0;
-volatile int playerState = 1;
 volatile int duration = 0;
 static char * nameEncode;
 
@@ -164,13 +170,12 @@ static msg_t waitRecording(void *arg){
     while(1){
         chEvtWaitOne(1);
         if(duration != 0){
-            /* Collect the data in HDAT0/1 */
+            /* Collect the data in HDAT0/1 during "duration" seconds */
             chThdSleepMilliseconds(duration*1000);
-	    
-            /* Stop the acquisition */
-            writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-            stopRecord = 1;
-        }
+
+	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+	    stopSound = 1;
+	}
     }
     return 0;
 }
@@ -193,28 +198,35 @@ static msg_t threadEncode(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
-        /* Set volume at maximum (for now micro is not pre-amplified) */
-        codecVolume(100);
+        /* Set desactive sound on the speaker */
+        codecVolume(1);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
-        /* Maximum gain amplification at x40 */
+        /* Maximum gain amplification at x1 */
         writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, and in format OGG Vorbis */
-        writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
-        /* Set quality mode to 5 */
+        writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO );
+        /* Set quality mode to 9 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-	
+
+        /* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+        writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
+        /* Reset the variables to stop encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+
         f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
-        chSysLock();
-        chEvtBroadcastI(&eventSourceWaitEncoding);
-        chSysUnlock();   
+        chEvtBroadcast(&eventSourceWaitEncoding);
       
         while(playerState){
             int n,i;
@@ -226,14 +238,13 @@ static msg_t threadEncode(void *arg){
                     data = readRegister(SCI_RECDATA);
                     *rbp++ = (uint8_t)(data >> 8);
                     *rbp++ = (uint8_t)(data & 0xFF);
-                }
+		}
                 f_write(&encodeFp, recBuf, 2*n, &bw);
             }   	    
             else{
-                if(stopRecord && !readRegister(SCI_RECWORDS)){
+                if(stopSound && !readRegister(SCI_RECWORDS)){
                     playerState = 0;
-                    ledSetColorRGB(2,0,0,0);        
-                }
+		}
             }
         }
         
@@ -257,6 +268,9 @@ static msg_t threadEncode(void *arg){
     return 0;
 }
 
+/* Variable in which the actual audio level is stocked */
+uint16_t audioLevel=0;
+
 static msg_t threadTestVolume(void *arg){
     (void) arg;
 
@@ -264,7 +278,6 @@ static msg_t threadTestVolume(void *arg){
     chEvtRegisterMask(&eventSourceVolume,&eventListener,1);
 
     while(1){
-        ledSetColorRGB(2,0,0,0);
         /* Wait for the thread to be called */
         chEvtWaitOne(1);
         /* Can't encode if SPI is not ready (typicaly when playback) */
@@ -272,7 +285,7 @@ static msg_t threadTestVolume(void *arg){
             writeSerial("SPI not ready\r\n");
             continue;
         }
-        /* Set volume at maximum (for now micro is not pre-amplified) */
+        /* Disable sound on speakers */
         codecVolume(100);
         /* Set the samplerate at 16kHz */
         writeRegister(SCI_AICTRL0,16000);
@@ -284,31 +297,34 @@ static msg_t threadTestVolume(void *arg){
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_OGG_VORBIS | RM_63_ADC_MODE_MONO);
         /* Set quality mode to 5 */
         writeRegister(SCI_WRAMADDR, RQ_MODE_QUALITY | 5);
-	
+
+	/* Reset the variables to control encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
 
-        chSysLock();
-        chEvtBroadcastI(&eventSourceWaitEncoding);
-        chSysUnlock();   
+	/* Reset the variables to control encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
+
+        chEvtBroadcast(&eventSourceWaitEncoding);
       
         while(playerState){
-            uint16_t level=0;
             /* See if there is some data available */
-            if((readRegister(SCI_RECWORDS)) > 0) {
+            if((readRegister(SCI_RECWORDS)) > 0 && !stopSound) {
                 readRegister(SCI_RECDATA);
-                    while ((level = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
-                    writeRam(PAR_ENC_CHANNEL_MAX,0);
-                writeSerial("Level : %d\r\n", level);
-                ledSetColorRGB(2,level,0,0);
+		while ((audioLevel = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
+		writeRam(PAR_ENC_CHANNEL_MAX,0);
                 chThdSleepMilliseconds(100);
             }   	    
             else{
-                if(stopRecord && !readRegister(SCI_RECWORDS)){
-                    playerState = 0;        
-                }
-            }
+		if(stopSound)
+		    playerState = 0;        
+	    }
         }
     
         writeRam(PAR_END_FILL_BYTE,0);
@@ -340,21 +356,30 @@ static msg_t threadFullDuplex(void *arg){
         }
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(90);
+
         /* Set the samplerate at 8kHz */ 
         writeRegister(SCI_AICTRL0,8000);
+
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
+        
         /* Maximum gain amplification at x40 */
         writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, in format PCM (non-compressed), full duplex mode, no header generated */
         writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);
         cmdDlWave(NULL, 0, NULL);
+	
+	/* Reset variables to stop the encoding / decoding */
+        playerState = 1;
+        stopSound = 0;
 
-        /*Start the sending of datas to SDI (for playback during streaming */
-        chSysLock();
-        chEvtBroadcastI(&eventSourceSendData);
-        chSysUnlock();   
-
+	/* Launch the streaming */
+	// Wait for streaming : streamLaunch(NULL,0,NULL);
+	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
+	
+	/*Start the sending of datas to SDI (for playback during streaming */
+	chEvtBroadcast(&eventSourceSendData);
+    
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
@@ -443,7 +468,6 @@ static msg_t threadSendData(void *arg){
             writeSerial("Nan");
         }
     }
-
     return(0);
 }
 
@@ -456,62 +480,53 @@ void codecVolume(int volume) {
 
 void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the file name after the command Play\r\n");
+        writeSerial( "Enter the file name after the command Play\r\n");
         return;
     }
 
     namePlayback = argv[0];
-    chSysLock();
-    chEvtBroadcastI(&eventSourcePlay);
-    chSysUnlock();   
+    chEvtBroadcast(&eventSourcePlay);   
 }
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 2) {
-        chprintf(chp, "Enter the file, and the duration of recording name after the command Encode\r\n");
+        writeSerial( "Enter the file, and the duration of recording name after the command Encode\r\n");
         return;
     }
 
     nameEncode = argv[0];
     duration  = strtol(argv[1],NULL,10);
-    chSysLock();
-    chEvtBroadcastI(&eventSourceEncode);
-    chSysUnlock();
+    chEvtBroadcast(&eventSourceEncode);
 }
 
 void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the duration of recording for the volume test\r\n");
+        writeSerial( "Enter the duration of recording for the volume test\r\n");
         return;
     }
     duration  = strtol(argv[0],NULL,10);
-    chSysLock();
-    chEvtBroadcastI(&eventSourceVolume);
-    chSysUnlock();
+    chEvtBroadcast(&eventSourceVolume);
 }
 
 
 void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
-    (void) chp;
-    
-    chSysLock();
-    chEvtBroadcastI(&eventSourceFullDuplex);
-    chSysUnlock();
+    (void) chp;    
+    chEvtBroadcast(&eventSourceFullDuplex);
 }
 
 void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-
+    (void)chp;
     if (argc != 1) {
-        chprintf(chp, "Enter the volume level after the command Volume\r\n");
+        writeSerial( "Enter the volume level after the command Volume\r\n");
         return;
     }
 
@@ -523,22 +538,20 @@ void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argc;
     (void) chp;
     
-    /* Stop the encoding (when duration is set to 0) */
+    /* Stop the encoding or decoding (useful when duration is set to 0) */
     writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-    stopRecord = 1;  
+    stopSound = 1;  
 }
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-    
+    (void)chp;    
     if (argc != 1) {
-        chprintf(chp, "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
+        writeSerial( "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
         return;
     }
 
     control = (uint8_t)argv[0][0];
-        
-    return;
 }
 
 
@@ -550,15 +563,13 @@ void codecInit(){
     palSetPadMode(GPIOE,GPIOE_SPI4_SCK,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
-    
-    
     codecReset();
     
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
     chThdCreateStatic(waVolume, sizeof(waVolume),NORMALPRIO, threadTestVolume,NULL);
-    chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO + 1, threadFullDuplex,NULL);
+    chThdCreateStatic(waFullDuplex, sizeof(waFullDuplex),NORMALPRIO+1, threadFullDuplex,NULL);
     chThdCreateStatic(waSendData, sizeof(waSendData),NORMALPRIO, threadSendData,NULL);
 
     /* Thread to count the duration of recording */
@@ -566,12 +577,11 @@ void codecInit(){
 }
 
 void codecReset(void){
-    /* Start of SPI bus */ 
+    /* Start of SPI bus */
     spiAcquireBus(&SPID4);
     spiStart(&SPID4, &hs_spicfg);
     spiSelect(&SPID4);
     spiReleaseBus(&SPID4);
-
     RESET_MODE;
 
     /* Software reset of the codec */
@@ -587,9 +597,9 @@ void codecReset(void){
     /* Set Clock settings : x4.5 multiplier (+ x1 when needed, to encode in Ogg Vorbis)  */
     writeRegister(SCI_CLOCKF,SC_MULT_53_45X|SC_ADD_53_10X);
     /* Set encoding samplerate to 16000Hz, in mono mode */
-    writeRegister(SCI_AUDATA,0x3E80);
+    writeRegister(SCI_AUDATA,16000);
     /* Both left and right volumes are at middle (50 over 100) */
-    codecVolume(50);
+    codecVolume(80);
 }
 
 void codecLowPower(void){
@@ -606,14 +616,12 @@ void codecLowPower(void){
 
 /* Buffer used for construcion of read and write command instructions */
 static uint8_t instruction[4];
-static uint8_t registerContent[4];
 
 /* Write in a register of the codec */
 static void writeRegister(uint8_t adress, uint16_t command){
     /* Wait until it's possible to write in registers */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
     spiAcquireBus(&SPID4);
-    
     COMMAND_MODE;
     
     /* Construction of instruction (Write opcode, adress, command) */
@@ -642,10 +650,11 @@ void writeRam32(uint16_t adress, uint32_t data){
 
 /* Read in  a register of a codec */
 static uint16_t readRegister(uint8_t adress){
+    uint8_t registerContent[4];
+
     /* Wait until it's possible to read from SCI */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
     spiAcquireBus(&SPID4);
-
     COMMAND_MODE;
 
     /* Construction of instruction (Read opcode, adress) */
@@ -653,8 +662,7 @@ static uint16_t readRegister(uint8_t adress){
     instruction[1] = adress;
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
 
-    RESET_MODE;
-    
+    RESET_MODE;    
     spiReleaseBus(&SPID4);
     /* Return only the 2 last bytes (data from the register) */
     return ((registerContent[2]<<8) + registerContent[3]);
@@ -683,13 +691,11 @@ static void sendData(const uint8_t * data, int size){
     /* Wait until it's possible to send data */
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
     spiAcquireBus(&SPID4);
-
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++){
-        spiSend(&SPID4,1,data++);
+        spiSend(&SPID4,1,data++);        
     }
-
     RESET_MODE;
     spiReleaseBus(&SPID4);
 }

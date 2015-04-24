@@ -12,13 +12,19 @@
 #include "codec.h"
 #include "camera.h"
 #include "websocket.h"
+#include "wifi_manager.h"
+#include "imu.h"
+#include "temperature.h"
+#include "i2c_perso.h"
+#include "ext_init.h"
+#include "pir.h"
+#include "application.h"
 
 int main(void) {
 
     halInit();
     chSysInit();
-    palClearPad(GPIOB, GPIOB_SPI2_MISO);
-    chThdSleepMilliseconds(100);
+
     /* Initialize the serial over usb */
     initUsbSerial();
 
@@ -46,19 +52,28 @@ int main(void) {
     /* Init ADC hand sensors */
     initHandSensors();
 
-    ledInit();
-
     /* Init codec */
     codecInit();
 
+    /* Init i2c bus */
+    i2cPersoInit();
+    
+    /* IMU init */
+    imuInit();
+
+    /* Init temperature sensor */
+    temperatureInit();
+
+    /* Initialize Ext */
+    extPersoInit();
+
+    /* Pir initialization */
+    pirInit();
+    
     streamInit();
+    /* Initializes the application */
+    applicationInit();
 
-    while(TRUE){
-	ledSetColorRGB(1,0,0,0);
-	chThdSleepMilliseconds(500);
-	ledSetColorRGB(1,0,255,0);
-	chThdSleepMilliseconds(500);
-    }
-
+    chThdSleepMilliseconds(TIME_INFINITE);
     return 0;
 }

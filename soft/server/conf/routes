@@ -11,4 +11,44 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 # Test of connexion
 GET    /connexion                   controllers.Application.connexion(pseudo : String, password : String)
 
+GET    /sound                       controllers.Application.stream
+
 GET    /pwm                         controllers.Application.pwm
+
+GET    /echo                        controllers.Application.echo
+
+POST   /echopost                    controllers.Application.postEcho
+
+POST   /setpwm                      controllers.Application.setPwm
+
+GET    /temp                        controllers.Application.printTemp
+
+POST   /temp                        controllers.Application.temp
+
+POST   /sendimage                   controllers.Application.upload
+
+GET    /sendimage                   controllers.Application.sendimage
+
+GET    /image                       controllers.Application.image(name : String)
+
+GET    /streaming                   controllers.Application.streaming
+
+GET    /parent                      controllers.Application.toParent
+
+POST   /cry                         controllers.Application.cryPost
+
+GET    /cry                         controllers.Application.cryGet
+
+GET    /activity                    controllers.Application.activityGet
+
+POST   /activity                    controllers.Application.activityPost
+
+GET    /presence                    controllers.Application.presenceGet
+
+POST   /presence                    controllers.Application.presencePost
+
+GET    /config                      controllers.Application.configFile
+
+GET    /camera                      controllers.Application.cameraRequest
+
+GET    /datajson                    controllers.Application.dataJSON(title : String, db : String)

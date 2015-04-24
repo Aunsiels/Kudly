@@ -74,4 +74,30 @@ void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]);
  */
 void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]);
 
+/**
+ * \brief Upload a file on the server
+ * \param address The link where the file is uploaded
+ * \param localFile The name of the local file
+ * \param remoteFile The name on the server
+ */
+void uploadFile( char *address , char * localFile , char * remoteFile);
+
+/**
+ * \brief Post method
+ * \param address The address where posted
+ * \param data Data to send
+ */
+void postAndRead( char * address , char * data);
+
+/**
+ * \brief Test the network connection
+ * \return State of netwoork connection
+ */
+bool_t wifiNup(void);
+
+/**
+ * \brief Parse xml web page
+ * \param Web address to parse
+ */
+void parsePage( char * address);
 #endif

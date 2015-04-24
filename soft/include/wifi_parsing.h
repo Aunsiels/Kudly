@@ -12,6 +12,40 @@
 
 #ifndef _WIFI_PARSING_H_
 #define _WIFI_PARSING_H_
+/**
+ *
+ * \brief Event source to signal a photo taking
+ *
+ */
+extern EventSource eventPhotoSrc;
+
+/**
+ *
+ * \brief Event source to signal streaming
+ *
+ */
+extern EventSource eventStreamSrc;
+
+/**
+ *
+ * \brief Event source to signal a sound
+ *
+ */
+extern EventSource eventSoundSrc;
+
+/**
+ *
+ * \brief Event source to signal a story
+ *
+ */
+extern EventSource eventStorySrc;
+
+/**
+ *
+ * \brief Event source to signal a story
+ *
+ */
+extern EventSource eventGameSrc;
 
 /**
  *
@@ -21,12 +55,5 @@
  * functions  
  */
 void parseXML(char c);
-
-/**
- *
- * \brief Launches thread that waits for xml action
- *  
- */
-void wifiCommands(void);
 
 #endif

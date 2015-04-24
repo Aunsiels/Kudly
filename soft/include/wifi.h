@@ -18,18 +18,20 @@ extern Mailbox mbReceiveWifi;
 /* Signals a streaming */
 extern volatile int streaming;
 
-/* Mutex for wifi connexion */
-extern Mutex wifiMtx;
+/**
+ *
+ * \brief Mutex for wifi access
+ */
+extern Mutex wifiAccessMtx;
 
 /**
  *
  * \brief Send data by wifi using usart3
  * \param message The message to be sent
  * \param length The length of this message
- * \return 0 if timeout
  * Bloking function
  */
-int wifiWriteByUsart(char * message, int length);
+void wifiWriteByUsart(char * message, int length);
 
 /**
  *
@@ -39,7 +41,6 @@ int wifiWriteByUsart(char * message, int length);
  */
 void wifiWriteNoWait(char * message, int length);
 void wifiWriteUnsigned(uint8_t * message, int length);
-
 
 /**
  *
@@ -76,9 +77,4 @@ void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]);
  *
  */
 void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]);
-
-/**
- * \brief Initialize the wifi again. Used for streaming.
- */
-void wifiInitAgain(void);
 #endif

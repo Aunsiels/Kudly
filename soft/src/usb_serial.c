@@ -3,6 +3,7 @@
 #include "usb_serial.h"
 #include "chprintf.h"
 
+#define DEBUG 1
 SerialUSBDriver SDU1;
 
 /*
@@ -327,13 +328,14 @@ void readSerial(uint8_t * buffer, int size){
 }
 
 void writeSerial(const char * fmt,...){
-    va_list ap;
-
-    /* USB not connected */
-    if ((SDU1.config->usbp->state != USB_ACTIVE)) return; 
-    va_start(ap, fmt);
-    chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
-    va_end(ap);
-         
-
+#if DEBUG
+    if (serialusbcfg.usbp->state == USB_ACTIVE){
+	va_list ap;
+	va_start(ap, fmt);
+	chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
+	va_end(ap);
+    }
+#else
+    (void)fmt;
+#endif
 }

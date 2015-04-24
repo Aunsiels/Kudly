@@ -10,7 +10,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = 
+  USE_COPT =
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -25,7 +25,7 @@ endif
 
 # Linker extra options here.
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = 
+  USE_LDOPT =
 endif
 
 # Enable this if you want link time optimizations (LTO)
@@ -96,9 +96,11 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(KUDLYSRC)/main.c \
        $(KUDLYSRC)/wifi.c \
+       $(KUDLYSRC)/pir.c \
+       $(KUDLYSRC)/ext_init.c \
+       $(KUDLYSRC)/camera.c \
        $(KUDLYSRC)/wifi_manager.c \
        $(KUDLYSRC)/wifi_parsing.c \
-       $(KUDLYSRC)/camera.c \
        $(KUDLYSRC)/led.c \
        $(KUDLYSRC)/usb_serial.c \
        $(KUDLYSRC)/shell_cfg.c \
@@ -106,10 +108,14 @@ CSRC = $(PORTSRC) \
        $(KUDLYSRC)/hug_sensors.c \
        $(KUDLYSRC)/hand_sensors.c \
        $(KUDLYSRC)/codec.c \
+       $(KUDLYSRC)/imu.c \
+       $(KUDLYSRC)/application.c \
+       $(KUDLYSRC)/temperature.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(KUDLYSRC)/sccb.c \
-       $(KUDLYSRC)/websocket.c
+       $(KUDLYSRC)/websocket.c \
+       $(KUDLYSRC)/i2c_perso.c 
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -239,4 +245,3 @@ jlink:
 
 gdb:
 	arm-none-eabi-gdb build/Kudly.elf
-
