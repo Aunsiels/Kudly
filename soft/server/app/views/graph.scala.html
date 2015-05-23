@@ -13,7 +13,7 @@
 		<!-- amCharts javascript code -->
 		<script type="text/javascript">
             $(document).ready(function() {
-                    $.getJSON("@controllers.routes.Application.dataJSON(title, db)", function(result){
+                    $.getJSON("@controllers.routes.Graph.dataJSON(title, db)", function(result){
                             AmCharts.makeChart("chartdiv",result);
                             });
                     });

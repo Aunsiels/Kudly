@@ -472,13 +472,13 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            $.getJSON("@controllers.routes.Application.dataJSON("Temperature", "temp")", function(result){
+            $.getJSON("@controllers.routes.Graph.dataJSON("Temperature", "temp")", function(result){
                 AmCharts.makeChart("tempChart",result);
             });
-            $.getJSON("@controllers.routes.Application.dataJSON("Activity", "activity")", function(result){
+            $.getJSON("@controllers.routes.Graph.dataJSON("Activity", "activity")", function(result){
                 AmCharts.makeChart("activityChart",result);
             });
-            $.getJSON("@controllers.routes.Application.dataJSON("Cry", "cry")", function(result){
+            $.getJSON("@controllers.routes.Graph.dataJSON("Cry", "cry")", function(result){
                 AmCharts.makeChart("cryChart",result);
             });
         });

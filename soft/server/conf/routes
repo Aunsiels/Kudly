@@ -21,9 +21,9 @@ POST   /echopost                    controllers.Application.postEcho
 
 POST   /setpwm                      controllers.Application.setPwm
 
-GET    /temp                        controllers.Application.printTemp
+GET    /temp                        controllers.Graph.printTemp
 
-POST   /temp                        controllers.Application.temp
+POST   /temp                        controllers.Graph.temp
 
 POST   /sendimage                   controllers.Application.upload
 
@@ -35,20 +35,20 @@ GET    /streaming                   controllers.Application.streaming
 
 GET    /parent                      controllers.Application.toParent
 
-POST   /cry                         controllers.Application.cryPost
+POST   /cry                         controllers.Graph.cryPost
 
-GET    /cry                         controllers.Application.cryGet
+GET    /cry                         controllers.Graph.cryGet
 
-GET    /activity                    controllers.Application.activityGet
+GET    /activity                    controllers.Graph.activityGet
 
-POST   /activity                    controllers.Application.activityPost
+POST   /activity                    controllers.Graph.activityPost
 
-GET    /presence                    controllers.Application.presenceGet
+GET    /presence                    controllers.Graph.presenceGet
 
-POST   /presence                    controllers.Application.presencePost
+POST   /presence                    controllers.Graph.presencePost
 
 GET    /config                      controllers.Application.configFile
 
 GET    /camera                      controllers.Application.cameraRequest
 
-GET    /datajson                    controllers.Application.dataJSON(title : String, db : String)
+GET    /datajson                    controllers.Graph.dataJSON(title : String, db : String)
