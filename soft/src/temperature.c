@@ -17,7 +17,7 @@ static i2cflags_t errors2 = 0;
 #define RESOLUTION 0x08
 
 /* This function reads in a register of the sensor ( the parameter is the address of the register ) */
-uint16_t readRegisterT(uint8_t addr){
+uint16_t readRegisterT(uint8_t addr) {
     uint16_t data;
     uint8_t * tabData = (uint8_t *)&data;
     static msg_t status1 = RDY_OK;
@@ -29,14 +29,14 @@ uint16_t readRegisterT(uint8_t addr){
     status2 = i2cMasterReceive(&I2CD2, temperatureAddr, tabData, 2);
     i2cReleaseBus(&I2CD2);
     /* Test if the transmit succeeded */
-    if (status1 != RDY_OK){
+    if (status1 != RDY_OK) {
         errors1 = i2cGetErrors(&I2CD2);
         writeSerial("Error : %u during the transmit\r\n\r\n",errors1);
         i2cStop(&I2CD2);
         temperatureInit();
     }
     /* Test if the receive succeded */
-    if (status2 != RDY_OK){
+    if (status2 != RDY_OK) {
         errors2 = i2cGetErrors(&I2CD2);
         writeSerial("Error : %u during the receive\r\n\r\n",errors2);
         i2cStop(&I2CD2);
@@ -51,7 +51,7 @@ uint16_t readRegisterT(uint8_t addr){
 }
 
 /* This function writes in a register of the sensor */
-void writeRegisterT(uint8_t addr, uint16_t data, int size){
+void writeRegisterT(uint8_t addr, uint16_t data, int size) {
     static msg_t status = RDY_OK;
     uint8_t * ptrLSB = (uint8_t *)&data;
     uint8_t * ptrMSB = ptrLSB+1;
@@ -65,21 +65,21 @@ void writeRegisterT(uint8_t addr, uint16_t data, int size){
     status = i2cMasterTransmit(&I2CD2, temperatureAddr,command, size, NULL, 0);
     i2cReleaseBus(&I2CD2);
     /* Test if the transmit succeeded */
-    if (status != RDY_OK){
+    if (status != RDY_OK) {
         errors1 = i2cGetErrors(&I2CD2);
         writeSerial("Error : %u\r\n",errors1);
     }
 }
 
 
-void temperatureInit(void){
+void temperatureInit(void) {
     /* Set the power up default mode */
     writeRegisterT(CONFIG,0,3);
     /* Choose a resolution of 0.5°C */
     writeRegisterT(RESOLUTION,0x0,2);
 }
 
-uint16_t getTemperatureHandled(void){
+uint16_t getTemperatureHandled(void) {
     uint16_t content=0;
     uint8_t * ptrLSB = (uint8_t *)&content;
     uint8_t * ptrMSB = ptrLSB+1;
@@ -95,16 +95,16 @@ uint16_t getTemperatureHandled(void){
     /* Clear the alert flags */
     upperByte=upperByte & 0x1f;
     /* Test if the sign bit is 1 or 0 (bit 12) and then calculate the temperature */
-    if((upperByte & 0x10) == 0x10){
+    if((upperByte & 0x10) == 0x10) {
         upperByte = upperByte & 0x0f;
         temp = 256 - (((upperByte<<4)&0xf0) + ((lowerByte>>4)&0x0f));
-    }else
+    } else
         temp = (((upperByte<<4)&0xf0) + ((lowerByte>>4)&0x0f));
 
     return temp;
 }
 
-uint16_t getTemperatureNotHandled(void){
+uint16_t getTemperatureNotHandled(void) {
     uint16_t content=0;
 
     /* Reads the temperature value in the register */
@@ -113,7 +113,7 @@ uint16_t getTemperatureNotHandled(void){
     /* Returns the value without any processing */
     return content;
 }
-void cmdTemperature(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdTemperature(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
     (void) chp;

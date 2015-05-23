@@ -59,7 +59,7 @@ void cameraSetColorEffect(uint8_t value1, uint8_t value2);
  * \param value1 The first value (see below)
  * \param value2 The second value (see below)
  *
- * Possible values are :        
+ * Possible values are :
  *     value1 = 0x28, value2 = 0x0c for Contrast +2,
  *     value1 = 0x24, value2 = 0x16 for Contrast +1,
  *     value1 = 0x20, value2 = 0x20 for Contrast 0,

@@ -42,8 +42,8 @@ static PWMConfig pwmcfg_led2 = {
  * Initializes the leds
  */
 void ledInit(void) {
-    
-  //Led 1 on timer 5, led 2 on timer 1
+
+    //Led 1 on timer 5, led 2 on timer 1
     pwmStart(&PWMD5, &pwmcfg_led1);
     pwmStart(&PWMD1, &pwmcfg_led2);
 
@@ -55,7 +55,7 @@ void ledInit(void) {
     palSetPadMode(GPIOB, GPIOB_LED2_R, PAL_MODE_ALTERNATE(1));
     palSetPadMode(GPIOB, GPIOB_LED2_G, PAL_MODE_ALTERNATE(1));
     palSetPadMode(GPIOE, GPIOE_LED2_B, PAL_MODE_ALTERNATE(1));
- 
+
     /* Turn off the leds */
     pwmEnableChannel(&PWMD5, 0, 0);
     pwmEnableChannel(&PWMD5, 1, 0);
@@ -75,8 +75,8 @@ void ledSetColorRGB(int led, int r, int g, int b) {
         pwmEnableChannel(&PWMD5, 0, r);
         pwmEnableChannel(&PWMD5, 1, g);
         pwmEnableChannel(&PWMD5, 2, b);
-    } 
-    
+    }
+
     if(led == 2 || led == 0) {
         pwmEnableChannel(&PWMD1, 2, r);
         pwmEnableChannel(&PWMD1, 1, g);
@@ -89,7 +89,7 @@ void ledSetColorRGB(int led, int r, int g, int b) {
  */
 void ledSetColorHSV(int led, int h, int s, int v) {
     int r = 0, g = 0, b = 0;
-    
+
     /* Calculate the rgb values from the HSV one */
     int hueSection = h / 60;
     int f = (h - hueSection * 60);
@@ -100,20 +100,38 @@ void ledSetColorHSV(int led, int h, int s, int v) {
     int n = v * 255 / 100 - v * 255 * s * (60 - f) / 60 / 10000;
 
     switch(hueSection) {
-        case 0:
-            r = val; g = n; b = l; break;
-        case 1:
-            r = m; g = val; b = l; break;
-        case 2:
-            r = l; g = val; b = n; break;
-        case 3:
-            r = l; g = m; b = val; break;
-        case 4:
-            r = n; g = l; b = val; break;
-        case 5:
-            r = val; g = l; b = m; break;
+    case 0:
+        r = val;
+        g = n;
+        b = l;
+        break;
+    case 1:
+        r = m;
+        g = val;
+        b = l;
+        break;
+    case 2:
+        r = l;
+        g = val;
+        b = n;
+        break;
+    case 3:
+        r = l;
+        g = m;
+        b = val;
+        break;
+    case 4:
+        r = n;
+        g = l;
+        b = val;
+        break;
+    case 5:
+        r = val;
+        g = l;
+        b = m;
+        break;
     }
- 
+
     /* We use the set rgb function */
     ledSetColorRGB(led, r, g, b);
 }
@@ -121,9 +139,9 @@ void ledSetColorHSV(int led, int h, int s, int v) {
 /* A thread that test the leds */
 static msg_t ledTest_thd(void * args) {
     (void)args;
-    
+
     /* A test sequence */
-    while(TRUE){
+    while(TRUE) {
         ledSetColorRGB(0, 255, 255, 255);
         chThdSleepMilliseconds(500);
         ledSetColorRGB(0, 0, 0, 0);
@@ -174,7 +192,7 @@ void ledTest(void) {
     static WORKING_AREA(ledTest_wa, 128);
 
     chThdCreateStatic(ledTest_wa, sizeof(ledTest_wa),
-            NORMALPRIO, ledTest_thd, NULL);
+                      NORMALPRIO, ledTest_thd, NULL);
 }
 
 void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
@@ -222,16 +240,16 @@ void cmdLedtest(BaseSequentialStream *chp, int argc, char * argv[]) {
     ledSetColorHSV(2, 0, 0, 0);
 
     int i;
-    for(i = 1; i<255; i += 5){
+    for(i = 1; i<255; i += 5) {
         ledSetColorRGB(0, i, i, i);
-        chThdSleepMilliseconds(20);	
+        chThdSleepMilliseconds(20);
     }
 
     ledSetColorRGB(0, 0, 0, 0);
 
-    for(i = 1; i<360; i++){
+    for(i = 1; i<360; i++) {
         ledSetColorHSV(0, i, i * 100 / 360, 100);
-        chThdSleepMilliseconds(20);	
+        chThdSleepMilliseconds(20);
     }
 
     ledSetColorRGB(0, 0, 0, 0);
@@ -248,7 +266,7 @@ void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
         writeSerial( "\t1 or 2 selects only one led, 0 changes both leds\r\n");
         return;
     }
-    
+
     if(!strcmp(argv[0], "rgb")) {
         r = strtol(argv[2], (char **)NULL, 10);
         g = strtol(argv[3], (char **)NULL, 10);
@@ -257,7 +275,7 @@ void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
 
         if(r < 0 || g < 0 || b < 0 ||
                 r > 255 || g > 255 || b > 255) {
-            writeSerial( "Wrong parameters\n\r"); 
+            writeSerial( "Wrong parameters\n\r");
             return;
         }
 
@@ -274,10 +292,10 @@ void cmdLed(BaseSequentialStream *chp, int argc, char *argv[]) {
 
         if(h < 0 || s < 0 || v < 0 ||
                 h > 359 || s > 100 || v > 100) {
-            writeSerial( "Wrong parameters\n\r"); 
+            writeSerial( "Wrong parameters\n\r");
             return;
         }
-        
+
         writeSerial( "Setting led value to (h,s,v) = (%d,%d,%d)\n\r", h, s, v);
         ledSetColorHSV(led, h, s, v);
         return;

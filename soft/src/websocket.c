@@ -29,7 +29,7 @@ static msg_t mbCodecIn_buf[128];
 MAILBOX_DECL(mbCodecOut, sizeof(mbCodecOut_buf) / sizeof(msg_t));
 MAILBOX_DECL(mbCodecIn, sizeof(mbCodecIn_buf) / sizeof(msg_t));
 
-/* Buffer to send in a websocket */ 
+/* Buffer to send in a websocket */
 static char codecOutBuffer[WS_DATA_SIZE];
 
 /* Streaming event sources */
@@ -213,7 +213,7 @@ msg_t streamingOut(void * args) {
     chEvtRegisterMask(&streamOutSrc, &streamOutLst, (eventmask_t)1);
 
     writeSerial("Sending thread launched\n\r");
-    
+
     while(true) {
         /*
          * Starting streaming
@@ -260,20 +260,20 @@ void streamLaunch(BaseSequentialStream * chp, int argc, char * argv[]) {
 /*
  * Init reading & sending threads
  */
-void streamInit(void){
+void streamInit(void) {
 
 
     chThdCreateStatic(
-            streamingIn_wa, sizeof(streamingIn_wa),
-            NORMALPRIO, streamingIn, NULL);
+        streamingIn_wa, sizeof(streamingIn_wa),
+        NORMALPRIO, streamingIn, NULL);
 
     chThdCreateStatic(
-            streamingOut_wa, sizeof(streamingOut_wa),
-            NORMALPRIO, streamingOut, NULL);
-   
+        streamingOut_wa, sizeof(streamingOut_wa),
+        NORMALPRIO, streamingOut, NULL);
+
     chThdCreateStatic(
-            stream_wa, sizeof(stream_wa),
-            NORMALPRIO, pollRead_thd, NULL);
+        stream_wa, sizeof(stream_wa),
+        NORMALPRIO, pollRead_thd, NULL);
 }
 
 void sendToWS(char * str) {

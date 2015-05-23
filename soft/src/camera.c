@@ -18,7 +18,7 @@ static uint8_t* imgBuf0 = imgBuf;
 static uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
 /* Source to indicate if a frame ends or dma ends */
-static EVENTSOURCE_DECL(dmaEvS); 
+static EVENTSOURCE_DECL(dmaEvS);
 static EVENTSOURCE_DECL(frameEvS);
 /* The listeners linked */
 static EventListener dmaEvL;
@@ -27,7 +27,7 @@ static EventListener frameEvL;
 /* Callback frame end */
 static void frameEndCb(DCMIDriver* dcmip) {
     chSysLockFromIsr();
-    /* 
+    /*
      * As I do not know the size of the image, I stop the dma when there is the
      * end of the frame
      */
@@ -44,8 +44,7 @@ static void dmaTxferEndCb(DCMIDriver* dcmip) {
     chSysUnlockFromIsr();
 }
 
-const char g_ov2640_jpeg_init[][2] =
-{
+const char g_ov2640_jpeg_init[][2] = {
     {0xff, 0x00},  {0x2c, 0xff},  {0x2e, 0xdf},  {0xff, 0x01},  {0x3c, 0x32},
     {0x11, 0x04},  {0x09, 0x02},  {0x04, 0x28},  {0x13, 0xe5},  {0x14, 0x48},
     {0x2c, 0x0c},  {0x33, 0x78},  {0x3a, 0x33},  {0x3b, 0xfb},  {0x3e, 0x00},
@@ -86,20 +85,17 @@ const char g_ov2640_jpeg_init[][2] =
     {0x54, 0x00},  {0x55, 0x00},  {0x5a, 0x2c},  {0x5b, 0x24},  {0x5c, 0x00},
 };
 
-const char g_ov2640_yuv422[][2] =
-{
+const char g_ov2640_yuv422[][2] = {
     {0xff, 0x00},  {0x05, 0x00},  {0xda, 0x10},  {0xd7, 0x03},  {0xdf, 0x00},
     {0x33, 0x80},  {0x3c, 0x40},  {0xe1, 0x77},  {0x00, 0x00}
 };
 
-const char g_ov2640_jpeg[][2] =
-{
+const char g_ov2640_jpeg[][2] = {
     {0xe0, 0x14},  {0xe1, 0x77},  {0xe5, 0x1f},  {0xd7, 0x03},  {0xda, 0x10},
     {0xe0, 0x00},  {0xff, 0x01},  {0x04, 0x08}
 };
 
-const char g_ov2640_jpeg_uxga_resolution[][2] = 
-{
+const char g_ov2640_jpeg_uxga_resolution[][2] = {
     {0xff, 0x01},  {0x11, 0x01},  {0x12, 0x00},  {0x17, 0x11},  {0x18, 0x75},
     {0x32, 0x36},  {0x19, 0x01},  {0x1a, 0x97},  {0x03, 0x0f},  {0x37, 0x40},
     {0x4f, 0xbb},  {0x50, 0x9c},  {0x5a, 0x57},  {0x6d, 0x80},  {0x3d, 0x34},
@@ -120,7 +116,7 @@ static const DCMIConfig dcmicfg = {
 /*
  * Initilize JPEG for the camera
  */
-void initializeJPEG (void){
+void initializeJPEG (void) {
     /* Reset all registers */
     sccbWrite(BANK_SEL, BANK_SEL_SENSOR);
     sccbWrite(COM7, COM7_SRST);
@@ -129,12 +125,12 @@ void initializeJPEG (void){
     uint32_t i;
 
     /* Initialize OV2640 */
-    for(i=0; i<(sizeof(g_ov2640_jpeg_init)/2); i++){
+    for(i=0; i<(sizeof(g_ov2640_jpeg_init)/2); i++) {
         sccbWrite(g_ov2640_jpeg_init[i][0], g_ov2640_jpeg_init[i][1]);
     }
 
     /* Set to output YUV422 */
-    for(i=0; i<(sizeof(g_ov2640_yuv422)/2); i++){
+    for(i=0; i<(sizeof(g_ov2640_yuv422)/2); i++) {
         sccbWrite(g_ov2640_yuv422[i][0], g_ov2640_yuv422[i][1]);
     }
 
@@ -142,7 +138,7 @@ void initializeJPEG (void){
     sccbWrite(0x15, 0x00);
 
     /* Set to output JPEG */
-    for(i=0; i<(sizeof(g_ov2640_jpeg)/2); i++){
+    for(i=0; i<(sizeof(g_ov2640_jpeg)/2); i++) {
         sccbWrite(g_ov2640_jpeg[i][0], g_ov2640_jpeg[i][1]);
     }
 
@@ -150,7 +146,7 @@ void initializeJPEG (void){
 
     /* Define the size */
 #if JPEG_SIZE == 3
-    for(i=0; i<(sizeof(g_ov2640_jpeg_uxga_resolution)/2); i++){
+    for(i=0; i<(sizeof(g_ov2640_jpeg_uxga_resolution)/2); i++) {
         sccbWrite(g_ov2640_jpeg_uxga_resolution[i][0], g_ov2640_jpeg_uxga_resolution[i][1]);
     }
 #endif
@@ -204,10 +200,10 @@ void cameraInit() {
 /*
  * Command to take a picture
  */
-void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void)chp;
-    if (argc != 1){
+    if (argc != 1) {
         writeSerial( "Usage : camera filename\r\n");
         return;
     }
@@ -218,8 +214,8 @@ void cmdCamera(BaseSequentialStream *chp, int argc, char *argv[]){
 /*
  * Takes a photo
  */
-void photo(char * photoName){
-    if(!cameraReady){
+void photo(char * photoName) {
+    if(!cameraReady) {
         return;
     }
 
@@ -303,7 +299,7 @@ void photo(char * photoName){
  *     0x10 for Brightness -1,
  *     0x00 for Brightness -2,
  */
-void cameraSetBrightness(uint8_t brightness){
+void cameraSetBrightness(uint8_t brightness) {
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x04);
@@ -319,7 +315,7 @@ void cameraSetBrightness(uint8_t brightness){
  *     0x58 for B&W negative,
  *     0x00 for Normal,
  */
-void cameraSetBW(uint8_t blackWhite){
+void cameraSetBW(uint8_t blackWhite) {
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, blackWhite);
@@ -335,7 +331,7 @@ void cameraSetBW(uint8_t blackWhite){
  *     value1 = 0x40, value2 = 0x40 for Greenish,
  *     value1 = 0x40, value2 = 0xc0 for Reddish,
  */
-void cameraSetColorEffect(uint8_t value1, uint8_t value2){
+void cameraSetColorEffect(uint8_t value1, uint8_t value2) {
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x18);
@@ -352,7 +348,7 @@ void cameraSetColorEffect(uint8_t value1, uint8_t value2){
  *     value1 = 0x1c, value2 = 0x2a for Contrast -1,
  *     value1 = 0x18, value2 = 0x34 for Contrast -2,
  */
-void cameraSetContrast(uint8_t value1, uint8_t value2){
+void cameraSetContrast(uint8_t value1, uint8_t value2) {
     sccbWrite(0xff, 0x00);
     sccbWrite(0x7c, 0x00);
     sccbWrite(0x7d, 0x04);
