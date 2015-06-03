@@ -60,6 +60,9 @@ object Application extends Controller {
      */
     var streamingRequest = 0;
     var photoRequest = 0;
+    var gameRequest = 0;
+    var soundRequest = 0;
+    var storyRequest = 0;
 
     /*
      * Welcome page
@@ -253,16 +256,16 @@ object Application extends Controller {
             msg => channelParent push msg
         }
         /* File to send */
-        val file = new File("public/bell.wav")
-        val sound = new FileInputStream(file)
+        //val file = new File("public/bell.wav")
+        //val sound = new FileInputStream(file)
         /* Enumerator to read sound */
-        val dataContent: Enumerator[Array[Byte]] =
-            audioHeader >>> Enumerator.fromStream(sound)
+        //val dataContent: Enumerator[Array[Byte]] =
+        //    (audioHeader >>> Enumerator.fromStream(sound))
         /* An enumerator that push in kudly channel */
-        val pusher = Iteratee.foreach[Array[Byte]](
-            s => channelKudly push s )
-        val newIteratee: Future[Iteratee[Array[Byte],Unit]] =
-            dataContent(pusher)
+        //val pusher = Iteratee.foreach[Array[Byte]](
+        //    s => channelKudly push s )
+        //val newIteratee: Future[Iteratee[Array[Byte],Unit]] =
+        //    dataContent(pusher)
 
         (in, enumKudly)
     }
@@ -329,9 +332,23 @@ object Application extends Controller {
      * Update file of configuration
      */
     def configFile = Action {
+        val streamTemp   = streamingRequest;
+        val photoTemp    = photoRequest;
+        val gameTemp     = gameRequest;
+        val soundTemp    = soundRequest;
+        val storyTemp    = storyRequest;
+        /* Reinitialization */
+        streamingRequest = 0;
+        photoRequest     = 0;
+        gameRequest      = 0;
+        soundRequest     = 0;
+        storyRequest     = 0;
         Ok(<config>
-            <stream state={streamingRequest.toString}/>
-            <photo state={photoRequest.toString}/>
+            <stream state={streamTemp.toString}/>
+            <photo state={photoTemp.toString}/>
+            <game state={gameTemp.toString}/>
+            <sound state={soundTemp.toString}/>
+            <story state={storyTemp.toString}/>
         </config>)
     }
 
@@ -341,5 +358,49 @@ object Application extends Controller {
     def cameraRequest = Action {
         photoRequest = 1;
         Ok("Photo requested")
+    }
+
+    /*
+     * Asks for a game
+     */
+    def game = Action {
+        gameRequest = 1;
+        Ok("game requested")
+    }
+
+    /*
+     * Asks for a sound
+     */
+    def sound = Action {
+        soundRequest = 1;
+        Ok("Sound requested")
+    }
+
+    /*
+     * Asks for a story
+     */
+    def story = Action {
+        storyRequest = 1;
+        Ok("story requested")
+    }
+
+    /*
+     * Asks for a stream
+     */
+    def streamAsk = Action {
+        streamingRequest = 1;
+        Ok("hello requested")
+    }
+
+    /*
+     * Return a JSON
+     */
+
+    def demo = Action {
+        Ok(views.html.demo())
+    }
+
+    def google = Action {
+        Ok(views.html.google())
     }
 }

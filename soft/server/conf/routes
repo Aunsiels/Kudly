@@ -52,3 +52,15 @@ GET    /config                      controllers.Application.configFile
 GET    /camera                      controllers.Application.cameraRequest
 
 GET    /datajson                    controllers.Graph.dataJSON(title : String, db : String)
+
+GET    /game                        controllers.Application.game
+
+GET    /soundrequest                controllers.Application.sound
+
+GET    /story                       controllers.Application.story
+
+GET    /demo                        controllers.Application.demo
+
+GET    /streamrequest               controllers.Application.streamAsk
+
+GET    /google8458d83522d4b2df.html controllers.Application.google
