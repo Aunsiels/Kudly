@@ -64,3 +64,5 @@ GET    /demo                        controllers.Application.demo
 GET    /streamrequest               controllers.Application.streamAsk
 
 GET    /google8458d83522d4b2df.html controllers.Application.google
+
+POST   /contact                     controllers.Contact.contact

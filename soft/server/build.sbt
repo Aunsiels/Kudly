@@ -11,5 +11,8 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
-  "org.mongodb" %% "casbah" % "2.8.0"
+  "org.mongodb" %% "casbah" % "2.8.0",
+  "com.typesafe.play" %% "play-mailer" % "2.4.1"
 )
+
+scalacOptions += "-feature"
