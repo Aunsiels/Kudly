@@ -182,12 +182,21 @@ object Graph extends Controller {
      */
     def dataJSON (name : String, db : String) = Action {
         var list : List[graphValue] = List()
-        rawCollection.find("data" $eq db).foreach(
-            data =>
-                list = graphValue(
-                    data.getAs[java.util.Date]("date").getOrElse(
-                        new java.util.Date()),
-                    data.getAs[Int]("value").getOrElse(0)) :: list )
+        if (db == "temp") {
+            rawCollection.find("data" $eq db).foreach(
+                    data =>
+                    list = graphValue(
+                        data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                        data.getAs[Int]("value").getOrElse(
+                            data.getAs[Double]("value").getOrElse(26.0).toInt)) ::
+                        list )
+        }else {
+            rawCollection.find("data" $eq db).foreach(
+                    data =>
+                    list = graphValue(
+                        data.getAs[java.util.Date]("date").getOrElse(new java.util.Date()),
+                        data.getAs[Int]("value").getOrElse(0)) :: list )
+        }
         val typeData = if(name == "Activity") "step" else "line"
         val json : JsValue = Json.obj(
             "type" -> "serial",
@@ -237,11 +246,7 @@ object Graph extends Controller {
                     "title" -> "red line",
                     "useLineColorForBulletBorder" -> true,
                     "valueField" -> "value",
-                    "balloonText" ->
-                        """<div style='margin:5px; font-size:19px;'>
-                            <span style='font-size:13px;'>[[category]]</span>
-                            <br>[[value]]
-                        </div>"""
+                    "balloonText" -> "<div style='margin:5px; font-size:19px;'><span style='font-size:13px;'>[[category]]</span><br>[[value]]</div>"
                 )
             ),
             "chartScrollbar" ->
@@ -280,8 +285,7 @@ object Graph extends Controller {
                     "enabled" -> true,
                     "libs" ->
                     Json.obj(
-                        "path" ->
-                            "http://www.amcharts.com/lib/3/plugins/export/libs/"
+                        "path" -> "http://www.amcharts.com/lib/3/plugins/export/libs/"
                     )
                 ),
             "dataProvider" -> list.sortWith((x,y) => x.date.before(y.date))
