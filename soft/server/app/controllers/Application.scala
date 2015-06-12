@@ -403,4 +403,8 @@ object Application extends Controller {
     def google = Action {
         Ok(views.html.google())
     }
+
+    def sitemap = Action {
+        Ok(views.html.sitemap())
+    }
 }
