@@ -407,4 +407,8 @@ object Application extends Controller {
     def sitemap = Action {
         Ok(views.html.sitemap())
     }
+
+    def purchase = Action {
+        Ok(views.html.purchase())
+    }
 }

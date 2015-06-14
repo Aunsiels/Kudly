@@ -72,3 +72,5 @@ GET    /google8458d83522d4b2df.html controllers.Application.google
 POST   /contact                     controllers.Contact.contact
 
 GET    /sitemap.xml                 controllers.Application.sitemap
+
+GET    /purchase                    controllers.Application.purchase
