@@ -38,7 +38,7 @@ object Contact extends Controller {
                    bodyHtml = None
                    )
                MailerPlugin.send(email)
-               Redirect(routes.Application.index)
+               Ok(views.html.index())
             }
         )
     }

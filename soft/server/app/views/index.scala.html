@@ -344,7 +344,7 @@
 
 				<div class="col-sm-6 col-sm-offset-3">
 
-					<form action="/contact" method="POST">
+					<form action="/contact" id="c_form" method="POST">
 						<div class="ajax-hidden">
 							<div class="form-group wow fadeInUp">
 								<label class="sr-only" for="c_name">Name</label>
@@ -360,7 +360,7 @@
 								<textarea class="form-control" id="c_message" name="message" rows="7" placeholder="Message"></textarea>
 							</div>
 
-							<button type="submit" class="btn btn-lg btn-block wow fadeInUp" data-wow-delay=".3s">Send Message</button>
+							<button type="submit" id="c_submit" class="btn btn-lg btn-block wow fadeInUp" data-wow-delay=".3s">Send Message</button>
 						</div>
 						<div class="ajax-response"></div>
 					</form>
@@ -372,41 +372,6 @@
 	</section>
 
 	<!-- Contact end -->
-
-	<!-- Footer start -->
-
-	<footer id="footer">
-		<div class="container">
-			<div class="row">
-
-				<div class="col-sm-12">
-
-					<ul class="social-links">
-						<li><a href="https://facebook.com/kudlyproject" target="_blank" class="wow fadeInUp"><i class="fa fa-facebook"></i></a></li>
-						<li>
-                            <a href="https://twitter.com/KudlyProject" target="_blank" class="wow fadeInUp" data-wow-delay=".1s"><i class="fa fa-twitter"></i></a>
-                        </li>
-					</ul>
-
-					<p class="heart">
-                        Made with <span class="fa fa-heart fa-2x animated pulse"></span> in A406
-                    </p>
-
-				</div>
-
-			</div><!-- .row -->
-		</div><!-- .container -->
-	</footer>
-
-	<!-- Footer end -->
-
-	<!-- Scroll to top -->
-
-	<div class="scroll-up">
-		<a href="#home"><i class="fa fa-angle-up"></i></a>
-	</div>
-
-    <!-- Scroll to top end-->
 
 <!-- Javascript files  & html footer-->
 @footer()
