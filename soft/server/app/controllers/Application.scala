@@ -411,4 +411,8 @@ object Application extends Controller {
     def purchase = Action {
         Ok(views.html.purchase())
     }
+
+    def team = Action {
+        Ok(views.html.team())
+    }
 }
