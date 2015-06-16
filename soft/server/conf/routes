@@ -74,4 +74,7 @@ POST   /contact                     controllers.Contact.contact
 GET    /sitemap.xml                 controllers.Application.sitemap
 
 GET    /purchase                    controllers.Application.purchase
+
 GET    /team                        controllers.Application.team
+
+GET    /presentation                controllers.Application.presentation

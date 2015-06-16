@@ -415,4 +415,8 @@ object Application extends Controller {
     def team = Action {
         Ok(views.html.team())
     }
+
+    def presentation = Action {
+        Ok(views.html.presentation())
+    }
 }
