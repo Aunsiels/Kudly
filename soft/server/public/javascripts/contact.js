@@ -19,17 +19,16 @@ var contact = function() {
     }
 
     this.success = function(data) {
-        console.log('Success !');
-        console.log(data);
+        $('#c_success').fadeIn();
     }
 
     this.send = function() {
         $.post(
             '/contact',
             this.getData(),
-            this.success,
-            function() { console.log('Error'); }
-        );
+            this.success
+        )
+        $('#c_form').fadeOut();
     };
 };
 

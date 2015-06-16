@@ -38,7 +38,7 @@ object Contact extends Controller {
                    bodyHtml = None
                    )
                MailerPlugin.send(email)
-               Ok(views.html.index())
+               Ok("0")
             }
         )
     }
