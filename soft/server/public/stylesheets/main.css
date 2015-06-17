@@ -11,9 +11,20 @@
     font-weight: bold;
 }
 
+#team-photos figure {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    position: relative;
+}
+
 #team-photos img {
     margin-bottom: 10px;
     border-radius: 50%;
+    backface-visibility:hidden;
+    -webkit-transition:all .5s;
+    -moz-transition:all .5s;
+    transition:all .5s
 }
 
 #team-photos figcaption {
@@ -25,13 +36,27 @@
     height: 100%;
     padding-top: 20px;
     backface-visibility: hidden;
-    background-color:rgba(26,76,110,0.5);
+    background-color: #81ABD9;
     -webkit-transform:rotateY(-180deg);
     -moz-transform:rotateY(-180deg);
     transform:rotateY(-180deg);
     -webkit-transition:all .5s;
     -moz-transition:all .5s;
-    transition:all .5s
+    transition:all .5s;
+    border-radius: 50%;
+    color: white;
+}
+
+#team-photos figure:hover img, #team-photos figure.hover img {
+    -webkit-transform:rotateY(180deg);
+    -moz-transform:rotateY(180deg);
+    transform:rotateY(180deg);
+}
+
+#team-photos figure:hover figcaption, #team-photos figure.hover figcaption {
+    -webkit-transform:rotateY(0);
+    -moz-transform:rotateY(0);
+    transform:rotateY(0);
 }
 
 .left-image-1 {
