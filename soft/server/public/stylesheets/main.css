@@ -7,7 +7,7 @@
 }
 
 #team-photos p {
-    margin-bottom: 30px;
+    margin: 20px 0 30px;
     font-weight: bold;
 }
 
@@ -19,7 +19,6 @@
 }
 
 #team-photos img {
-    margin-bottom: 10px;
     border-radius: 50%;
     backface-visibility:hidden;
     -webkit-transition:all .5s;
