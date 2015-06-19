@@ -61,6 +61,7 @@ static msg_t pirThread(void * args) {
         chEvtRegisterMask(&pirEvent, &el,EVENT_MASK(1));
         chEvtWaitOne(EVENT_MASK(1));
         chEvtUnregister(&pirEvent, &el);
+        chThdSleepSeconds(60);
     }
     return 0;
 }
