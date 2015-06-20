@@ -349,6 +349,7 @@ static msg_t threadFullDuplex(void *arg){
     while(1){
         /* Wait for the thread to be called */
         chEvtWaitOne(EVENT_MASK(1));
+	writeSerial("FullDuplex\r\n");
         /* Can't encode if SPI is not ready (typicaly when playback or encoding) */
         if(SPID4.state != 2){
             writeSerial("SPI not ready\r\n");
@@ -709,4 +710,7 @@ static void loadPatch(void){
     }
 }
 
+void recordStop(void) {
+    stopRecord = 1;
+}
 

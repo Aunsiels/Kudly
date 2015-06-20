@@ -59,10 +59,10 @@ static msg_t pirThread(void * args) {
         int res = palReadPad(GPIOD,GPIOD_PIR);
         if (res){
             cmdPlay((BaseSequentialStream *) &SDU1, 1, &pirSound);
-            postAndRead("kudly.herokuapp.com/presence","value=1");
+            postAndRead("192.168.1.105:9000/presence","value=1");
             chThdSleepSeconds(60);
         } else {
-            postAndRead("kudly.herokuapp.com/presence","value=0");
+            postAndRead("192.168.1.105:9000/presence","value=0");
         }
 	chMtxUnlock();
 	writeSerial("End ...\r\n");
@@ -82,7 +82,7 @@ static msg_t tempThread(void * args) {
 	writeSerial("Temperature ...\r\n");
         int temperature = (int) getTemperatureNotHandled();
         itoa(temperature, temperatureSend+6,10);
-        postAndRead("kudly.herokuapp.com/temp", temperatureSend);
+        postAndRead("192.168.1.105:9000/temp", temperatureSend);
 	chMtxUnlock();
         chThdSleepSeconds(600);
 	writeSerial("End ...\r\n");
@@ -167,7 +167,7 @@ static msg_t handsThread(void * args) {
 	chMtxUnlock();
 	writeSerial("End ...\r\n");
 
-	uploadFile("kudly.herokuapp.com/sendimage", "photo.jpg",
+	uploadFile("192.168.1.105:9000/sendimage", "photo.jpg",
 		   "photo.jpg");
 	f_unlink("photo.jpg");
 	ledSetColorRGB(0, 0, 255, 0);
@@ -196,7 +196,7 @@ static msg_t cryThread(void * args) {
 	strcat(levelSend,itoaBuff);
 	writeSerial("Audio : %s\r\n\r\n",levelSend);
 	/* We send the audio level to the server every 10 seconds */
-	postAndRead("kudly.herokuapp.com/cry",levelSend);
+	postAndRead("192.168.1.105:9000/cry",levelSend);
 	/* If we overtake a threeshold, activity is set and we encode sound */
 
 	// TODO set a right threeshold with a good micro
@@ -215,7 +215,7 @@ static msg_t cryThread(void * args) {
 	    f_unlink("cry.ogg");
 	}
 	else{
-	    postAndRead("kudly.herokuapp.com/activity","value=0");
+	    postAndRead("192.168.1.105:9000/activity","value=0");
 	}
 	chMtxUnlock();
 	writeSerial("End ...\r\n");
@@ -347,7 +347,7 @@ static msg_t educLettersThread(void * args) {
 	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
 
 	writeSerial("reacording finished\r\n");
-	uploadFile("kudly.herokuapp.com/sendimage", "alphabetChild.ogg",
+	uploadFile("192.168.1.105:9000/sendimage", "alphabetChild.ogg",
 		   "alphabetChild.ogg");
 	f_unlink("alphabetChild.ogg");
 	ledSetColorRGB(0, 0, 255, 0);
@@ -365,7 +365,7 @@ static msg_t xmlPollingThread(void * args) {
     while (1) {
 	chMtxLock(&appliMtx);
 	writeSerial("Polling ...\r\n");
-	parsePage("kudly.herokuapp.com/config");
+        parsePage("192.168.1.105:9000/config");
 	chMtxUnlock();
 	writeSerial("End ...\r\n");
 	chThdSleepSeconds(5);
@@ -384,7 +384,7 @@ static msg_t streamingThread(void * args){
 	chMtxLock(&appliMtx);
 	writeSerial("Streaming ...\r\n");
 	cmdFullDuplex(NULL,0,NULL);
-	chThdSleepSeconds(120);
+	chThdSleepSeconds(30);
 	cmdStopStream(NULL,0,NULL);
 	chMtxUnlock();
 	writeSerial("End ...\r\n");

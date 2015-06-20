@@ -48,8 +48,8 @@ static char dollar[] = "$$$\r\n";
 /* Streaming command */
 static char busMode[]        = "set bus.mode command\r\n";
 static char autoJoin[]       = "set wlan.auto_join.enabled 1\r\n";
-static char remoteHost[]     = "set tcp.client.remote_host www.kudly.fr\r\n";
-static char remotePort[]     = "set tcp.client.remote_port 80\r\n";
+static char remoteHost[]     = "set tcp.client.remote_host 192.168.1.105\r\n";
+static char remotePort[]     = "set tcp.client.remote_port 9000\r\n";
 static char autoInterface[]  = "set tcp.client.auto_interface wlan\r\n";
 static char autoRetries[]    = "set tcp.client.auto_retries 255\r\n";
 static char autoStart[]      = "set tcp.client.auto_start 0\r\n";
@@ -100,22 +100,18 @@ static msg_t usartReadInMB_thd(void * args) {
 /* Sends data by wifi */
 void wifiWriteByUsart(char * message, int length){
     chMtxLock(&writeMtx);
-    writeSerial("WW\r\n");
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
     chEvtWaitOne(EVENT_MASK(1));
     chEvtUnregister(&srcEndToReadUsart, &lstEndToReadUsart);
     chMtxUnlock();
-    writeSerial("WW end\r\n");
 }
 
 /* Same as above but don't want to wait for the response */
 void wifiWriteNoWait(char * message, int length){
     chMtxLock(&writeMtx);
-    writeSerial("WNW\r\n");
     sdWrite(&SD3, (uint8_t*)message, length);
     chMtxUnlock();
-    writeSerial("WNW end\r\n");
 }
 
 /*  Launches the wifi reading */
