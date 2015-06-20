@@ -62,10 +62,10 @@ volatile uint8_t control;
 
 static msg_t threadPlayback(void *arg){
     (void) arg;
-    
+
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourcePlay,&eventListener,1);
-  
+
     UINT bytesNumber;
     uint8_t endFillByte=0;
     int cptEndFill=0;
@@ -81,15 +81,15 @@ static msg_t threadPlayback(void *arg){
         }
 	/* Volume set at maximum for the demo */
 	codecVolume(100);
-	
+
         /* Reset the control command */
         control = 0;
-	
+
         /* Reset the variables to stop encoding / decoding */
         playerState = 1;
 	stopSound = 0;
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
-	
+
         /* Open a file in reading mode */
         f_open(&readFp,namePlayback,FA_OPEN_EXISTING | FA_READ);
         /* Get the file contain and keep it in a buffer */
@@ -163,7 +163,7 @@ static char * nameEncode;
 
 static msg_t waitRecording(void *arg){
     (void) arg;
-    
+
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceWaitEncoding,&eventListener,1);
 
@@ -173,7 +173,7 @@ static msg_t waitRecording(void *arg){
             /* Collect the data in HDAT0/1 during "duration" seconds */
             chThdSleepMilliseconds(duration*1000);
 
-	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
+	    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
 	    stopSound = 1;
 	}
     }
@@ -189,7 +189,7 @@ static msg_t threadEncode(void *arg){
     uint16_t data;
     UINT bw;
     uint16_t endFillByte;
-    
+
     while(1){
         /* Wait for the thread to be called */
         chEvtWaitOne(1);
@@ -227,7 +227,7 @@ static msg_t threadEncode(void *arg){
         f_open(&encodeFp,nameEncode,FA_WRITE | FA_OPEN_ALWAYS);
 
         chEvtBroadcast(&eventSourceWaitEncoding);
-      
+
         while(playerState){
             int n,i;
             /* See if there is some data available */
@@ -240,23 +240,23 @@ static msg_t threadEncode(void *arg){
                     *rbp++ = (uint8_t)(data & 0xFF);
 		}
                 f_write(&encodeFp, recBuf, 2*n, &bw);
-            }   	    
+            }
             else{
                 if(stopSound && !readRegister(SCI_RECWORDS)){
                     playerState = 0;
 		}
             }
         }
-        
+
         endFillByte = readRam(PAR_END_FILL_BYTE);
-        
+
         /* If it's odd lenght, endFillByte should be added */
         if(endFillByte & (1 << 15))
             f_write(&encodeFp,(uint8_t *)&endFillByte,1,&bw);
-    
+
         f_close(&encodeFp);
         writeRam(PAR_END_FILL_BYTE,0);
-    
+
         /* Wait until the codec exit the encoding mode */
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
@@ -312,7 +312,7 @@ static msg_t threadTestVolume(void *arg){
         stopSound = 0;
 
         chEvtBroadcast(&eventSourceWaitEncoding);
-      
+
         while(playerState){
             /* See if there is some data available */
             if((readRegister(SCI_RECWORDS)) > 0 && !stopSound) {
@@ -320,15 +320,15 @@ static msg_t threadTestVolume(void *arg){
 		while ((audioLevel = readRam(PAR_ENC_CHANNEL_MAX)) == 0);
 		writeRam(PAR_ENC_CHANNEL_MAX,0);
                 chThdSleepMilliseconds(100);
-            }   	    
+            }
             else{
 		if(stopSound)
-		    playerState = 0;        
+		    playerState = 0;
 	    }
         }
-    
+
         writeRam(PAR_END_FILL_BYTE,0);
-    
+
         /* Wait until the codec exit the encoding mode */
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
@@ -345,7 +345,7 @@ static msg_t threadFullDuplex(void *arg){
 
     static EventListener eventListener;
     chEvtRegisterMask(&eventSourceFullDuplex,&eventListener,EVENT_MASK(1));
-    
+
     while(1){
         /* Wait for the thread to be called */
         chEvtWaitOne(EVENT_MASK(1));
@@ -357,18 +357,19 @@ static msg_t threadFullDuplex(void *arg){
         /* Set volume at maximum (for now micro is not pre-amplified) */
         codecVolume(90);
 
-        /* Set the samplerate at 8kHz */ 
+        /* Set the samplerate at 8kHz */
         writeRegister(SCI_AICTRL0,8000);
 
         /* Automatic gain control */
         writeRegister(SCI_AICTRL1,0);
-        
+
         /* Maximum gain amplification at x40 */
         writeRegister(SCI_AICTRL2,40000);
         /* Set in mono mode, in format PCM (non-compressed), full duplex mode, no header generated */
-        writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO | RM_63_CODEC | RM_63_NO_RIFF);
+        writeRegister(SCI_AICTRL3, RM_63_FORMAT_PCM | RM_63_ADC_MODE_MONO |
+		      RM_63_CODEC | RM_63_NO_RIFF);
         cmdDlWave(NULL, 0, NULL);
-	
+
 	/* Reset variables to stop the encoding / decoding */
         playerState = 1;
         stopSound = 0;
@@ -376,26 +377,26 @@ static msg_t threadFullDuplex(void *arg){
 	/* Launch the streaming */
 	// Wait for streaming : streamLaunch(NULL,0,NULL);
 	writeRegister(SCI_MODE,readRegister(SCI_MODE) & (~SM_CANCEL));
-	
+
 	/*Start the sending of datas to SDI (for playback during streaming */
 	chEvtBroadcast(&eventSourceSendData);
-    
+
         /* Start encoding procedure */
         writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_ENCODE);
         writeRegister(SCI_AIADDR,0x50);
-       
+
         while(playerState){
             /* See if there is some data available */
             if(readRegister(SCI_RECWORDS) > 0){
                 chMBPost(&mbCodecOut,readRegister(SCI_RECDATA),TIME_INFINITE);
             }
-	    
+
             else if(stopRecord){
                 playerState = 0;
             }
         }
         writeRam(PAR_END_FILL_BYTE,0);
-    
+
         /* Wait until the codec exit the encoding mode */
         while((readRegister(SCI_MODE) & SM_ENCODE) == 1);
 
@@ -430,7 +431,7 @@ static msg_t threadSendData(void *arg){
         while(playerState) {
             int i;
             /* Complete the buffer from the mail box*/
-            for(i = 0 ; i < 16 ; i++) {	
+            for(i = 0 ; i < 16 ; i++) {
                 chMBFetch(&mbCodecIn, &dataRecv, TIME_INFINITE);
                 streamBuf[2 * i]     = (uint8_t)(dataRecv);
                 streamBuf[2 * i + 1] = (uint8_t)(dataRecv >> 8);
@@ -454,7 +455,7 @@ static msg_t threadSendData(void *arg){
                     codecVolume(volLevel);
                     break;
                 }
-		
+
             default:
                 break;
             }
@@ -487,7 +488,7 @@ void cmdPlay(BaseSequentialStream *chp, int argc, char *argv[]) {
     }
 
     namePlayback = argv[0];
-    chEvtBroadcast(&eventSourcePlay);   
+    chEvtBroadcast(&eventSourcePlay);
 }
 
 void cmdEncode(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -518,7 +519,7 @@ void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
 void cmdFullDuplex(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
-    (void) chp;    
+    (void) chp;
     chEvtBroadcast(&eventSourceFullDuplex);
 }
 
@@ -530,22 +531,22 @@ void cmdVolume(BaseSequentialStream *chp, int argc, char *argv[]) {
         return;
     }
 
-    codecVolume(strtol(argv[0],NULL,10));   
+    codecVolume(strtol(argv[0],NULL,10));
 }
 
 void cmdStop(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
     (void) chp;
-    
+
     /* Stop the encoding or decoding (useful when duration is set to 0) */
-    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL); 
-    stopSound = 1;  
+    writeRegister(SCI_MODE,readRegister(SCI_MODE) | SM_CANCEL);
+    stopSound = 1;
 }
 
 void cmdControl(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
-    (void)chp;    
+    (void)chp;
     if (argc != 1) {
         writeSerial( "Enter the command (q = quit / + = vol up / - = vol down)\r\n");
         return;
@@ -564,7 +565,7 @@ void codecInit(){
     palSetPadMode(GPIOE,GPIOE_SPI4_MISO,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     palSetPadMode(GPIOE,GPIOE_SPI4_MOSI,PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
     codecReset();
-    
+
     /* Create the threads to perform playback and recording (they are waiting on en eventlistener) */
     chThdCreateStatic(waPlayback, sizeof(waPlayback),NORMALPRIO, threadPlayback,NULL);
     chThdCreateStatic(waEncode, sizeof(waEncode),NORMALPRIO, threadEncode,NULL);
@@ -623,7 +624,7 @@ static void writeRegister(uint8_t adress, uint16_t command){
     while((palReadPad(GPIOE,GPIOE_CODEC_DREQ) == 0));
     spiAcquireBus(&SPID4);
     COMMAND_MODE;
-    
+
     /* Construction of instruction (Write opcode, adress, command) */
     instruction[0] = 0x02;
     instruction[1] = adress;
@@ -662,7 +663,7 @@ static uint16_t readRegister(uint8_t adress){
     instruction[1] = adress;
     spiExchange(&SPID4,sizeof(instruction),instruction,registerContent);
 
-    RESET_MODE;    
+    RESET_MODE;
     spiReleaseBus(&SPID4);
     /* Return only the 2 last bytes (data from the register) */
     return ((registerContent[2]<<8) + registerContent[3]);
@@ -694,7 +695,7 @@ static void sendData(const uint8_t * data, int size){
     DATA_MODE;
 
     for(i = 0 ; i < size ; i++){
-        spiSend(&SPID4,1,data++);        
+        spiSend(&SPID4,1,data++);
     }
     RESET_MODE;
     spiReleaseBus(&SPID4);

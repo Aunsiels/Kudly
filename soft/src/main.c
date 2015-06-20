@@ -31,15 +31,17 @@ int main(void) {
     /* Initialize shell */
     shellPersoInit();
 
+    chThdSleepMilliseconds(1000);
+
     /* Initialize SD card */
     sdPersoInit();
 
     /* Led initialization */
     ledInit();
-    
+
     /* Init sccb */
     sccbInit();
-    
+
     /* DCMI init */
     cameraInit();
 
@@ -57,7 +59,7 @@ int main(void) {
 
     /* Init i2c bus */
     i2cPersoInit();
-    
+
     /* IMU init */
     imuInit();
 
@@ -69,7 +71,7 @@ int main(void) {
 
     /* Pir initialization */
     pirInit();
-    
+
     streamInit();
     /* Initializes the application */
     applicationInit();

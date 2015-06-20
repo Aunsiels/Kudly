@@ -27,7 +27,7 @@ static msg_t mbCodecIn_buf[5];
 MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 10000);
 MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 5000);
 
-/* Buffer to send in a websocket */ 
+/* Buffer to send in a websocket */
 static char codecOutBuffer[BUFFER_SIZE];
 
 /* Streaming event sources */
@@ -38,13 +38,16 @@ EVENTSOURCE_DECL(endStreamEvent);
 /* To streaming mode */
 static char exitWifi[] = "exit\r\n";
 /* Websocket with tcp client */
-static char tcpc[] = "tcpc kudly.herokuapp.com 80\r\n";
+static char tcpc[]     = "tcpc www.kudly.fr 80\r\n";
 
 /* Command Mode */
 static char dollar[] = "$$$\r\n";
 
 /* Command list */
 static char list[] = "stream_list\r\n";
+
+static char autoStart0[]      = "set tcp.client.auto_start 0\r\n";
+static char autoStart1[]      = "set tcp.client.auto_start 1\r\n";
 
 /* Header for echo */
 static char streamWriteHeader[] = "write 0 162\r\n\
@@ -58,7 +61,7 @@ Sec-WebSocket-Version: 13\r\n\
 
 /* Streaming header */
 static char downloadWave[] =
-    "GET /streaming HTTP/1.1\r\n\
+"GET /streaming HTTP/1.1\r\n\
 Host: kudly.herokuapp.com\r\n\
 Upgrade: websocket\r\n\
 Connection: Upgrade\r\n\
@@ -70,7 +73,8 @@ Sec-WebSocket-Version: 13\r\n\
 static char read400[] = "read 0 400\r\n";
 
 /* Header of the websocket */
-static char webSocketDataHeader[] = {0x82, 0xFE, 0x04, 0x00,  0x32, 0x76, 0xA7, 0x3d};
+static char webSocketDataHeader[] = {0x82, 0xFE, 0x04, 0x00,  0x32, 0x76, 0xA7,
+	                             0x3d};
 
 /* Variable to begin or end a send/receive */
 volatile int websocketSend = 1;
@@ -165,7 +169,7 @@ static void parseWebSocketBuffer(void) {
             if(dataCpt >= dataLen) {
                 wsHeader = true;
             }
-                
+
         }
     }
 }
@@ -180,8 +184,8 @@ void webSocketInit(void) {
     wifiWriteNoWait(downloadWave, sizeof(downloadWave) - 1);
 }
 
-/* 
- * Reading thread 
+/*
+ * Reading thread
  */
 static msg_t pollRead_thd(void * args) {
     (void)args;
@@ -214,7 +218,7 @@ static msg_t streamingOut(void * args) {
     chEvtRegisterMask(&streamOutSrc, &streamOutLst, EVENT_MASK(1));
 
     writeSerial("Sending thread launched\n\r");
-    
+
     while (1) {
         chEvtWaitOne(EVENT_MASK(1));
         writeSerial("After event\r\n");
@@ -239,7 +243,7 @@ static msg_t streamingOut(void * args) {
                         webSocketDataHeader[6];
                     codecOutBuffer[i + 1] = ((char)msgCodec) ^
                         webSocketDataHeader[7];
-                }      
+                }
             }
             /* Websocket header */
             wifiWriteNoWait(webSocketDataHeader, sizeof(webSocketDataHeader));
@@ -262,7 +266,7 @@ void streamInit(void){
     chThdCreateStatic(
 	streamingOut_wa, sizeof(streamingOut_wa),
 	NORMALPRIO + 1, streamingOut, NULL);
-   
+
     chThdCreateStatic(
 	stream_wa, sizeof(stream_wa),
 	NORMALPRIO, pollRead_thd, NULL);
@@ -313,22 +317,27 @@ void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
-    
-    wifiWriteByUsart(busModeStream,sizeof(busModeStream)-1);
-    wifiWriteByUsart(save,sizeof(save)-1);
-    wifiWriteNoWait(reboot,sizeof(reboot)-1);
-    
+    writeSerial("cmdDlWave\r\n");
+
+    wifiWriteByUsart(busModeStream,sizeof(busModeStream) - 1);
+    wifiWriteByUsart(save,         sizeof(save)          - 1);
+    wifiWriteByUsart(autoStart1,   sizeof(autoStart1)    - 1);
+    wifiWriteNoWait(reboot,        sizeof(reboot)        - 1);
 
     chThdSleepMilliseconds(5000);
+    writeSerial("After reboot\r\n");
 
     static int first = 1;
-    wifiWriteByUsart(list, sizeof(list) - 1);
+    wifiWriteNoWait(dollar, sizeof(dollar) - 1);
+    chThdSleepMilliseconds(1000);
+    wifiWriteByUsart(list,  sizeof(list)   - 1);
     writeSerial(stream_buffer);
     if(NULL == strstr(stream_buffer, "TCPC")){
         cmdStop(NULL, 0, NULL);
         chMBReset(&mbCodecOut);
         chMBReset(&mbCodecIn);
         wifiWriteNoWait(dollar, sizeof(dollar) -1);
+        chThdSleepMilliseconds(1000);
         writeSerial("No connection\r\n");
         return;
     }
@@ -336,6 +345,8 @@ void cmdDlWave(BaseSequentialStream * chp, int argc, char * argv[]) {
 
     /* To stream mode */
     wifiWriteNoWait(exitWifi,sizeof(exitWifi) - 1);
+    writeSerial("Begin streaming\r\n");
+
     streaming = 1;
 
     chThdSleepMilliseconds(1000);
@@ -378,18 +389,31 @@ void cmdStopStream(BaseSequentialStream * chp, int argc, char * argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
-    
-    if (!streaming) return;
+
+    if (!streaming) {
+        wifiWriteNoWait(dollar,sizeof(dollar)-1);
+        chThdSleepMilliseconds(1000);
+        wifiWriteByUsart(busModeCommand,sizeof(busModeCommand)-1);
+        wifiWriteByUsart(autoStart0,    sizeof(autoStart0)     - 1);
+        wifiWriteByUsart(save,sizeof(save)-1);
+        wifiWriteByUsart(reboot,sizeof(reboot)-1);
+
+        chThdSleepMilliseconds(5000);
+
+        cmdStop(NULL, 0, NULL);
+	return;
+    }
 
     websocketSend = 0;
     websocketRecv = 0;
     EventListener el;
     chEvtRegisterMask(&endStreamEvent, &el, EVENT_MASK(1));
     chEvtWaitOne(EVENT_MASK(1));
-    
+
     wifiWriteNoWait(dollar,sizeof(dollar)-1);
     chThdSleepMilliseconds(1000);
     wifiWriteByUsart(busModeCommand,sizeof(busModeCommand)-1);
+    wifiWriteByUsart(autoStart0,    sizeof(autoStart0)     - 1);
     wifiWriteByUsart(save,sizeof(save)-1);
     wifiWriteByUsart(reboot,sizeof(reboot)-1);
 
