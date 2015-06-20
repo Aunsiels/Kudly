@@ -115,6 +115,7 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
     palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
 
+    writeSerial("Wifi configurating...\r\n");
     /* Start usart 3 */
     sdStart(&SD3, &uartCfg);
     /* Fill mailbox with usart data */

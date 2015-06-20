@@ -30,6 +30,9 @@ int main(void) {
     /* Initialize shell */
     shellPersoInit();
 
+    /* FIXME Timeout to wait usb */
+    chThdSleepMilliseconds(1000);
+
     /* Initialize SD card */
     sdPersoInit();
 
@@ -73,7 +76,7 @@ int main(void) {
     pirInit();
 
     /* Initializes the application */
-    applicationInit();
+    //applicationInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

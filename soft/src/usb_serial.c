@@ -5,7 +5,7 @@
 #include "usb_serial.h"
 #include "chprintf.h"
 
-#define DEBUG 0
+#define DEBUG 1
 SerialUSBDriver SDU1;
 
 /*
@@ -322,7 +322,6 @@ void initUsbSerial () {
     chThdSleepMilliseconds(1500);
     usbStart(serialusbcfg.usbp, &usbcfg);
     usbConnectBus(serialusbcfg.usbp);
-
 }
 
 void readSerial(uint8_t * buffer, int size) {
