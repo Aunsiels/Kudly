@@ -59,6 +59,7 @@ static char ratio[]          = "set network.buffer.rxtx_ratio 20\r\n";
 static char bufferSize[]     = "set network.buffer.size 40000\r\n";
 static char retryTimeout[]   = "set tcp.keepalive.retry_timeout 1\r\n";
 static char list[]           = "list\r\n";
+static char reboot[]         = "reboot\r\n";
 
 /* Mutex for wifi access */
 MUTEX_DECL(wifiAccessMtx);
@@ -188,6 +189,15 @@ void wifiInitByUsart(void) {
     wifiWriteByUsart(ssid,            sizeof(ssid)            - 1);
     wifiWriteByUsart(passkey,         sizeof(passkey)         - 1);
     wifiWriteByUsart(save,            sizeof(save)            - 1);
+
+    //Reboot in case it was previously in stream mode
+    wifiWriteNoWait(reboot, sizeof(reboot)- 1);
+
+    stream_buffer[0] = 0;
+    do {
+        wifiWriteNoWait(dollar,sizeof(dollar)-1);
+        chThdSleepMilliseconds(1000);
+    } while(strlen(stream_buffer) == 0);
 
     /* Loop to test the network connection */
     bool_t state;
