@@ -16,7 +16,7 @@
  *
  * \brief Initializes ADC hand sensors
  *
- * This function configures inputs and ouput pins for ADC conversion  
+ * This function configures inputs and ouput pins for ADC conversion
  */
 void initHandSensors(void);
 

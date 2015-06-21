@@ -39,95 +39,95 @@ static int parseFunction;
 static int stateXML;
 
 /* Thread waits an wifi event and parse feature and function to launch the rigth function */
-static void wifiCommands(void) {   
-    /* Photo */    
-    if ( NULL != strstr(function,"photo")){
-	stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
-	if(stateXML){
-	    chEvtBroadcast(&eventPhotoSrc);
-	}
-	return;
+static void wifiCommands(void) {
+    /* Photo */
+    if ( NULL != strstr(function,"photo")) {
+        stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
+        if(stateXML) {
+            chEvtBroadcast(&eventPhotoSrc);
+        }
+        return;
     }
     /* Story */
-    if ( NULL != strstr(function,"story")){
-	stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
-	if(stateXML){
-	    chEvtBroadcast(&eventStorySrc);
-	}
-	return;
+    if ( NULL != strstr(function,"story")) {
+        stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
+        if(stateXML) {
+            chEvtBroadcast(&eventStorySrc);
+        }
+        return;
     }
     /* Sound */
-    if ( NULL != strstr(function,"sound")){
-	stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
-	if(stateXML){
-	    chEvtBroadcast(&eventSoundSrc);
-	}
-	return;
+    if ( NULL != strstr(function,"sound")) {
+        stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
+        if(stateXML) {
+            chEvtBroadcast(&eventSoundSrc);
+        }
+        return;
     }
-    
+
     /* Stream */
-    if ( NULL != strstr(function,"stream")){
-	stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
-	if(stateXML){
-	    chEvtBroadcast(&eventStreamSrc);
-	}
-	return;
+    if ( NULL != strstr(function,"stream")) {
+        stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
+        if(stateXML) {
+            chEvtBroadcast(&eventStreamSrc);
+        }
+        return;
     }
-    
+
     /* Game */
-    if ( NULL != strstr(function,"game")){
-	stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
-	if(stateXML){
-	    chEvtBroadcast(&eventGameSrc);
-	}
-	return;
+    if ( NULL != strstr(function,"game")) {
+        stateXML = strtol(strstr(function,"state=\"") +7,(char **)NULL,10);
+        if(stateXML) {
+            chEvtBroadcast(&eventGameSrc);
+        }
+        return;
     }
 }
 
 void parseXML(char c) {
     switch(state) {
     case WAIT_CONFIG:
-	/* Wait feature beginning */
-	if (c == '<') {
-	    parseConfig = 0;
-	    state = WRITE_CONFIG;
-	}
-	break;
+        /* Wait feature beginning */
+        if (c == '<') {
+            parseConfig = 0;
+            state = WRITE_CONFIG;
+        }
+        break;
     case WRITE_CONFIG:
-	/* Save feature name */
-	if (c == '>'){
-	    state = WAIT_FUNCTION;
-	    config[parseConfig] = '\0';
-	}
-	config[parseConfig] = c;
-	parseConfig++;
-	break;
+        /* Save feature name */
+        if (c == '>') {
+            state = WAIT_FUNCTION;
+            config[parseConfig] = '\0';
+        }
+        config[parseConfig] = c;
+        parseConfig++;
+        break;
     case WAIT_FUNCTION:
-	/* Wait function beginning */
-	if (c == '<'){
-	    state = WRITE_FUNCTION;
-	    parseFunction = 0;
-	} 
-	break;
+        /* Wait function beginning */
+        if (c == '<') {
+            state = WRITE_FUNCTION;
+            parseFunction = 0;
+        }
+        break;
     case WRITE_FUNCTION:
-	/* Save function name */
-	if (c == '/' && parseFunction == 0){
-	    state = END_CONFIG;
-	    break;
-	}
-	if (c == '>'){
-	    state = WAIT_FUNCTION;
-	    function[parseFunction-1] = '\0';
-	    wifiCommands();
-	}
-	function[parseFunction]=c;
-	parseFunction++;
-	break;
+        /* Save function name */
+        if (c == '/' && parseFunction == 0) {
+            state = END_CONFIG;
+            break;
+        }
+        if (c == '>') {
+            state = WAIT_FUNCTION;
+            function[parseFunction-1] = '\0';
+            wifiCommands();
+        }
+        function[parseFunction]=c;
+        parseFunction++;
+        break;
     case END_CONFIG:
-	/* Wait feature ending */
-	if (c == '>'){
-	    state = WAIT_CONFIG;
-	}
-	break;
+        /* Wait feature ending */
+        if (c == '>') {
+            state = WAIT_CONFIG;
+        }
+        break;
     }
 }

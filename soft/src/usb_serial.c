@@ -1,3 +1,5 @@
+
+
 #include "ch.h"
 #include "hal.h"
 #include "usb_serial.h"
@@ -27,17 +29,17 @@ static const SerialUSBConfig serialusbcfg = {
  */
 static const uint8_t vcom_device_descriptor_data[18] = {
     USB_DESC_DEVICE       (0x0110,        /* bcdUSB (1.1).                    */
-                           0x02,          /* bDeviceClass (CDC).              */
-                           0x00,          /* bDeviceSubClass.                 */
-                           0x00,          /* bDeviceProtocol.                 */
-                           0x40,          /* bMaxPacketSize.                  */
-                           0x0483,        /* idVendor (ST).                   */
-                           0x5740,        /* idProduct.                       */
-                           0x0200,        /* bcdDevice.                       */
-                           1,             /* iManufacturer.                   */
-                           2,             /* iProduct.                        */
-                           3,             /* iSerialNumber.                   */
-                           1)             /* bNumConfigurations.              */
+    0x02,          /* bDeviceClass (CDC).              */
+    0x00,          /* bDeviceSubClass.                 */
+    0x00,          /* bDeviceProtocol.                 */
+    0x40,          /* bMaxPacketSize.                  */
+    0x0483,        /* idVendor (ST).                   */
+    0x5740,        /* idProduct.                       */
+    0x0200,        /* bcdDevice.                       */
+    1,             /* iManufacturer.                   */
+    2,             /* iProduct.                        */
+    3,             /* iSerialNumber.                   */
+    1)             /* bNumConfigurations.              */
 };
 
 /*
@@ -52,23 +54,23 @@ static const USBDescriptor vcom_device_descriptor = {
 static const uint8_t vcom_configuration_descriptor_data[67] = {
     /* Configuration Descriptor.*/
     USB_DESC_CONFIGURATION(67,            /* wTotalLength.                    */
-                           0x02,          /* bNumInterfaces.                  */
-                           0x01,          /* bConfigurationValue.             */
-                           0,             /* iConfiguration.                  */
-                           0xC0,          /* bmAttributes (self powered).     */
-                           50),           /* bMaxPower (100mA).               */
+    0x02,          /* bNumInterfaces.                  */
+    0x01,          /* bConfigurationValue.             */
+    0,             /* iConfiguration.                  */
+    0xC0,          /* bmAttributes (self powered).     */
+    50),           /* bMaxPower (100mA).               */
     /* Interface Descriptor.*/
     USB_DESC_INTERFACE    (0x00,          /* bInterfaceNumber.                */
-                           0x00,          /* bAlternateSetting.               */
-                           0x01,          /* bNumEndpoints.                   */
-                           0x02,          /* bInterfaceClass (Communications
+    0x00,          /* bAlternateSetting.               */
+    0x01,          /* bNumEndpoints.                   */
+    0x02,          /* bInterfaceClass (Communications
                                              Interface Class, CDC section
                                              4.2).                            */
-                           0x02,          /* bInterfaceSubClass (Abstract
+    0x02,          /* bInterfaceSubClass (Abstract
 					     Control Model, CDC section 4.3).   */
-                           0x01,          /* bInterfaceProtocol (AT commands,
+    0x01,          /* bInterfaceProtocol (AT commands,
                                              CDC section 4.4).                */
-                           0),            /* iInterface.                      */
+    0),            /* iInterface.                      */
     /* Header Functional Descriptor (CDC section 5.2.3).*/
     USB_DESC_BYTE         (5),            /* bLength.                         */
     USB_DESC_BYTE         (0x24),         /* bDescriptorType (CS_INTERFACE).  */
@@ -99,30 +101,30 @@ static const uint8_t vcom_configuration_descriptor_data[67] = {
                                              Interface).                      */
     /* Endpoint 2 Descriptor.*/
     USB_DESC_ENDPOINT     (USBD1_INTERRUPT_REQUEST_EP|0x80,
-                           0x03,          /* bmAttributes (Interrupt).        */
-                           0x0008,        /* wMaxPacketSize.                  */
-                           0xFF),         /* bInterval.                       */
+    0x03,          /* bmAttributes (Interrupt).        */
+    0x0008,        /* wMaxPacketSize.                  */
+    0xFF),         /* bInterval.                       */
     /* Interface Descriptor.*/
     USB_DESC_INTERFACE    (0x01,          /* bInterfaceNumber.                */
-                           0x00,          /* bAlternateSetting.               */
-                           0x02,          /* bNumEndpoints.                   */
-                           0x0A,          /* bInterfaceClass (Data Class
+    0x00,          /* bAlternateSetting.               */
+    0x02,          /* bNumEndpoints.                   */
+    0x0A,          /* bInterfaceClass (Data Class
                                              Interface, CDC section 4.5).     */
-                           0x00,          /* bInterfaceSubClass (CDC section
+    0x00,          /* bInterfaceSubClass (CDC section
                                              4.6).                            */
-                           0x00,          /* bInterfaceProtocol (CDC section
+    0x00,          /* bInterfaceProtocol (CDC section
                                              4.7).                            */
-                           0x00),         /* iInterface.                      */
+    0x00),         /* iInterface.                      */
     /* Endpoint 3 Descriptor.*/
     USB_DESC_ENDPOINT     (USBD1_DATA_AVAILABLE_EP,       /* bEndpointAddress.*/
-                           0x02,          /* bmAttributes (Bulk).             */
-                           0x0040,        /* wMaxPacketSize.                  */
-                           0x00),         /* bInterval.                       */
+    0x02,          /* bmAttributes (Bulk).             */
+    0x0040,        /* wMaxPacketSize.                  */
+    0x00),         /* bInterval.                       */
     /* Endpoint 1 Descriptor.*/
     USB_DESC_ENDPOINT     (USBD1_DATA_REQUEST_EP|0x80,    /* bEndpointAddress.*/
-                           0x02,          /* bmAttributes (Bulk).             */
-                           0x0040,        /* wMaxPacketSize.                  */
-                           0x00)          /* bInterval.                       */
+    0x02,          /* bmAttributes (Bulk).             */
+    0x0040,        /* wMaxPacketSize.                  */
+    0x00)          /* bInterval.                       */
 };
 
 /*
@@ -191,20 +193,20 @@ static const USBDescriptor vcom_strings[] = {
  * handled here.
  */
 static const USBDescriptor *get_descriptor(USBDriver *usbp,
-                                           uint8_t dtype,
-                                           uint8_t dindex,
-                                           uint16_t lang) {
+        uint8_t dtype,
+        uint8_t dindex,
+        uint16_t lang) {
 
     (void)usbp;
     (void)lang;
     switch (dtype) {
     case USB_DESCRIPTOR_DEVICE:
-	return &vcom_device_descriptor;
+        return &vcom_device_descriptor;
     case USB_DESCRIPTOR_CONFIGURATION:
-	return &vcom_configuration_descriptor;
+        return &vcom_configuration_descriptor;
     case USB_DESCRIPTOR_STRING:
-	if (dindex < 4)
-	    return &vcom_strings[dindex];
+        if (dindex < 4)
+            return &vcom_strings[dindex];
     }
     return NULL;
 }
@@ -263,29 +265,29 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
 
     switch (event) {
     case USB_EVENT_RESET:
-	return;
+        return;
     case USB_EVENT_ADDRESS:
-	return;
+        return;
     case USB_EVENT_CONFIGURED:
-	chSysLockFromIsr();
+        chSysLockFromIsr();
 
-	/* Enables the endpoints specified into the configuration.
-	   Note, this callback is invoked from an ISR so I-Class functions
-	   must be used.*/
-	usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
-	usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
+        /* Enables the endpoints specified into the configuration.
+           Note, this callback is invoked from an ISR so I-Class functions
+           must be used.*/
+        usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
+        usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
 
-	/* Resetting the state of the CDC subsystem.*/
-	sduConfigureHookI(&SDU1);
+        /* Resetting the state of the CDC subsystem.*/
+        sduConfigureHookI(&SDU1);
 
-	chSysUnlockFromIsr();
-	return;
+        chSysUnlockFromIsr();
+        return;
     case USB_EVENT_SUSPEND:
-	return;
+        return;
     case USB_EVENT_WAKEUP:
-	return;
+        return;
     case USB_EVENT_STALLED:
-	return;
+        return;
     }
     return;
 }
@@ -300,7 +302,7 @@ static const USBConfig usbcfg = {
     NULL
 };
 
-void initUsbSerial (){
+void initUsbSerial () {
 
     /* Pin mode configuration */
     palSetPadMode(GPIOA, GPIOA_USB_VBUS, PAL_MODE_INPUT_PULLUP );
@@ -320,20 +322,19 @@ void initUsbSerial (){
     chThdSleepMilliseconds(1500);
     usbStart(serialusbcfg.usbp, &usbcfg);
     usbConnectBus(serialusbcfg.usbp);
-
 }
 
-void readSerial(uint8_t * buffer, int size){
+void readSerial(uint8_t * buffer, int size) {
     (SDU1.vmt)->read(&SDU1, buffer, size);
 }
 
-void writeSerial(const char * fmt,...){
+void writeSerial(const char * fmt,...) {
 #if DEBUG
-    if (serialusbcfg.usbp->state == USB_ACTIVE){
-	va_list ap;
-	va_start(ap, fmt);
-	chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
-	va_end(ap);
+    if (serialusbcfg.usbp->state == USB_ACTIVE) {
+        va_list ap;
+        va_start(ap, fmt);
+        chvprintf((BaseSequentialStream *)&SDU1, fmt, ap);
+        va_end(ap);
     }
 #else
     (void)fmt;

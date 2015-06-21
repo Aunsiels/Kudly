@@ -32,8 +32,10 @@ static WORKING_AREA(waEducColor, 1024);
 static WORKING_AREA(waEducLetters, 1024);
 /* Working area educ letters */
 static WORKING_AREA(waXmlPolling, 1024);
-/* Working area educ letters */
+/* Working area streaming */
 static WORKING_AREA(waStreaming, 1024);
+/* Working area Story */
+static WORKING_AREA(waStory, 1024);
 
 static MUTEX_DECL(appliMtx);
 
@@ -48,24 +50,25 @@ static msg_t pirThread(void * args) {
     /* Event listener for change */
     EventListener el;
 
-    while(1){
-
-	chEvtRegisterMask(&pirEvent, &el,EVENT_MASK(1));
-        chEvtWaitOne(EVENT_MASK(1));
-        chEvtUnregister(&pirEvent, &el);
-
+    while(1) {
 	chMtxLock(&appliMtx);
 	writeSerial("Pir ...\r\n");
         int res = palReadPad(GPIOD,GPIOD_PIR);
-        if (res){
+        if (res) {
             cmdPlay((BaseSequentialStream *) &SDU1, 1, &pirSound);
             postAndRead("192.168.1.105:9000/presence","value=1");
+	    writeSerial("End ...\r\n");
+	    chMtxUnlock();
             chThdSleepSeconds(60);
         } else {
             postAndRead("192.168.1.105:9000/presence","value=0");
+	    writeSerial("End ...\r\n");
+	    chMtxUnlock();
+            chThdSleepSeconds(60);
         }
-	chMtxUnlock();
-	writeSerial("End ...\r\n");
+        chEvtRegisterMask(&pirEvent, &el,EVENT_MASK(1));
+        chEvtWaitOne(EVENT_MASK(1));
+        chEvtUnregister(&pirEvent, &el);
     }
     return 0;
 }
@@ -95,7 +98,7 @@ static char * kuddle = "hum.ogg";
 /*
  * Thread for hug
  */
-static msg_t hugThread(void * args){
+static msg_t hugThread(void * args) {
     (void) args;
     uint32_t formerValue;
     uint16_t * lowF = (uint16_t *) &formerValue;
@@ -107,7 +110,7 @@ static msg_t hugThread(void * args){
     formerValue = getHugValues();
     while(1) {
 
-	chThdSleepMilliseconds(1000);
+        chThdSleepMilliseconds(1000);
 
         readValues = getHugValues();
 
@@ -118,6 +121,7 @@ static msg_t hugThread(void * args){
             writeSerial("Hug ...\r\n");
             cmdPlay((BaseSequentialStream *) &SDU1, 1, &kuddle);
             cmdLedtest((BaseSequentialStream *) &SDU1, 0, NULL);
+            writeSerial("end hug \r\n");
 
 	    chMtxUnlock();
 	    writeSerial("End ...\r\n");
@@ -128,7 +132,7 @@ static msg_t hugThread(void * args){
     return 0;
 }
 
-int getSize(stkalign_t * buf, int size){
+int getSize(stkalign_t * buf, int size) {
     uint32_t * b = (uint32_t *) buf;
     for(int i = 0; i < size; i++)
         if (b[i] == 0x55555555) return i*4;
@@ -147,37 +151,38 @@ static msg_t handsThread(void * args) {
     chEvtRegisterMask(&eventPhotoSrc , &eventPhotoLst ,EVENT_MASK(1));
 
     while (1) {
-	chEvtWaitOne(EVENT_MASK(1));
-	chMtxLock(&appliMtx);
-        writeSerial("Hands ...\r\n");
+        chEvtWaitOne(EVENT_MASK(1));
+        chMtxLock(&appliMtx);
 
-	cmdPlay((BaseSequentialStream *) &SDU1, 1, &photoSound);
-	chThdSleepSeconds(4);
-	cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+        cmdPlay((BaseSequentialStream *) &SDU1, 1, &photoSound);
+        chThdSleepSeconds(4);
+        cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
 
         /* Turn on led */
-	ledSetColorRGB(0, 255, 255, 255);
-	writeSerial("Begin photo\r\n");
-	chThdSleepMilliseconds(100);
-	photo("photo.jpg");
-	writeSerial("End photo\r\n");
-	chThdSleepMilliseconds(100);
+        ledSetColorRGB(0, 255, 255, 255);
+        writeSerial("Begin photo\r\n");
+        chThdSleepMilliseconds(100);
+        photo("photo.jpg");
+        writeSerial("End photo\r\n");
+        chThdSleepMilliseconds(100);
 
-	ledSetColorRGB(0, 0, 0, 0);
-	chMtxUnlock();
-	writeSerial("End ...\r\n");
+        ledSetColorRGB(0, 0, 0, 0);
 
-	uploadFile("192.168.1.105:9000/sendimage", "photo.jpg",
-		   "photo.jpg");
-	f_unlink("photo.jpg");
-	ledSetColorRGB(0, 0, 255, 0);
-	chThdSleepMilliseconds(500);
-	ledSetColorRGB(0, 0, 0, 0);
+        uploadFile("192.168.1.105:9000/sendimage", "photo.jpg",
+                   "photo.jpg");
+        f_unlink("photo.jpg");
+        chMtxUnlock();
+        ledSetColorRGB(0, 0, 255, 0);
+        chThdSleepMilliseconds(500);
+        ledSetColorRGB(0, 0, 0, 0);
     }
 
     return 0;
 }
 
+/*
+ * Thread for the cry detection
+ */
 static msg_t cryThread(void * args) {
     (void) args;
 
@@ -204,13 +209,13 @@ static msg_t cryThread(void * args) {
 	if(0){
 	    writeSerial("\r\n\r\nNOOOOOOOW\r\n\r\n");
 	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
-	    postAndRead("kudly.herokuapp.com/activity","value=1");
+	    postAndRead("192.168.1.105/activity","value=1");
 	    cmdEncode((BaseSequentialStream *) &SDU1, 2, encodeCry);
 	    chThdSleepSeconds(10);
 	    cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
 	    writeSerial("Begin upload\r\n");
 	    chThdSleepMilliseconds(100);
-	    uploadFile("kudly.herokuapp.com/sendimage", "cry.ogg",
+	    uploadFile("192.168.1.105/sendimage", "cry.ogg",
 		       "cry.ogg");
 	    f_unlink("cry.ogg");
 	}
@@ -232,6 +237,9 @@ static char * handBlueSound   = "handButtonBlue.ogg";
 static char * successSound    = "rightAnswer.ogg";
 static char * wrongSound      = "badAnswer.ogg";
 
+/*
+ * The game to teach colors
+ */
 static msg_t educColorThread(void * args) {
     (void) args;
 
@@ -326,6 +334,9 @@ static msg_t educColorThread(void * args) {
 static char * lettersSound  = "alphabetKudly.ogg";
 static char * encodeAlphabet[2] = {"alphabetChild.ogg","10"};
 
+/*
+ * Teach letters
+ */
 static msg_t educLettersThread(void * args) {
     (void) args;
     chRegSetThreadName("Letter");
@@ -356,7 +367,7 @@ static msg_t educLettersThread(void * args) {
 	chMtxUnlock();
 	writeSerial("End ...\r\n");
     }
-return 0;
+    return 0;
 }
 
 static msg_t xmlPollingThread(void * args) {
@@ -370,9 +381,34 @@ static msg_t xmlPollingThread(void * args) {
 	writeSerial("End ...\r\n");
 	chThdSleepSeconds(5);
     }
-return 0;
+    return 0;
 }
 
+static char * storySound  = "story.ogg";
+
+static msg_t storyThread(void * args) {
+    (void) args;
+    chRegSetThreadName("Strory");
+
+    static EventListener eventStoryLst;
+    chEvtRegisterMask(&eventStorySrc , &eventStoryLst ,EVENT_MASK(1));
+
+    while (1) {
+        chEvtWaitOne(EVENT_MASK(1));
+        writeSerial("Story ...\r\n");
+        chMtxLock(&appliMtx);
+        cmdPlay((BaseSequentialStream *) &SDU1, 1, &storySound);
+
+        for(int i = 0; i<100; i++) {
+            ledSetColorHSV(0, 240, 100-i, 100);
+            chThdSleepMilliseconds(750);
+        }
+        cmdStop((BaseSequentialStream *) &SDU1, 0, NULL);
+        ledSetColorHSV(0, 0, 0, 0);
+        chMtxUnlock();
+    }
+    return 0;
+}
 
 static msg_t streamingThread(void * args){
     (void)args;
@@ -399,6 +435,7 @@ void applicationInit() {
     chThdCreateStatic(waXmlPolling, sizeof(waXmlPolling), NORMALPRIO,
 		      xmlPollingThread, NULL);
     chThdCreateStatic(waHands, sizeof(waHands), NORMALPRIO, handsThread, NULL);
+    chThdCreateStatic(waStory, sizeof(waStory), NORMALPRIO, storyThread, NULL);
     chThdCreateStatic(waHug, sizeof(waHug), NORMALPRIO, hugThread, NULL);
     chThdCreateStatic(waTemp, sizeof(waTemp), NORMALPRIO, tempThread, NULL);
     chThdCreateStatic(waPir, sizeof(waPir), NORMALPRIO, pirThread, NULL);

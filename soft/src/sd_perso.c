@@ -36,7 +36,7 @@ static EVENTSOURCE_DECL(removed_event);
  */
 static void tmrfunc(void *p) {
     BaseBlockDevice *bbdp = p;
-  
+
     /* The presence check is performed only while the driver is not in a
        transfer state because it is often performed by changing the mode of
        the pin connected to the CS/D3 contact of the card, this could disturb
@@ -98,7 +98,8 @@ static SPIConfig hs_spicfg = {NULL, GPIOD, 10, 0};
 
 /* Low speed SPI configuration (281.250kHz, CPHA=0, CPOL=0, MSb first).*/
 static SPIConfig ls_spicfg = {NULL, GPIOD, 10,
-                              SPI_CR1_BR_2 | SPI_CR1_BR_1};
+                              SPI_CR1_BR_2 | SPI_CR1_BR_1
+                             };
 
 /* MMC/SD over SPI driver configuration.*/
 static MMCConfig mmccfg = {&SPID2, &ls_spicfg, &hs_spicfg};
@@ -107,7 +108,7 @@ static MMCConfig mmccfg = {&SPID2, &ls_spicfg, &hs_spicfg};
 static uint8_t fbuff[1024];
 
 /* Is the sd card ready ? */
-bool_t sdIsReady (){
+bool_t sdIsReady () {
     return fs_ready;
 }
 
@@ -120,7 +121,7 @@ FRESULT scan_files(BaseSequentialStream *chp, char *path) {
     int i;
     char *fn;
 
-/*Long File Name*/
+    /*Long File Name*/
 #if _USE_LFN
     fno.lfname = 0;
     fno.lfsize = 0;
@@ -150,8 +151,7 @@ FRESULT scan_files(BaseSequentialStream *chp, char *path) {
                     break;
                 /* Removes the end of the path*/
                 path[--i] = 0;
-            }
-            else {
+            } else {
                 /* Prints a normal file */
                 writeSerial( "%s/%s\r\n", path, fn);
             }
@@ -168,7 +168,7 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
     DIR dir;
     char *fn;
 
-/*Long File Name*/
+    /*Long File Name*/
 #if _USE_LFN
     fno.lfname = 0;
     fno.lfsize = 0;
@@ -190,7 +190,7 @@ FRESULT ls(BaseSequentialStream *chp, char *path) {
             /* If it is a dir */
             if (fno.fattrib & AM_DIR) {
                 writeSerial( "%s/%s/\r\n", path, fn);
-            }else {
+            } else {
                 /* Prints a normal file */
                 writeSerial( "%s/%s\r\n", path, fn);
             }
@@ -298,9 +298,9 @@ void cmdCd(BaseSequentialStream *chp, int argc, char *argv[]) {
         writeSerial( "File System not mounted\r\n");
         return;
     }
-    if (argc == 0){
+    if (argc == 0) {
         current_dir[0] = 0;
-    }else {
+    } else {
         FRESULT res;
         res = f_chdir((TCHAR *) argv[0]);
         if (res) {
@@ -408,7 +408,7 @@ void cmdMv(BaseSequentialStream *chp, int argc, char *argv[]) {
  */
 static void InsertHandler(eventid_t id) {
     FRESULT err;
-  
+
     (void)id;
     /*
      * On insertion MMC initialization and FS mount.
@@ -455,21 +455,21 @@ static msg_t sdThread(void *arg) {
     /* Initializes mmc */
     mmcObjectInit(&MMCD1);
     mmcStart(&MMCD1, &mmccfg);
-  
+
     /* Event listener for insersion/removing */
     struct EventListener el0, el1;
-  
+
     /*
      * Activates the card insertion monitor.
      */
     tmr_init(&MMCD1);
-  
+
     /* Handlers */
     static const evhandler_t evhndl[] = {
-      InsertHandler,
-      RemoveHandler
+        InsertHandler,
+        RemoveHandler
     };
-  
+
     current_dir[0] = 0;
 
     /* Register event */
@@ -486,39 +486,39 @@ static msg_t sdThread(void *arg) {
  */
 void sdPersoInit() {
     (void)chThdCreateStatic(waSD, sizeof(waSD),
-                          NORMALPRIO, sdThread, NULL);
+                            NORMALPRIO, sdThread, NULL);
 }
 
 /*
  * Command for the console.
  */
 void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]) {
-  FRESULT err;
-  uint32_t clusters;
-  FATFS *fsp;
-  (void)chp;
-  (void)argv;
-  if (argc > 0) {
-    writeSerial( "Usage: tree\r\n");
-    return;
-  }
-  if (!fs_ready) {
-    writeSerial( "File System not mounted\r\n");
-    return;
-  }
-  /* Total size and free size */
-  err = f_getfree("/", &clusters, &fsp);
-  if (err != FR_OK) {
-    writeSerial( "FS: f_getfree() failed\r\n");
-    return;
-  }
-  writeSerial(
-           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
-           clusters, (uint32_t)MMC_FS.csize,
-           clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMCSD_BLOCK_SIZE);
-  fbuff[0] = 0;
-  /* Prints the files */
-  scan_files(chp, (char *)fbuff);
+    FRESULT err;
+    uint32_t clusters;
+    FATFS *fsp;
+    (void)chp;
+    (void)argv;
+    if (argc > 0) {
+        writeSerial( "Usage: tree\r\n");
+        return;
+    }
+    if (!fs_ready) {
+        writeSerial( "File System not mounted\r\n");
+        return;
+    }
+    /* Total size and free size */
+    err = f_getfree("/", &clusters, &fsp);
+    if (err != FR_OK) {
+        writeSerial( "FS: f_getfree() failed\r\n");
+        return;
+    }
+    writeSerial(
+        "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
+        clusters, (uint32_t)MMC_FS.csize,
+        clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMCSD_BLOCK_SIZE);
+    fbuff[0] = 0;
+    /* Prints the files */
+    scan_files(chp, (char *)fbuff);
 }
 
 /* test mkdir and rm functions */
@@ -572,7 +572,7 @@ FRESULT testRm(BaseSequentialStream *chp, char * name) {
     return 1;
 }
 
-FRESULT testTouch(BaseSequentialStream *chp, char * filename){
+FRESULT testTouch(BaseSequentialStream *chp, char * filename) {
     (void)chp;
     FRESULT err;
     char * args[1];
@@ -619,7 +619,7 @@ FRESULT testMv(BaseSequentialStream *chp, char * from, char * to) {
 }
 
 /* Test Write/read */
-FRESULT testWR(BaseSequentialStream *chp){
+FRESULT testWR(BaseSequentialStream *chp) {
     (void)chp;
     /* File object */
     static FIL fil;
@@ -657,12 +657,12 @@ FRESULT testWR(BaseSequentialStream *chp){
     char buff[20];
     writeSerial( "Read data\r\n");
     char * buffres = f_gets(buff, sizeof(buff), &fil);
-    if (buff != buffres){
+    if (buff != buffres) {
         writeSerial( "A problem occured while reading data\r\n");
         testRm(chp, "testwr");
         return 1;
     }
-    if (strcmp(buff, "This is a test !\n") != 0){
+    if (strcmp(buff, "This is a test !\n") != 0) {
         writeSerial( "The datas read are not the same than the one written\r\n");
         testRm(chp, "testwr");
         return 1;
@@ -679,7 +679,7 @@ FRESULT testWR(BaseSequentialStream *chp){
 }
 
 /* Test the functionalities of the sd card */
-void testSd(BaseSequentialStream *chp, int argc, char * argv[]){
+void testSd(BaseSequentialStream *chp, int argc, char * argv[]) {
     (void)argv;
     (void)chp;
     if (argc > 0) {
@@ -720,7 +720,7 @@ ERROR :
     writeSerial( "The SD test FAILED\r\n");
 }
 
-FRESULT writeFile(char * filename, char * buf, UINT length){
+FRESULT writeFile(char * filename, char * buf, UINT length) {
     if (!fs_ready) {
         return 1;
     }

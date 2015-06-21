@@ -55,7 +55,7 @@ void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]);
  *
  * \brief Initializes the wifi communication
  *
- * This function connects the board to the a406 network  
+ * This function connects the board to the a406 network
  */
 void wifiInitByUsart(void);
 

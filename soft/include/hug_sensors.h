@@ -16,7 +16,7 @@
  *
  * \brief Initializes ADC hug sensors
  *
- * This function configures inputs and ouput pins for ADC conversion  
+ * This function configures inputs and ouput pins for ADC conversion
  */
 void initHugSensors(void);
 

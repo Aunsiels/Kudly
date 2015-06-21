@@ -10,7 +10,7 @@ EVENTSOURCE_DECL(pirEvent);
 /*
  * Callback function for the pir
  */
-static void extPir(EXTDriver * extp, expchannel_t channel){
+static void extPir(EXTDriver * extp, expchannel_t channel) {
     (void) extp;
     (void) channel;
     chSysLockFromIsr();
@@ -21,13 +21,13 @@ static void extPir(EXTDriver * extp, expchannel_t channel){
 /*
  * Pir interrupt configuration
  */
-static EXTChannelConfig config[] = 
-    {{EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART  | EXT_MODE_GPIOD, extPir}};
+static EXTChannelConfig config[] =
+{{EXT_CH_MODE_BOTH_EDGES | EXT_CH_MODE_AUTOSTART  | EXT_MODE_GPIOD, extPir}};
 
 /*
  * Initialization function
  */
-void pirInit(){
+void pirInit() {
     palSetPadMode(GPIOD,GPIOD_PIR,PAL_MODE_INPUT_PULLDOWN);
     extSetChannelMode(&EXTD1,GPIOD_PIR, config);
 }
@@ -35,10 +35,10 @@ void pirInit(){
 /*
  * Tests if the pir works, to use in a terminal. Does 10 times a change
  */
-void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
+void testPir(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) chp;
-    if (argc > 0){
+    if (argc > 0) {
         writeSerial( "Usage : pir\r\n");
         return;
     }
@@ -48,10 +48,10 @@ void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
     /* Register event */
     chEvtRegisterMask(&pirEvent, &el,EVENT_MASK(1));
     int i;
-    for(i = 0; i <10 ; ++i){
+    for(i = 0; i <10 ; ++i) {
         /* Wait for a change for 10 seconds */
         int res = palReadPad(GPIOD,GPIOD_PIR);
-        if (res){
+        if (res) {
             writeSerial( "Current : mouvement detected\r\n");
         } else {
             writeSerial( "Current : mouvement stopped\r\n");
@@ -63,14 +63,14 @@ void testPir(BaseSequentialStream *chp, int argc, char *argv[]){
             break;
         } else {
             res = palReadPad(GPIOD,GPIOD_PIR);
-            if (res){
+            if (res) {
                 writeSerial( "Mouvement detected\r\n");
             } else {
                 writeSerial( "Mouvement stopped\r\n");
             }
         }
     }
-    if (i == 10){
+    if (i == 10) {
         writeSerial( "The 10 changes have been detected\r\n");
     } else {
         writeSerial( "Some changes were not detected\r\n");

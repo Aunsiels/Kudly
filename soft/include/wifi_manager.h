@@ -58,7 +58,7 @@ void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]);
  * \param argc The number of arguments
  * \param argv The parameters
  *
- * Load file in wifi module flash, upload it on server and delete 
+ * Load file in wifi module flash, upload it on server and delete
  * in wifi module flash
  */
 void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]);

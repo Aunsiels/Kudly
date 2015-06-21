@@ -5,7 +5,7 @@
  * \version 0.1
  * \date 07/04/2015
  *
- * Finite state machine that parses xml to execute function written 
+ * Finite state machine that parses xml to execute function written
  * in it
  *
  */
@@ -51,8 +51,8 @@ extern EventSource eventGameSrc;
  *
  * \brief XML parsing to execute actions
  *
- * This function parses a xml page from serve and launches right 
- * functions  
+ * This function parses a xml page from serve and launches right
+ * functions
  */
 void parseXML(char c);
 

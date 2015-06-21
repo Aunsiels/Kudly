@@ -97,16 +97,16 @@ static const ShellConfig shell_cfg1 = {
 /*
  * Initializes and controls the shell
  */
-static msg_t shellController (void *arg){
+static msg_t shellController (void *arg) {
     (void) arg;
 
     /* Initialization of the thread */
     shellInit();
     /* Start the shell */
-    while (TRUE){
-        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)){
+    while (TRUE) {
+        if (!shelltp && (SDU1.config->usbp->state == USB_ACTIVE)) {
             shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-        } else if (chThdTerminated(shelltp)){
+        } else if (chThdTerminated(shelltp)) {
             chThdRelease(shelltp);
             shelltp = NULL;
         }
@@ -116,8 +116,8 @@ static msg_t shellController (void *arg){
 }
 
 /* Initialization */
-void shellPersoInit(){
+void shellPersoInit() {
     /* Begins the shell controller thread */
     chThdCreateStatic(waShellController, sizeof(waShellController), NORMALPRIO,
-        shellController, NULL);
+                      shellController, NULL);
 }

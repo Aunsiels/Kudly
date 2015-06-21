@@ -24,8 +24,8 @@ static WORKING_AREA(stream_wa, 1024);
 /* Codec mailboxes */
 static msg_t mbCodecOut_buf[10000];
 static msg_t mbCodecIn_buf[5];
-MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, 10000);
-MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, 5000);
+MAILBOX_DECL(mbCodecOut, mbCodecOut_buf, sizeof(mbCodecOut_buf) / sizeof(msg_t));
+MAILBOX_DECL(mbCodecIn, mbCodecIn_buf, sizeof(mbCodecIn_buf) / sizeof(msg_t));
 
 /* Buffer to send in a websocket */
 static char codecOutBuffer[BUFFER_SIZE];
@@ -255,7 +255,7 @@ static msg_t streamingOut(void * args) {
 /*
  * Init reading & sending threads
  */
-void streamInit(void){
+void streamInit(void) {
 
     writeSerial("StreamInit...\n\r");
 

@@ -30,7 +30,7 @@ bool_t sdIsReady (void);
  * */
 void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/** 
+/**
  * \brief Command cat for the shell
  * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
@@ -38,7 +38,7 @@ void cmdTree(BaseSequentialStream *chp, int argc, char *argv[]);
  * */
 void cmdCat(BaseSequentialStream *chp, int argc, char *argv[]);
 
-/** 
+/**
  * \brief ls command for the shell
  * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
@@ -95,12 +95,12 @@ void cmdMkdir(BaseSequentialStream *chp, int argc, char *argv[]);
 void cmdTouch(BaseSequentialStream *chp, int argc, char *argv[]);
 
 /**
- * \brief Initializes the sd card spi 
+ * \brief Initializes the sd card spi
  * */
 void sdPersoInit(void);
 
 /**
- * \brief Test SD functionalities 
+ * \brief Test SD functionalities
  * \param chp The stream where the strings will be written.
  * \param argc The number of arguments
  * \param argv The parameters

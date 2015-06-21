@@ -14,6 +14,7 @@
 /* !!! dataRead (for stream_read command) must be greather than dataWrite (for stream_write command)*/
 #define DATA_READ 1440
 #define DATA_WRITE 1440
+
 #define DATA_SIZE (DATA_READ>DATA_WRITE?DATA_READ:DATA_WRITE)
 
 /* Different states for usart reading */
@@ -24,19 +25,19 @@ enum wifiReadState {
 };
 
 /* Some strings for wifi module functions */
-static char stream_poll[] = "stream_poll ";
-static char stream_close[] = "stream_close ";
-static char command_failed [] = "Command failed";
-static char stream_read[] = "stream_read ";
-static char http_get[] ="http_get ";
-static char endLine[] ="\r\n";
-static char http_post[]="http_post ";
-static char urlencoded[]=" x-www-form-urlencoded\r\n";
-static char file_create[] = "file_create -o ";
-static char stream_write[] ="stream_write ";
-static char http_upload[] = "http_upload ";
-static char file_delete [] = "file_delete ";
-static char nup[] = "nup\r\n";
+static char stream_poll[]    = "stream_poll ";
+static char stream_close[]   = "stream_close ";
+static char command_failed[] = "Command failed";
+static char stream_read[]    = "stream_read ";
+static char http_get[]       = "http_get ";
+static char endLine[]        = "\r\n";
+static char http_post[]      = "http_post ";
+static char urlencoded[]     = " x-www-form-urlencoded\r\n";
+static char file_create[]    = "file_create -o ";
+static char stream_write[]   = "stream_write ";
+static char http_upload[]    = "http_upload ";
+static char file_delete []   = "file_delete ";
+static char nup[]            = "nup\r\n";
 
 /* Array used by itoa called */
 static char itoaBuff[10];
@@ -71,7 +72,7 @@ EVENTSOURCE_DECL(srcEndToReadUsart);
 int dataSize;
 
 /* Thread that always reads wifi received data */
-static msg_t usartRead_thd(void * arg){
+static msg_t usartRead_thd(void * arg) {
     (void)arg;
     static msg_t c;
     static int  h;
@@ -170,12 +171,12 @@ void usartRead(void) {
     static WORKING_AREA(usartRead_wa, 2048);
 
     chThdCreateStatic(
-	usartRead_wa, sizeof(usartRead_wa),
-	NORMALPRIO, usartRead_thd, NULL);
+        usartRead_wa, sizeof(usartRead_wa),
+        NORMALPRIO, usartRead_thd, NULL);
 }
 
 /* Function that builds a wifi module command and send it : used from stream feature */
-static void sendStreamCommand (char * command, int * stream , int *number , char * data){
+static void sendStreamCommand (char * command, int * stream , int *number , char * data) {
     msgWifi[0] ='\0';
     strcat(msgWifi , command);
     itoa(*stream , itoaBuff,10);
@@ -275,8 +276,8 @@ static void saveWebPage( char * address , char * file){
     chMtxUnlock();
 }
 
-/* Function that sends hhtp_request and save th page in file */
-void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
+/* Function that sends hhtp_request and save the page in file */
+void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]) {
     (void)chp;
     if (argc != 2) {
         writeSerial("Usage: getwifi <web address> <local file>\r\n");
@@ -286,7 +287,7 @@ void cmdWifiGet(BaseSequentialStream *chp, int argc, char * argv[]){
 }
 
 /* Function that sends hhtp_request and save th page in file */
-void postAndRead( char * address , char * data){
+void postAndRead( char * address , char * data) {
     chMtxLock(&wifiAccessMtx);
     msgWifi[0] ='\0';
     /* Build hhtp post request */
@@ -310,15 +311,16 @@ void postAndRead( char * address , char * data){
     }
 
     int stream = atoi(stream_buffer);
+
     /* Read the first stream if available */
     polling(&stream);
     sendStreamCommand(stream_read, &stream , &dataRead , NULL);
 
     /* Read until stream is not closed */
-    while (NULL == strstr(stream_buffer, command_failed)){
-	writeSerial(stream_buffer);
-	polling(&stream);
-   	sendStreamCommand(stream_read, &stream , &dataRead , NULL);
+    while (NULL == strstr(stream_buffer, command_failed)) {
+        writeSerial(stream_buffer);
+        polling(&stream);
+        sendStreamCommand(stream_read, &stream , &dataRead , NULL);
     }
 
     print = TRUE;
@@ -327,7 +329,7 @@ void postAndRead( char * address , char * data){
 }
 
 /* Function that sends hhtp_post and save th page in file */
-void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
+void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]) {
     (void)chp;
     if (argc != 2) {
         writeSerial("Usage: uploadwifi <web address> <data>\r\n");
@@ -336,16 +338,16 @@ void cmdWifiPost(BaseSequentialStream *chp, int argc, char * argv[]){
     postAndRead(argv[0],argv[1]);
 }
 
-void uploadFile( char *address , char * localFile , char * remoteFile){
+void uploadFile(char *address, char * localFile , char * remoteFile) {
     chMtxLock(&wifiAccessMtx);
     /* Open file in reading mode */
 UPLD_BGN:
-    res = f_open(&fil,localFile,FA_OPEN_EXISTING | FA_READ);
+    res = f_open(&fil, localFile, FA_OPEN_EXISTING | FA_READ);
     if (res) {
         writeSerial("Cannot read this file %d\r\n",res);
         f_close(&fil);
-	chMtxUnlock();
-	return;
+        chMtxUnlock();
+        return;
     }
 
     /* Get the file size */
@@ -356,7 +358,7 @@ UPLD_BGN:
     strcat(msgWifi ,file_create);
     strcat(msgWifi ,localFile);
     strcat(msgWifi , " ");
-    itoa(dword , itoaBuff,10);
+    itoa(dword, itoaBuff, 10);
     strcat(msgWifi ,itoaBuff);
     strcat(msgWifi ,endLine);
 
@@ -446,7 +448,7 @@ UPLD_BGN:
 }
 
 /* Shell command to upload a file in SD card on server */
-void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]){
+void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]) {
     (void)chp;
     if (argc != 3) {
         writeSerial("Usage: uploadwifi <web address> <local file> <remote file>\r\n");
@@ -455,8 +457,8 @@ void cmdWifiUpload(BaseSequentialStream *chp, int argc, char * argv[]){
     uploadFile( argv[0] , argv[1] , argv[2]);
 }
 
-/* Function that sends hhtp_request and send data to xml parsing */
-void parsePage( char * address){
+/* Function that sends http_request and send data to xml parsing */
+void parsePage( char * address) {
     chMtxLock(&wifiAccessMtx);
 
     /* Build http request command */
@@ -484,20 +486,20 @@ void parsePage( char * address){
     sendStreamCommand(stream_read, &stream , &dataRead , NULL);
 
     /* Read until stream is not closed */
-    while (NULL == strstr(stream_buffer, command_failed)){
-	/* Send each character */
-	for (int i = 0 ; i < dataSize ; i++){
-	    parseXML(stream_buffer[i]);
-	}
-	polling(&stream);
-	sendStreamCommand(stream_read, &stream , &dataRead , NULL);
+    while (NULL == strstr(stream_buffer, command_failed)) {
+        /* Send each character */
+        for (int i = 0 ; i < dataSize ; i++) {
+            parseXML(stream_buffer[i]);
+        }
+        polling(&stream);
+        sendStreamCommand(stream_read, &stream , &dataRead , NULL);
     }
     print = TRUE;
     chMtxUnlock();
 }
 
 /* Shell command to read a web xml page on server and execute actions */
-void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]){
+void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]) {
     (void)chp;
     if (argc != 1) {
         writeSerial("Usage: parsewifi <web address>\r\n");
@@ -507,12 +509,12 @@ void cmdWifiXml(BaseSequentialStream *chp, int argc, char * argv[]){
 }
 
 /* Command to test the network connection */
-bool_t wifiNup(void){
+bool_t wifiNup(void) {
     bool_t state;
     chMtxLock(&wifiAccessMtx);
     wifiWriteByUsart(nup, sizeof(nup)-1);
     if(NULL != strstr(stream_buffer, "Success"))
-	state = TRUE;
+        state = TRUE;
     else
 	state = FALSE;
     chMtxUnlock();

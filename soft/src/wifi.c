@@ -99,7 +99,7 @@ static msg_t usartReadInMB_thd(void * args) {
 }
 
 /* Sends data by wifi */
-void wifiWriteByUsart(char * message, int length){
+void wifiWriteByUsart(char * message, int length) {
     chMtxLock(&writeMtx);
     chEvtRegisterMask(&srcEndToReadUsart, &lstEndToReadUsart,EVENT_MASK(1));
     sdWrite(&SD3, (uint8_t*)message, length);
@@ -109,7 +109,7 @@ void wifiWriteByUsart(char * message, int length){
 }
 
 /* Same as above but don't want to wait for the response */
-void wifiWriteNoWait(char * message, int length){
+void wifiWriteNoWait(char * message, int length) {
     chMtxLock(&writeMtx);
     sdWrite(&SD3, (uint8_t*)message, length);
     chMtxUnlock();
@@ -119,18 +119,22 @@ void wifiWriteNoWait(char * message, int length){
 static void wifiReadByUsart(void) {
     static WORKING_AREA(usartReadInMB_wa, 2048);
 
-    chThdCreateStatic(
-	usartReadInMB_wa, sizeof(usartReadInMB_wa),
-	NORMALPRIO + 0, usartReadInMB_thd, NULL);
+    static int protection = 1;
+
+    if (protection)
+        chThdCreateStatic(
+            usartReadInMB_wa, sizeof(usartReadInMB_wa),
+            NORMALPRIO, usartReadInMB_thd, NULL);
+    protection = 0;
 }
 
 /* Command shell to speak with wifi module in command mode */
-void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdWifi(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)chp;
     int i;
-    for(i = 0; i < argc; i++){
-	strcat(cmdMessage ,argv[i]);
-	strcat(cmdMessage ,space);
+    for(i = 0; i < argc; i++) {
+        strcat(cmdMessage ,argv[i]);
+        strcat(cmdMessage ,space);
     }
     strcat(cmdMessage ,crlf);
     wifiWriteByUsart(cmdMessage, strlen(cmdMessage));
@@ -154,6 +158,7 @@ void wifiInitByUsart(void) {
     palSetPadMode (GPIOD,GPIOD_WIFI_WAKEUP, PAL_MODE_OUTPUT_PUSHPULL);
     palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
 
+    writeSerial("Wifi configurating...\r\n");
     /* Start usart 3 */
     sdStart(&SD3, &uartCfg);
     /* Fill mailbox with usart data */
@@ -201,18 +206,17 @@ void wifiInitByUsart(void) {
 
     /* Loop to test the network connection */
     bool_t state;
-    while(TRUE){
-	state = wifiNup();
-	if (state == TRUE){
-	    ledSetColorRGB(0, 0, 255, 0);
-	    break;
-	}
-	else
-	    ledSetColorRGB(0, 255, 0, 0);
+    while(TRUE) {
+        state = wifiNup();
+        if (state == TRUE) {
+            ledSetColorRGB(0, 0, 255, 0);
+            break;
+        } else
+            ledSetColorRGB(0, 255, 0, 0);
 
-	chThdSleepMilliseconds(500);
-	ledSetColorRGB(0, 0, 0, 0);
-	chThdSleepMilliseconds(500);
+        chThdSleepMilliseconds(500);
+        ledSetColorRGB(0, 0, 0, 0);
+        chThdSleepMilliseconds(500);
     }
     chThdSleepMilliseconds(500);
     ledSetColorRGB(0, 0, 0, 0);
@@ -225,13 +229,13 @@ void wifiInitByUsart(void) {
      */
 }
 
-static msg_t wifiSleep(void){
+static msg_t wifiSleep(void) {
     writeSerial("Wifi is sleeping\r\n");
     wifiWriteByUsart(sleep, sizeof(sleep)-1);
     return 0;
 }
 
-static void wifiWakeUp(void){
+static void wifiWakeUp(void) {
     palSetPad (GPIOD,GPIOD_WIFI_WAKEUP);
     chThdSleepMilliseconds(100);
     palClearPad (GPIOD,GPIOD_WIFI_WAKEUP);
@@ -239,7 +243,7 @@ static void wifiWakeUp(void){
 }
 
 /* Command to sleep the wifi module */
-void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;
@@ -247,7 +251,7 @@ void cmdWifiSleep(BaseSequentialStream *chp, int argc, char *argv[]){
 }
 
 /* Command to wake up the wifi module */
-void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdWifiWakeUp(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void)chp;
     (void)argc;
     (void)argv;

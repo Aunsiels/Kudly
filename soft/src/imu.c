@@ -36,21 +36,21 @@ static i2cflags_t errors = 0;
 
 static WORKING_AREA(waImu, 128);
 
-uint8_t readRegister(uint8_t addr){
+uint8_t readRegister(uint8_t addr) {
     static uint8_t data;
     static msg_t status = RDY_OK;
     /* Gain access of I2C bus, and collect the data of the register */
     i2cAcquireBus(&I2CD2);
     status = i2cMasterTransmit(&I2CD2, imuAddr, &addr, 1, &data, 1);
     i2cReleaseBus(&I2CD2);
-    if (status != RDY_OK){
+    if (status != RDY_OK) {
         errors = i2cGetErrors(&I2CD2);
         writeSerial("Error : %u\r\n",errors);
     }
     return data;
 }
 
-int16_t readRegister16(uint8_t addr){
+int16_t readRegister16(uint8_t addr) {
     (void) addr;
 
     int16_t data;
@@ -63,7 +63,7 @@ int16_t readRegister16(uint8_t addr){
     return data;
 }
 
-msg_t writeRegister(uint8_t addr, uint8_t data){
+msg_t writeRegister(uint8_t addr, uint8_t data) {
     static msg_t status = RDY_OK;
 
     uint8_t command[2];
@@ -73,7 +73,7 @@ msg_t writeRegister(uint8_t addr, uint8_t data){
     i2cAcquireBus(&I2CD2);
     status = i2cMasterTransmit(&I2CD2, imuAddr,command, 2, NULL, 0);
     i2cReleaseBus(&I2CD2);
-    if (status != RDY_OK){
+    if (status != RDY_OK) {
         errors = i2cGetErrors(&I2CD2);
         writeSerial("Error : %u\r\n",errors);
         return status;
@@ -81,28 +81,28 @@ msg_t writeRegister(uint8_t addr, uint8_t data){
     return status;
 }
 
-void imuInit(void){
+void imuInit(void) {
     /* Set Imu in low power mode */
     writeRegister(PWR_MGMT_1,CYCLE | TEMP_DIS);
     writeRegister(PWR_MGMT_2,F_1_25 | GYRO_DIS);
 }
 
 
-static msg_t threadImu(void *arg){
+static msg_t threadImu(void *arg) {
     (void) arg;
 
     int16_t accel_x;
     int16_t accel_y;
     int16_t accel_z;
 
-    while(1){
+    while(1) {
         accel_x = ABS(readRegister16(ACCEL_X));
         accel_y = ABS(readRegister16(ACCEL_Y));
         accel_z = ABS(readRegister16(ACCEL_Z));
         chThdSleepMilliseconds(1250);
         if(((accel_x - ABS(readRegister16(ACCEL_X))) > 1000) |
-           ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
-           ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
+                ((accel_y - ABS(readRegister16(ACCEL_Y))) > 1000) |
+                ((accel_z - ABS(readRegister16(ACCEL_Z))) > 1000))
             postAndRead("kudly.herokuapp.com/activity","value=1");
         else
             postAndRead("kudly.herokuapp.com/activity","value=0");
@@ -111,7 +111,7 @@ static msg_t threadImu(void *arg){
     return(0);
 }
 
-void cmdImu(BaseSequentialStream *chp, int argc, char *argv[]){
+void cmdImu(BaseSequentialStream *chp, int argc, char *argv[]) {
     (void) argv;
     (void) argc;
     (void) chp;
