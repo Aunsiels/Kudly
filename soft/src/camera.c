@@ -18,6 +18,7 @@ static uint8_t* imgBuf0 = imgBuf;
 static uint8_t* imgBuf1 = &imgBuf[IMG_SIZE/2];
 
 /* Source to indicate if a frame ends or dma ends */
+
 static EVENTSOURCE_DECL(dmaEvS);
 static EVENTSOURCE_DECL(frameEvS);
 /* The listeners linked */

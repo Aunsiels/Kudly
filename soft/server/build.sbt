@@ -11,5 +11,5 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
-  "org.mongodb" %% "casbah" % "2.8.0"
+  "org.mongodb" %% "casbah" % "3.1.0"
 )

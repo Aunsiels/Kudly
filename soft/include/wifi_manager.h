@@ -11,6 +11,9 @@
 #ifndef _WIFI_MANAGER_H_
 #define _WIFI_MANAGER_H_
 
+/* Stream buffer */
+extern char stream_buffer[];
+
 /**
  *
  * \brief Envent source when data is received

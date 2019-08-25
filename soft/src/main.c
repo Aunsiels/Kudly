@@ -11,6 +11,7 @@
 #include "hand_sensors.h"
 #include "codec.h"
 #include "camera.h"
+#include "websocket.h"
 #include "wifi_manager.h"
 #include "imu.h"
 #include "temperature.h"
@@ -45,9 +46,6 @@ int main(void) {
     /* DCMI init */
     cameraInit();
 
-    /* Read wifi by usart */
-    usartRead();
-
     /* Initialize wifi */
     wifiInitByUsart();
 
@@ -75,8 +73,10 @@ int main(void) {
     /* Pir initialization */
     pirInit();
 
+    streamInit();
+
     /* Initializes the application */
-    //applicationInit();
+    applicationInit();
 
     chThdSleepMilliseconds(TIME_INFINITE);
     return 0;

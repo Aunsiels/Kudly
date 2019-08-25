@@ -126,4 +126,10 @@ void cmdControl(BaseSequentialStream *, int, char *[]);
  */
 void cmdTestVolume(BaseSequentialStream *chp, int argc, char *argv[]);
 
+/**
+ *
+ * \brief Stop the record
+ */
+void recordStop(void);
+
 #endif /* CODEC_H */

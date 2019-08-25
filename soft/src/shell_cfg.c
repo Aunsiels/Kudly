@@ -18,6 +18,7 @@
 #include "imu.h"
 #include "temperature.h"
 #include "pir.h"
+#include "websocket.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 #define SHELL_MAX_ARGUMENTS 5
@@ -57,6 +58,8 @@ static const ShellCommand commands[] = {
     {"test"        , cmdTest       },
     {"tree"        , cmdTree       },
     {"wifi"        , cmdWifi       },
+    {"webSocketInit", cmdWebSocInit},
+    {"ws"          , cmdWebSoc     },
     {"led"         , cmdLed        },
     {"ledtest"     , cmdLedtest    },
     {"hugsensors"  , cmdHugSensors },
@@ -73,6 +76,12 @@ static const ShellCommand commands[] = {
     {"parsewifi"   , cmdWifiXml    },
     {"sleepwifi"   , cmdWifiSleep  },
     {"wakeupwifi"  , cmdWifiWakeUp },
+    {"codec"       , cmdFullDuplex },
+    {"stop"        , cmdStop       },
+    {"volume"      , cmdVolume     },
+    {"testVolume"  , cmdTestVolume },
+    {"stopstream"  , cmdStopStream },
+    {"c"           , cmdControl    },
     {"temperature" , cmdTemperature},
     {"imu"         , cmdImu        },
     {"pir"         , testPir       },

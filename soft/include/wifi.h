@@ -12,7 +12,11 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
+/* Mailing box for data received by wifi */
 extern Mailbox mbReceiveWifi;
+
+/* Signals a streaming */
+extern volatile int streaming;
 
 /**
  *
@@ -28,6 +32,13 @@ extern Mutex wifiAccessMtx;
  * Bloking function
  */
 void wifiWriteByUsart(char * message, int length);
+
+/**
+ *
+ * \brief Asynchronous writing function.
+ * \param message The message to be sent
+ * \param length The length of this message
+ */
 void wifiWriteNoWait(char * message, int length);
 void wifiWriteUnsigned(uint8_t * message, int length);
 
